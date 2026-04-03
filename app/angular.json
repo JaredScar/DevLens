@@ -32,6 +32,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "devlens-taskbar-256.png",
+                "input": "..",
+                "output": "."
               }
             ],
             "styles": [

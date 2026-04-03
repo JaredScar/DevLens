@@ -527,24 +527,29 @@ function registerIpc(): void {
 
 // ── Chrome Web Store "Add to Chrome" shim ──────────────────────────────────
 //
-// Injected into every Chrome Web Store page via executeJavaScript (runs in the
-// page's main world).  It defines window.chrome.webstore if absent so the
-// Web Store renders the "Add to Chrome" button.  When the user clicks it, the
-// shim calls window.__devlensExt.requestInstall() (exposed by
-// webview-console-preload via contextBridge) which sends the IPC handled above.
+// Strategy:
+//
+//   OLD store (chrome.google.com/webstore): calls chrome.webstore.install() —
+//   our stub intercepts it and fires the IPC.
+//
+//   NEW store (chromewebstore.google.com): does NOT call chrome.webstore.install().
+//   It uses a Chrome-internal native pipeline instead, so no JS API shim can
+//   intercept the click. We therefore attach a document-level click listener
+//   (capture phase) that fires first, extracts the extension ID from the page
+//   URL, and sends the install IPC directly.
+//
+// Both approaches share the same IPC path (devlens-ext-install → dialog →
+// CRX download → session.loadExtension).
 
 /**
- * Injected into every Chrome Web Store page via executeJavaScript (main-world, bypasses CSP).
- *
- * Runs on dom-ready (before React hydration) and again on did-finish-load for
- * SPA navigations.  Provides the three Chrome APIs the Web Store checks before
- * deciding whether to show the install button or "Item currently unavailable":
- *
- *   • chrome.app        — isInstalled / installState / runningState
- *   • chrome.runtime    — basic event stubs (must be truthy)
- *   • chrome.webstore   — install() that forwards to our IPC via __devlensExt
+ * Injected into Chrome Web Store pages via executeJavaScript.
+ * Runs in the main world (executeJavaScript bypasses CSP).
+ * Injected on dom-ready (before React hydration) and again on did-finish-load
+ * to cover SPA navigations.
  */
 const WEBSTORE_SHIM = `(function() {
+  // ── 1. Chrome API stubs ────────────────────────────────────────────────
+  // The Web Store checks these before deciding to render the install button.
   window.chrome = window.chrome || {};
 
   if (!window.chrome.app) {
@@ -559,19 +564,20 @@ const WEBSTORE_SHIM = `(function() {
 
   if (!window.chrome.runtime) {
     var noop = function() {};
-    var listener = { addListener: noop, removeListener: noop };
+    var evts = { addListener: noop, removeListener: noop, hasListeners: function(){ return false; } };
     window.chrome.runtime = {
-      id: undefined,
-      lastError: null,
+      id: undefined, lastError: null,
       connect: function() {
-        return { postMessage: noop, disconnect: noop, onMessage: listener, onDisconnect: listener };
+        return { postMessage: noop, disconnect: noop, onMessage: evts, onDisconnect: evts };
       },
       sendMessage: noop,
-      onMessage: listener,
-      onConnect: listener
+      onMessage: evts, onConnect: evts
     };
   }
 
+  // ── 2. Old-store shim: chrome.webstore.install() ───────────────────────
+  // Still called by chrome.google.com/webstore. The new store does not use it,
+  // but having the API present also satisfies the store's presence checks.
   if (!window.chrome.webstore) {
     window.chrome.webstore = {
       install: function(url, successCb, failureCb) {
@@ -582,13 +588,53 @@ const WEBSTORE_SHIM = `(function() {
           window.__devlensExt.requestInstall(extId);
           if (typeof successCb === 'function') successCb();
         } else if (typeof failureCb === 'function') {
-          failureCb('Dev-Lens: could not detect extension ID');
+          failureCb('Dev-Lens: extension ID not found');
         }
       },
       onInstallStageChanged: { addListener: function(){}, removeListener: function(){} },
       onDownloadProgress:    { addListener: function(){}, removeListener: function(){} }
     };
   }
+
+  // ── 3. New-store intercept: DOM click listener ─────────────────────────
+  // chromewebstore.google.com does not call chrome.webstore.install() on click.
+  // We intercept the install button click directly and extract the extension ID
+  // from the URL (always present in the path on detail pages).
+  if (location.hostname !== 'chromewebstore.google.com') return;
+  if (window.__devlensNewStoreIntercepted) return;
+  window.__devlensNewStoreIntercepted = true;
+
+  function extractExtId() {
+    var m = location.pathname.match(/\\/([a-z]{32})(?:\\/|$|\\?|#)/);
+    return m ? m[1] : null;
+  }
+
+  document.addEventListener('click', function(e) {
+    var target = e.target;
+    if (!target) return;
+
+    // Walk up to 6 levels to find a button ancestor.
+    var el = target;
+    for (var i = 0; i < 6; i++) {
+      if (!el || el === document.body) break;
+      var tag = el.tagName;
+      var role = el.getAttribute && el.getAttribute('role');
+      var text = (el.textContent || '').trim().toLowerCase();
+
+      var isButton = tag === 'BUTTON' || role === 'button' || tag === 'A';
+      var isInstall = text === 'add to chrome' || text === 'install' || text === 'add extension';
+      if (isButton && isInstall) {
+        var extId = extractExtId();
+        if (extId && window.__devlensExt) {
+          // Do not preventDefault — let React update its UI state.
+          // We fire the Dev-Lens install dialog in parallel.
+          window.__devlensExt.requestInstall(extId);
+        }
+        return;
+      }
+      el = el.parentElement;
+    }
+  }, true /* capture — fires before React's handlers */);
 })();`;
 
 function isWebStorePage(url: string): boolean {

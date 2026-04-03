@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="devlens-official-logo.svg" alt="Dev-Lens Logo" width="140" />
+  <img src="devlens-taskbar-256.png" alt="Dev-Lens Logo" width="140" height="140" />
 </p>
 
 <h1 align="center">Dev-Lens</h1>
@@ -10,21 +10,21 @@
 
 <p align="center">
   <!-- Visitor counter (increment on every page view) -->
-  <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FAxeex%2FDev-Lens&count_bg=%236366F1&title_bg=%23312E81&icon=github.svg&icon_color=%23fff&title=visitors&edge_flat=false" alt="Visitor count"/>
+  <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FJaredScar%2FDevLens&count_bg=%236366F1&title_bg=%23312E81&icon=github.svg&icon_color=%23fff&title=visitors&edge_flat=false" alt="Visitor count"/>
   <!-- Latest release -->
-  <img src="https://img.shields.io/github/v/release/Axeex/Dev-Lens?color=6366F1&label=latest&logo=github" alt="Latest release"/>
+  <img src="https://img.shields.io/github/v/release/JaredScar/DevLens?color=6366F1&label=latest&logo=github" alt="Latest release"/>
   <!-- Total downloads across all releases -->
-  <img src="https://img.shields.io/github/downloads/Axeex/Dev-Lens/total?color=312E81&label=downloads&logo=electron" alt="Total downloads"/>
+  <img src="https://img.shields.io/github/downloads/JaredScar/DevLens/total?color=312E81&label=downloads&logo=electron" alt="Total downloads"/>
   <!-- Stars -->
-  <img src="https://img.shields.io/github/stars/Axeex/Dev-Lens?style=flat&color=6366F1&logo=github" alt="Stars"/>
+  <img src="https://img.shields.io/github/stars/JaredScar/DevLens?style=flat&color=6366F1&logo=github" alt="Stars"/>
   <!-- License -->
-  <img src="https://img.shields.io/github/license/Axeex/Dev-Lens?color=818CF8" alt="License"/>
+  <img src="https://img.shields.io/github/license/JaredScar/DevLens?color=818CF8" alt="License"/>
   <!-- Node version -->
   <img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen?logo=node.js" alt="Node version"/>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Axeex/Dev-Lens/releases/latest">
+  <a href="https://github.com/JaredScar/DevLens/releases/latest">
     <img src="https://img.shields.io/badge/%E2%AC%87%EF%B8%8F%20Download%20Dev--Lens-6366F1?style=for-the-badge&logo=electron&logoColor=white" alt="Download Dev-Lens"/>
   </a>
 </p>
@@ -198,7 +198,7 @@ The headings below follow the [feature catalog](FEATURES.md). For **delivery sta
 ## Install & run
 
 ```bash
-git clone https://github.com/Axeex/Dev-Lens.git
+git clone https://github.com/JaredScar/DevLens.git
 cd Dev-Lens
 npm ci
 npm run dev          # starts Angular dev server + Electron together
@@ -211,7 +211,7 @@ npm run build        # compile everything
 npm run dist         # create platform installers  →  release/
 ```
 
-> **Tip:** Run `npm run gen-icon` after changing `devlens-official-logo.svg` to regenerate the app icon.
+> **Tip:** Run `npm run gen-icon` after changing `devlens-taskbar-256.png` to refresh the Electron window / installer icon (`electron/assets/icon.png`).
 
 ## Run pieces separately
 
