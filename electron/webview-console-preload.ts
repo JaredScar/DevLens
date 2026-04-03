@@ -7,11 +7,14 @@
  */
 import { contextBridge, ipcRenderer } from 'electron';
 
-// Expose an install-request API to the page's main world.
-// The chrome.webstore shim (injected on Chrome Web Store pages) calls this.
+// Expose install/query APIs to the page's main world.
+// The chrome.webstore shim (injected on Chrome Web Store pages) calls these.
 contextBridge.exposeInMainWorld('__devlensExt', {
   requestInstall: (extensionId: string): void => {
     ipcRenderer.send('devlens-ext-install', { extensionId });
+  },
+  isInstalled: (extensionId: string): Promise<boolean> => {
+    return ipcRenderer.invoke('dev-lens:ext:is-installed', { extensionId }) as Promise<boolean>;
   },
 });
 

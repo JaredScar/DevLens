@@ -59,6 +59,7 @@ export interface InstalledExtensionInfo {
   version: string;
   description: string;
   iconDataUrl: string | null;
+  popupPath: string | null;
 }
 
 type Section =

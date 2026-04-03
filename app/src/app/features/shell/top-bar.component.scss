@@ -116,6 +116,54 @@
   color: var(--dl-success);
 }
 
+/* ── Chrome extension toolbar (Electron) ──────────────────────────────────── */
+.topbar__ext-strip {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding-left: 4px;
+  border-left: 1px solid var(--dl-border);
+  margin-left: 2px;
+  -webkit-app-region: no-drag;
+}
+
+.topbar__ext-btn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dl-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--dl-motion),
+    color var(--dl-motion);
+}
+
+.topbar__ext-btn:hover {
+  background: var(--dl-bg-elevated);
+  color: var(--dl-fg);
+}
+
+.topbar__ext-btn img {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  object-fit: contain;
+}
+
+.topbar__ext-fallback {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--dl-muted);
+}
+
 /* ── Omnibox input ────────────────────────────────────────────────────────── */
 .omnibox {
   position: relative;

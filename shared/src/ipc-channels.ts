@@ -53,6 +53,10 @@ export const IPC_CHANNELS = {
   EXT_LIST: 'dev-lens:ext:list',
   /** Remove an installed Chrome extension from disk. Payload: { extensionId: string }. */
   EXT_REMOVE: 'dev-lens:ext:remove',
+  /** Check if a Chrome extension is already installed. Payload: { extensionId: string }. Returns boolean. */
+  EXT_IS_INSTALLED: 'dev-lens:ext:is-installed',
+  /** Open an extension's popup in a small floating BrowserWindow. Payload: { extensionId, popupPath, x, y }. */
+  EXT_OPEN_POPUP: 'dev-lens:ext:open-popup',
 
   /**
    * Embed the Chromium DevTools for a guest webview via a BrowserView overlay.

@@ -34,6 +34,7 @@ import {
   clipboard,
   dialog,
   ipcMain,
+  screen,
   session,
   shell,
   webContents,
@@ -63,10 +64,14 @@ import { registerPluginIpc } from './plugin-ipc';
 import { startTelemetryHeartbeat } from './telemetry';
 import {
   installChromeExtension,
+  isExtensionInstalled,
   listInstalledExtensions,
   loadAllInstalledExtensions,
   removeInstalledExtension,
 } from './extension-manager';
+
+/** One floating popup window per extension ID (Chrome-style toolbar popup). */
+const extensionPopupWindows = new Map<string, BrowserWindow>();
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -512,6 +517,17 @@ function registerIpc(): void {
     const win = mainWindow;
     void (async () => {
       try {
+        if (isExtensionInstalled(extensionId)) {
+          await dialog.showMessageBox(win ?? new BrowserWindow(), {
+            type: 'info',
+            title: 'Already installed — Dev-Lens',
+            message: 'This extension is already installed.',
+            detail: `Extension ID: ${extensionId}\n\nYou can open it from the toolbar next to the address bar, or manage it in Settings → Extensions.`,
+            buttons: ['OK'],
+          });
+          return;
+        }
+
         const { response } = await dialog.showMessageBox(win ?? new BrowserWindow(), {
           type: 'question',
           title: 'Add extension — Dev-Lens',
@@ -542,6 +558,88 @@ function registerIpc(): void {
 
   // ── Installed extension list + removal ──────────────────────────────────
   ipcMain.handle(IPC_CHANNELS.EXT_LIST, () => listInstalledExtensions());
+
+  ipcMain.handle(IPC_CHANNELS.EXT_IS_INSTALLED, (_e, payload: unknown) => {
+    const { extensionId } = (payload ?? {}) as { extensionId?: string };
+    if (!extensionId || !/^[a-z]{32}$/.test(extensionId)) return false;
+    return isExtensionInstalled(extensionId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.EXT_OPEN_POPUP, (event, payload: unknown) => {
+    const p = (payload ?? {}) as {
+      extensionId?: string;
+      popupPath?: string;
+      anchor?: { x: number; y: number; width: number; height: number };
+    };
+    const extensionId = p.extensionId;
+    const popupPath = p.popupPath?.replace(/^\/+/, '') ?? '';
+    if (!extensionId || !/^[a-z]{32}$/.test(extensionId) || !popupPath) {
+      return { ok: false as const, error: 'Invalid extension or popup path' };
+    }
+    if (!isExtensionInstalled(extensionId)) {
+      return { ok: false as const, error: 'Extension is not installed' };
+    }
+
+    const parent = BrowserWindow.fromWebContents(event.sender) ?? mainWindow;
+    const existing = extensionPopupWindows.get(extensionId);
+    if (existing && !existing.isDestroyed()) {
+      existing.focus();
+      return { ok: true as const };
+    }
+
+    const POPUP_W = 380;
+    const POPUP_H = 520;
+    const popupWin = new BrowserWindow({
+      parent: parent ?? undefined,
+      width: POPUP_W,
+      height: POPUP_H,
+      minWidth: 200,
+      minHeight: 200,
+      show: false,
+      frame: true,
+      resizable: true,
+      skipTaskbar: true,
+      webPreferences: {
+        session: session.defaultSession,
+        sandbox: true,
+      },
+    });
+
+    extensionPopupWindows.set(extensionId, popupWin);
+    popupWin.on('closed', () => {
+      extensionPopupWindows.delete(extensionId);
+    });
+
+    if (parent && p.anchor) {
+      const b = parent.getContentBounds();
+      let x = Math.round(b.x + p.anchor.x);
+      let y = Math.round(b.y + p.anchor.y + p.anchor.height + 4);
+      const display = screen.getDisplayNearestPoint({ x, y });
+      const db = display.workArea;
+      if (x + POPUP_W > db.x + db.width) x = db.x + db.width - POPUP_W - 8;
+      if (y + POPUP_H > db.y + db.height) y = db.y + db.height - POPUP_H - 8;
+      if (x < db.x) x = db.x + 8;
+      if (y < db.y) y = db.y + 8;
+      popupWin.setPosition(x, y);
+    } else if (parent) {
+      const b = parent.getBounds();
+      popupWin.setPosition(Math.round(b.x + (b.width - POPUP_W) / 2), Math.round(b.y + 80));
+    }
+
+    const url = `chrome-extension://${extensionId}/${popupPath}`;
+    void popupWin
+      .loadURL(url)
+      .then(() => {
+        popupWin.show();
+      })
+      .catch((e) => {
+        console.error('[ext] popup load failed:', e);
+        extensionPopupWindows.delete(extensionId);
+        if (!popupWin.isDestroyed()) popupWin.destroy();
+      });
+
+    return { ok: true as const };
+  });
 
   ipcMain.handle(IPC_CHANNELS.EXT_REMOVE, (_e, payload: unknown) => {
     const { extensionId } = (payload ?? {}) as { extensionId?: string };
@@ -768,27 +866,26 @@ const WEBSTORE_SHIM = `(function() {
       sep.setAttribute('style', 'color:#4338ca');
 
       var label = document.createElement('span');
-      label.textContent = 'Install this extension in Dev-Lens:';
       label.setAttribute('style', 'color:#c7d2fe;font-weight:400');
 
       var btn = document.createElement('button');
-      btn.textContent = '＋ Add to Dev-Lens';
       btn.setAttribute('style', [
         'background:#6366f1', 'color:#fff', 'border:none', 'border-radius:6px',
         'padding:6px 16px', 'font:600 13px system-ui,sans-serif', 'cursor:pointer',
         'transition:background .15s', 'flex-shrink:0'
       ].join(';'));
-      btn.addEventListener('mouseenter', function() { btn.style.background = '#4f46e5'; });
-      btn.addEventListener('mouseleave', function() { btn.style.background = '#6366f1'; });
-      btn.addEventListener('click', function() {
-        if (window.__devlensExt) window.__devlensExt.requestInstall(extId);
-      });
+
+      // Show a loading state while we check if the extension is installed
+      label.textContent = 'Checking extension status\u2026';
+      btn.textContent = '\u2026';
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
 
       var spacer = document.createElement('span');
       spacer.setAttribute('style', 'flex:1');
 
       var close = document.createElement('button');
-      close.textContent = '✕';
+      close.textContent = '\u2715';
       close.setAttribute('style', [
         'background:none', 'border:none', 'color:#6366f1', 'font-size:16px',
         'cursor:pointer', 'padding:4px 6px', 'border-radius:4px',
@@ -807,6 +904,48 @@ const WEBSTORE_SHIM = `(function() {
 
       var mount = document.body || document.documentElement;
       mount.insertBefore(bar, mount.firstChild);
+
+      // Async check — update UI once we know
+      if (window.__devlensExt && window.__devlensExt.isInstalled) {
+        window.__devlensExt.isInstalled(extId).then(function(installed) {
+          if (installed) {
+            label.textContent = 'Already installed in Dev-Lens';
+            btn.textContent = '\u2713 Installed';
+            btn.disabled = true;
+            btn.style.opacity = '1';
+            btn.style.background = '#16a34a';
+            btn.style.cursor = 'default';
+          } else {
+            label.textContent = 'Install this extension in Dev-Lens:';
+            btn.textContent = '\uFF0B Add to Dev-Lens';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.addEventListener('mouseenter', function() { btn.style.background = '#4f46e5'; });
+            btn.addEventListener('mouseleave', function() { btn.style.background = '#6366f1'; });
+            btn.addEventListener('click', function() {
+              if (window.__devlensExt) window.__devlensExt.requestInstall(extId);
+            });
+          }
+        }).catch(function() {
+          label.textContent = 'Install this extension in Dev-Lens:';
+          btn.textContent = '\uFF0B Add to Dev-Lens';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.addEventListener('click', function() {
+            if (window.__devlensExt) window.__devlensExt.requestInstall(extId);
+          });
+        });
+      } else {
+        label.textContent = 'Install this extension in Dev-Lens:';
+        btn.textContent = '\uFF0B Add to Dev-Lens';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.addEventListener('mouseenter', function() { btn.style.background = '#4f46e5'; });
+        btn.addEventListener('mouseleave', function() { btn.style.background = '#6366f1'; });
+        btn.addEventListener('click', function() {
+          if (window.__devlensExt) window.__devlensExt.requestInstall(extId);
+        });
+      }
     }
 
     function tryRender() {

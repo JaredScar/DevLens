@@ -1,4 +1,5 @@
 import { Component, HostListener, inject, signal, effect, computed } from '@angular/core';
+import { IPC_CHANNELS } from '@dev-lens/shared';
 import { FormsModule } from '@angular/forms';
 import { IPC_EVENTS } from '@dev-lens/shared';
 import { RENDERER_INVOKE } from '@core/electron-ipc-channels';
@@ -35,6 +36,11 @@ export class TopBarComponent {
   readonly liveSuggestRows = signal<{ title: string; url: string; kind: string }[]>([]);
   readonly autofillOpen = signal(false);
   readonly moreMenuOpen = signal(false);
+
+  /** Chrome extensions loaded in Electron (toolbar). */
+  readonly chromeExtensions = signal<
+    { id: string; name: string; iconDataUrl: string | null; popupPath: string | null }[]
+  >([]);
 
   private liveSuggestTimer: ReturnType<typeof setTimeout> | null = null;
   private autofillCloseTimer: ReturnType<typeof setTimeout> | null = null;
@@ -88,6 +94,52 @@ export class TopBarComponent {
         this.blocked.set(s.blockedSession ?? 0);
       });
     }
+
+    // Refresh Chrome extension toolbar when the active tab changes (cheap IPC).
+    effect(() => {
+      if (!this.bridge.isElectron) return;
+      this.tabs.activeTab();
+      void this.refreshChromeExtensions();
+    });
+  }
+
+  private async refreshChromeExtensions(): Promise<void> {
+    if (!this.bridge.isElectron) return;
+    try {
+      const list = await this.bridge.invoke<
+        { id: string; name: string; iconDataUrl: string | null; popupPath: string | null }[]
+      >(IPC_CHANNELS.EXT_LIST);
+      this.chromeExtensions.set(Array.isArray(list) ? list : []);
+    } catch {
+      this.chromeExtensions.set([]);
+    }
+  }
+
+  async openChromeExtensionPopup(
+    ext: { id: string; name: string; popupPath: string | null },
+    ev: MouseEvent,
+  ): Promise<void> {
+    if (!this.bridge.isElectron) return;
+    if (!ext.popupPath?.trim()) {
+      this.toast.show('This extension has no toolbar popup.');
+      return;
+    }
+    const el = ev.currentTarget as HTMLElement;
+    const r = el.getBoundingClientRect();
+    const res = (await this.bridge.invoke<{ ok: boolean; error?: string }>(
+      IPC_CHANNELS.EXT_OPEN_POPUP,
+      {
+        extensionId: ext.id,
+        popupPath: ext.popupPath,
+        anchor: { x: r.left, y: r.top, width: r.width, height: r.height },
+      },
+    )) as { ok: boolean; error?: string };
+    if (!res?.ok) this.toast.error(res?.error ?? 'Could not open extension popup.');
+  }
+
+  /** Exposed for template (`private bridge` is not visible in strict templates). */
+  get electronShell(): boolean {
+    return this.bridge.isElectron;
   }
 
   httpsHint(): boolean {

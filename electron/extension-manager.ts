@@ -245,6 +245,14 @@ export interface InstalledExtensionInfo {
   version: string;
   description: string;
   iconDataUrl: string | null;
+  /** Relative path to the extension popup page, or null if the extension has none. */
+  popupPath: string | null;
+}
+
+/** Returns true if the extension is already on disk (regardless of load state). */
+export function isExtensionInstalled(extensionId: string): boolean {
+  if (!/^[a-z]{32}$/.test(extensionId)) return false;
+  return fs.existsSync(path.join(extensionsDir(), extensionId));
 }
 
 function readExtensionInfo(extDir: string): Omit<InstalledExtensionInfo, 'id'> {
@@ -254,6 +262,8 @@ function readExtensionInfo(extDir: string): Omit<InstalledExtensionInfo, 'id'> {
       version?: string;
       description?: string;
       icons?: Record<string, string>;
+      browser_action?: { default_popup?: string };
+      action?: { default_popup?: string };
     };
 
     const name = mf.name ? resolveI18nMessage(mf.name, extDir) : path.basename(extDir);
@@ -288,9 +298,17 @@ function readExtensionInfo(extDir: string): Omit<InstalledExtensionInfo, 'id'> {
       }
     }
 
-    return { name, version, description, iconDataUrl };
+    const popupPath = mf.action?.default_popup ?? mf.browser_action?.default_popup ?? null;
+
+    return { name, version, description, iconDataUrl, popupPath };
   } catch {
-    return { name: path.basename(extDir), version: '', description: '', iconDataUrl: null };
+    return {
+      name: path.basename(extDir),
+      version: '',
+      description: '',
+      iconDataUrl: null,
+      popupPath: null,
+    };
   }
 }
 
