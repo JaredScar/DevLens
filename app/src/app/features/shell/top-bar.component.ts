@@ -1,5 +1,5 @@
 import { Component, HostListener, inject, signal, effect, computed } from '@angular/core';
-import { IPC_CHANNELS } from '@dev-lens/shared';
+import { IPC_CHANNELS, workspaceBrowserPartition } from '@dev-lens/shared';
 import { FormsModule } from '@angular/forms';
 import { IPC_EVENTS } from '@dev-lens/shared';
 import { RENDERER_INVOKE } from '@core/electron-ipc-channels';
@@ -130,7 +130,7 @@ export class TopBarComponent {
     const r = el.getBoundingClientRect();
     const tab = this.tabs.activeTab();
     const wsId = tab?.kind === 'browser' ? tab.workspaceId : this.workspace.activeWorkspaceId();
-    const partition = `persist:dev-lens-ws-${wsId}`;
+    const partition = workspaceBrowserPartition(wsId);
     const res = (await this.bridge.invoke<{ ok: boolean; error?: string }>(
       IPC_CHANNELS.EXT_OPEN_POPUP,
       {

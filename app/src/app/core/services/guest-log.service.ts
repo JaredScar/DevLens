@@ -1,4 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { workspaceBrowserPartition } from '@dev-lens/shared';
 import { TabsService } from './tabs.service';
 
 export interface GuestConsoleLine {
@@ -35,7 +36,7 @@ export class GuestLogService {
   readonly activePartition = computed(() => {
     const t = this.tabs.activeTab();
     if (!t || t.kind !== 'browser') return null;
-    return `persist:dev-lens-ws-${t.workspaceId}`;
+    return workspaceBrowserPartition(t.workspaceId);
   });
 
   readonly filteredConsole = computed(() => {

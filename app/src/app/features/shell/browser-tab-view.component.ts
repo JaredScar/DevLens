@@ -10,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { RENDERER_INVOKE } from '@core/electron-ipc-channels';
+import { workspaceBrowserPartition } from '@dev-lens/shared';
 import { AutomationService } from '@core/services/automation.service';
 import { ElectronBridgeService } from '@core/services/electron-bridge.service';
 import { GuestLogService } from '@core/services/guest-log.service';
@@ -83,7 +84,7 @@ export class BrowserTabViewComponent implements OnInit, AfterViewInit, OnDestroy
   private pendingNavigate: string | null = null;
 
   get partitionAttr(): string {
-    return `persist:dev-lens-ws-${this.tab().workspaceId}`;
+    return workspaceBrowserPartition(this.tab().workspaceId);
   }
 
   private get wv(): WebviewEl | null {

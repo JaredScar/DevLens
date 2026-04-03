@@ -368,6 +368,38 @@ export async function installChromeExtension(
 }
 
 /**
+ * True if this session already has the extension (by id or install folder name).
+ * Electron's `getExtension(id)` can return null even when the extension is
+ * registered; `getAllExtensions()` + `path` basename is the reliable check.
+ */
+export function sessionContainsExtension(ses: Session, extensionId: string): boolean {
+  if (!/^[a-z]{32}$/.test(extensionId)) return false;
+  try {
+    if (ses.extensions.getExtension(extensionId)) return true;
+    for (const e of ses.extensions.getAllExtensions()) {
+      if (e.id === extensionId) return true;
+      const folder = path.basename(e.path.replace(/[/\\]+$/, ''));
+      if (folder === extensionId) return true;
+    }
+  } catch {
+    /* ignore */
+  }
+  return false;
+}
+
+/** Load from disk into `ses` if missing (e.g. popup window / new partition). */
+export async function ensureExtensionLoadedInSession(
+  ses: Session,
+  extensionId: string,
+): Promise<void> {
+  if (!/^[a-z]{32}$/.test(extensionId)) return;
+  if (sessionContainsExtension(ses, extensionId)) return;
+  const extDir = path.join(extensionsDir(), extensionId);
+  if (!fs.existsSync(extDir)) return;
+  await loadExtensionIntoSession(ses, extDir);
+}
+
+/**
  * Load a single extension directory into a single session.
  *
  * Uses `session.extensions.loadExtension` (Electron 28+ non-deprecated API).
@@ -378,11 +410,8 @@ export async function installChromeExtension(
 async function loadExtensionIntoSession(ses: Session, extDir: string): Promise<void> {
   try {
     const extId = path.basename(extDir);
-    const { extensions } = ses;
-
-    // Idempotency guard — skip if already loaded to avoid duplicate warnings.
-    if (extensions.getExtension(extId)) return;
-    await extensions.loadExtension(extDir, { allowFileAccess: true });
+    if (sessionContainsExtension(ses, extId)) return;
+    await ses.extensions.loadExtension(extDir, { allowFileAccess: true });
   } catch (e) {
     console.warn('[ext] loadExtension failed:', path.basename(extDir), e);
   }

@@ -39,17 +39,18 @@ import {
   shell,
   webContents,
 } from 'electron';
-import type { Session as ElectronSession } from 'electron';
+import type { Session } from 'electron';
 import {
   IPC_CHANNELS,
   IPC_EVENTS,
   defaultStoreSnapshot,
+  workspaceBrowserPartition,
   type DevLensStoreSnapshot,
 } from '@dev-lens/shared';
 import { replaceRemoteBlockHosts, setTrackerAllowlist, setUserBlockHosts } from './blocker';
 import { DEFAULT_BLOCKLIST_URL, fetchRemoteBlocklist } from './blocklist-fetch';
 import type { NetworkLogPayload } from './network-spy';
-import { SessionManager, sanitizePartition, attachWebStoreChromeBranding } from './session-manager';
+import { SessionManager, attachWebStoreChromeBranding } from './session-manager';
 import { createUserStore, patchUserStore, type UserStore } from './user-data-store';
 import { discoverAllPlugins, type DiscoveredPlugin } from './plugin-loader';
 import { initCrashLogger } from './crash-logger';
@@ -64,11 +65,13 @@ import {
 import { registerPluginIpc } from './plugin-ipc';
 import { startTelemetryHeartbeat } from './telemetry';
 import {
+  ensureExtensionLoadedInSession,
   installChromeExtension,
   isExtensionInstalled,
   listInstalledExtensions,
   loadAllInstalledExtensions,
   removeInstalledExtension,
+  sessionContainsExtension,
 } from './extension-manager';
 
 /** One floating popup window per extension ID (Chrome-style toolbar popup). */
@@ -81,28 +84,24 @@ let store: UserStore;
 let sessionManager: SessionManager;
 
 /**
- * `chrome-extension://` navigations only succeed on sessions where the extension
- * was registered with loadExtension. Prefer the active workspace partition
- * (matches `<webview partition>`) then fall back to default + other sessions.
+ * Pick a session that can serve `chrome-extension://` for this id, loading from
+ * disk into each candidate until one succeeds.
  */
-function pickSessionHostingExtension(
+async function resolveSessionForExtensionPopup(
   extensionId: string,
   preferredPartition?: string,
-): ElectronSession {
-  const candidates: ElectronSession[] = [];
+): Promise<Session | null> {
+  const ordered: Session[] = [];
   if (preferredPartition?.startsWith('persist:')) {
-    candidates.push(session.fromPartition(preferredPartition));
+    ordered.push(session.fromPartition(preferredPartition));
   }
-  candidates.push(session.defaultSession);
-  candidates.push(...sessionManager.getInitializedSessions());
-  for (const ses of candidates) {
-    try {
-      if (ses.extensions.getExtension(extensionId)) return ses;
-    } catch {
-      /* ignore */
-    }
+  ordered.push(session.defaultSession);
+  ordered.push(...sessionManager.getInitializedSessions());
+  for (const ses of ordered) {
+    await ensureExtensionLoadedInSession(ses, extensionId);
+    if (sessionContainsExtension(ses, extensionId)) return ses;
   }
-  return session.defaultSession;
+  return null;
 }
 
 let forceQuitAfterSave = false;
@@ -591,7 +590,7 @@ function registerIpc(): void {
     return isExtensionInstalled(extensionId);
   });
 
-  ipcMain.handle(IPC_CHANNELS.EXT_OPEN_POPUP, (event, payload: unknown) => {
+  ipcMain.handle(IPC_CHANNELS.EXT_OPEN_POPUP, async (event, payload: unknown) => {
     const p = (payload ?? {}) as {
       extensionId?: string;
       popupPath?: string;
@@ -608,14 +607,24 @@ function registerIpc(): void {
       return { ok: false as const, error: 'Extension is not installed' };
     }
 
-    const extSession = pickSessionHostingExtension(extensionId, p.partition);
-    if (!extSession.extensions.getExtension(extensionId)) {
+    const extSession = await resolveSessionForExtensionPopup(extensionId, p.partition);
+    if (!extSession) {
       return {
         ok: false as const,
         error:
-          'Extension is not loaded in any session. Restart Dev-Lens or reinstall the extension.',
+          'Could not load this extension into a browser session. Check Settings → Extensions or reinstall.',
       };
     }
+
+    const registered =
+      extSession.extensions.getExtension(extensionId) ??
+      extSession.extensions
+        .getAllExtensions()
+        .find(
+          (e) =>
+            e.id === extensionId || path.basename(e.path.replace(/[/\\]+$/, '')) === extensionId,
+        );
+    const chromeExtId = registered?.id ?? extensionId;
 
     const parent = BrowserWindow.fromWebContents(event.sender) ?? mainWindow;
     const existing = extensionPopupWindows.get(extensionId);
@@ -666,7 +675,7 @@ function registerIpc(): void {
       popupWin.setPosition(Math.round(b.x + (b.width - POPUP_W) / 2), Math.round(b.y + 80));
     }
 
-    const url = `chrome-extension://${extensionId}/${popupPath}`;
+    const url = `chrome-extension://${chromeExtId}/${popupPath}`;
     void popupWin
       .loadURL(url)
       .then(() => {
@@ -1045,7 +1054,7 @@ void app
 
     // Pre-attach blocker to sessions for workspaces already in the store.
     for (const ws of store.get('workspaces')) {
-      sessionManager.initSession(`persist:dev-lens-ws-${sanitizePartition(ws.id)}`);
+      sessionManager.initSession(workspaceBrowserPartition(ws.id));
     }
 
     // Inject the chrome API shim into Chrome Web Store pages.
