@@ -12,6 +12,35 @@
   -webkit-app-region: drag;
 }
 
+.topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding-right: var(--dl-space-2);
+  margin-right: 2px;
+  border-right: 1px solid var(--dl-border);
+  -webkit-app-region: drag;
+}
+
+.topbar__brand-mark {
+  width: 10px;
+  height: 10px;
+  background: linear-gradient(135deg, var(--dl-accent) 0%, #79c0ff 100%);
+  transform: rotate(45deg);
+  border-radius: 2px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.35);
+}
+
+.topbar__brand-name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--dl-text);
+  user-select: none;
+}
+
 /* ── Nav buttons ──────────────────────────────────────────────────────────── */
 .topbar__nav {
   display: flex;

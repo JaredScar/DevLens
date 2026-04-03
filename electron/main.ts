@@ -34,10 +34,12 @@ import {
   clipboard,
   dialog,
   ipcMain,
+  Menu,
   screen,
   session,
   shell,
   webContents,
+  type MenuItemConstructorOptions,
 } from 'electron';
 import type { Session } from 'electron';
 import {
@@ -189,6 +191,65 @@ function getWebviewGuestPreloadPath(): string {
 function getProductionIndexUrl(): string {
   const indexHtml = path.join(__dirname, '..', 'angular', 'index.html');
   return pathToFileURL(indexHtml).href;
+}
+
+/** Shown in the macOS menu bar; Windows/Linux use the in-app top bar only (no Electron default menu). */
+const APP_DISPLAY_NAME = 'Dev-Lens';
+
+function setupApplicationMenu(): void {
+  if (process.platform === 'darwin') {
+    const template: MenuItemConstructorOptions[] = [
+      {
+        label: APP_DISPLAY_NAME,
+        submenu: [
+          { role: 'about' },
+          { type: 'separator' },
+          { role: 'services' },
+          { type: 'separator' },
+          { role: 'hide' },
+          { role: 'hideOthers' },
+          { role: 'unhide' },
+          { type: 'separator' },
+          { role: 'quit' },
+        ],
+      },
+      {
+        label: 'Edit',
+        submenu: [
+          { role: 'undo' },
+          { role: 'redo' },
+          { type: 'separator' },
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+          { role: 'pasteAndMatchStyle' },
+          { role: 'delete' },
+          { role: 'selectAll' },
+        ],
+      },
+      {
+        label: 'View',
+        submenu: [
+          { role: 'reload' },
+          { role: 'forceReload' },
+          { role: 'toggleDevTools' },
+          { type: 'separator' },
+          { role: 'resetZoom' },
+          { role: 'zoomIn' },
+          { role: 'zoomOut' },
+          { type: 'separator' },
+          { role: 'togglefullscreen' },
+        ],
+      },
+      {
+        label: 'Window',
+        submenu: [{ role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'front' }],
+      },
+    ];
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  } else {
+    Menu.setApplicationMenu(null);
+  }
 }
 
 function attachWindowCloseHandler(win: BrowserWindow): void {
@@ -654,6 +715,11 @@ function registerIpc(): void {
       },
     });
 
+    // No in-window menu strip on Windows/Linux (extension UIs are tiny; File/Edit is noise).
+    if (process.platform !== 'darwin') {
+      popupWin.setMenu(null);
+    }
+
     extensionPopupWindows.set(extensionId, popupWin);
     popupWin.on('closed', () => {
       extensionPopupWindows.delete(extensionId);
@@ -1025,6 +1091,7 @@ function isWebStorePage(url: string): boolean {
 void app
   .whenReady()
   .then(async () => {
+    setupApplicationMenu();
     store = createUserStore();
     mergeMissingStoreKeys();
     mergeSettingsDefaults();
