@@ -34,8 +34,11 @@
             </div>
             <div class="settings__card-body">
               <div class="settings__field">
-                <label class="settings__label">Default search engine</label>
+                <label class="settings__label" for="settings-search-engine"
+                  >Default search engine</label
+                >
                 <select
+                  id="settings-search-engine"
                   [ngModel]="snap.settings.searchEngine"
                   (ngModelChange)="patchSettings({ searchEngine: $event })"
                 >
@@ -44,8 +47,9 @@
                 </select>
               </div>
               <div class="settings__field">
-                <label class="settings__label">Startup</label>
+                <label class="settings__label" for="settings-startup">Startup</label>
                 <select
+                  id="settings-startup"
                   [ngModel]="snap.settings.startupBehavior"
                   (ngModelChange)="setStartup($event)"
                 >
@@ -54,8 +58,9 @@
                 </select>
               </div>
               <div class="settings__field">
-                <label class="settings__label">Language</label>
+                <label class="settings__label" for="settings-language">Language</label>
                 <input
+                  id="settings-language"
                   type="text"
                   [ngModel]="snap.settings.language"
                   (ngModelChange)="setLanguage($event)"
@@ -63,8 +68,11 @@
                 />
               </div>
               <div class="settings__field">
-                <label class="settings__label">Suspend inactive tabs</label>
+                <label class="settings__label" for="settings-tab-suspend"
+                  >Suspend inactive tabs</label
+                >
                 <select
+                  id="settings-tab-suspend"
                   [ngModel]="snap.settings.tabSuspendAfterMinutes"
                   (ngModelChange)="patchSettings({ tabSuspendAfterMinutes: +$event })"
                 >
@@ -94,16 +102,22 @@
               @for (h of snap.settings.autofillHints; track h.id) {
                 <div class="settings__autofill-card">
                   <div class="settings__field settings__field--row">
-                    <label class="settings__label">Label</label>
+                    <label class="settings__label" [attr.for]="'autofill-label-' + h.id"
+                      >Label</label
+                    >
                     <input
+                      [id]="'autofill-label-' + h.id"
                       type="text"
                       [ngModel]="h.label"
                       (ngModelChange)="updateAutofillHint(h.id, { label: $event })"
                     />
                   </div>
                   <div class="settings__field settings__field--row">
-                    <label class="settings__label">Value</label>
+                    <label class="settings__label" [attr.for]="'autofill-value-' + h.id"
+                      >Value</label
+                    >
                     <input
+                      [id]="'autofill-value-' + h.id"
                       type="text"
                       [ngModel]="h.value"
                       (ngModelChange)="updateAutofillHint(h.id, { value: $event })"
@@ -186,10 +200,11 @@
               </label>
 
               <div class="settings__field settings__field--stack">
-                <label class="settings__label"
+                <label class="settings__label" for="settings-allowlist-hosts"
                   >Allowlisted hosts <span class="settings__label-hint">(one per line)</span></label
                 >
                 <textarea
+                  id="settings-allowlist-hosts"
                   class="settings__textarea"
                   rows="4"
                   [ngModel]="allowlistLines(snap)"
@@ -198,11 +213,12 @@
                 ></textarea>
               </div>
               <div class="settings__field settings__field--stack">
-                <label class="settings__label"
+                <label class="settings__label" for="settings-extra-blocked"
                   >Extra blocked hosts
                   <span class="settings__label-hint">(one per line)</span></label
                 >
                 <textarea
+                  id="settings-extra-blocked"
                   class="settings__textarea"
                   rows="3"
                   [ngModel]="userBlockedLines(snap)"
@@ -211,10 +227,11 @@
                 ></textarea>
               </div>
               <div class="settings__field settings__field--stack">
-                <label class="settings__label"
+                <label class="settings__label" for="settings-blocklist-url"
                   >Block list URL <span class="settings__label-hint">(optional)</span></label
                 >
                 <input
+                  id="settings-blocklist-url"
                   type="url"
                   class="settings__input-wide"
                   [ngModel]="snap.settings.blockListSourceUrl || ''"
@@ -332,8 +349,12 @@
             </div>
             <div class="settings__card-body">
               <div class="settings__field">
-                <label class="settings__label">Font size</label>
-                <div class="settings__seg-group">
+                <span id="settings-font-size-heading" class="settings__label">Font size</span>
+                <div
+                  class="settings__seg-group"
+                  role="group"
+                  aria-labelledby="settings-font-size-heading"
+                >
                   @for (
                     fs of [
                       { v: 12, l: 'Small' },
@@ -368,9 +389,12 @@
                 >
               </label>
               <div class="settings__field settings__field--range">
-                <label class="settings__label">Right panel width</label>
+                <label class="settings__label" for="settings-right-panel-width"
+                  >Right panel width</label
+                >
                 <div class="settings__range-wrap">
                   <input
+                    id="settings-right-panel-width"
                     type="range"
                     min="200"
                     max="560"
@@ -394,8 +418,9 @@
                 active tab's host matches an entry below.
               </p>
               <div class="settings__field">
-                <label class="settings__label">Focus timer</label>
+                <label class="settings__label" for="settings-focus-timer">Focus timer</label>
                 <select
+                  id="settings-focus-timer"
                   [ngModel]="snap.settings.focusPomodoroMinutes"
                   (ngModelChange)="patchSettings({ focusPomodoroMinutes: +$event })"
                 >
@@ -407,11 +432,12 @@
                 </select>
               </div>
               <div class="settings__field settings__field--stack">
-                <label class="settings__label"
+                <label class="settings__label" for="settings-focus-hosts"
                   >Hosts that keep chrome visible
                   <span class="settings__label-hint">(one per line)</span></label
                 >
                 <textarea
+                  id="settings-focus-hosts"
                   class="settings__textarea"
                   rows="4"
                   [ngModel]="focusAllowlistLines(snap)"
@@ -700,9 +726,10 @@
               </div>
               <div class="settings__card-body">
                 <div class="settings__field settings__field--stack">
-                  <label class="settings__label">API key</label>
+                  <label class="settings__label" for="settings-ai-api-key">API key</label>
                   <div class="settings__password-wrap">
                     <input
+                      id="settings-ai-api-key"
                       [type]="apiKeyVisible() ? 'text' : 'password'"
                       class="settings__input-wide"
                       autocomplete="off"
@@ -724,10 +751,11 @@
                   </div>
                 </div>
                 <div class="settings__field settings__field--stack">
-                  <label class="settings__label"
+                  <label class="settings__label" for="settings-ai-base-url"
                     >API base URL <span class="settings__label-hint">(optional)</span></label
                   >
                   <input
+                    id="settings-ai-base-url"
                     type="url"
                     class="settings__input-wide"
                     [ngModel]="snap.settings.aiBaseUrl || ''"
@@ -745,8 +773,9 @@
             </div>
             <div class="settings__card-body">
               <div class="settings__field settings__field--stack">
-                <label class="settings__label">Model identifier</label>
+                <label class="settings__label" for="settings-ai-model">Model identifier</label>
                 <input
+                  id="settings-ai-model"
                   type="text"
                   class="settings__input-wide"
                   [ngModel]="snap.settings.aiModel"
@@ -952,8 +981,11 @@
                 sessions, automation, tabs, history, clipboard, plugins, and settings.
               </p>
               <div class="settings__field">
-                <label class="settings__label">Import strategy</label>
+                <label class="settings__label" for="settings-import-strategy"
+                  >Import strategy</label
+                >
                 <select
+                  id="settings-import-strategy"
                   [ngModel]="snap.settings.encryptedImportMode"
                   (ngModelChange)="patchSettings({ encryptedImportMode: $event })"
                 >
@@ -1075,16 +1107,24 @@
 
   <!-- ── Modals ──────────────────────────────────────────────────────────── -->
   @if (backupExportOpen()) {
-    <div class="settings__modal-backdrop" (click)="closeBackupExportModal()"></div>
+    <div
+      class="settings__modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Close"
+      (click)="closeBackupExportModal()"
+      (keydown)="onModalBackdropKeydown($event, 'backup-export')"
+    ></div>
     <div class="settings__modal" role="dialog" aria-label="Export encrypted backup">
       <h3 class="settings__modal-title">
         <i class="fa-solid fa-shield" aria-hidden="true"></i> Export encrypted backup
       </h3>
       <div class="settings__field settings__field--stack">
-        <label class="settings__label"
+        <label class="settings__label" for="settings-backup-export-pass"
           >Passphrase <span class="settings__label-hint">(min 8 characters)</span></label
         >
         <input
+          id="settings-backup-export-pass"
           type="password"
           autocomplete="new-password"
           [ngModel]="backupExportPass()"
@@ -1092,8 +1132,9 @@
         />
       </div>
       <div class="settings__field settings__field--stack">
-        <label class="settings__label">Confirm passphrase</label>
+        <label class="settings__label" for="settings-backup-export-pass2">Confirm passphrase</label>
         <input
+          id="settings-backup-export-pass2"
           type="password"
           autocomplete="new-password"
           [ngModel]="backupExportPass2()"
@@ -1116,7 +1157,14 @@
   }
 
   @if (backupImportOpen()) {
-    <div class="settings__modal-backdrop" (click)="cancelBackupImport()"></div>
+    <div
+      class="settings__modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Close"
+      (click)="cancelBackupImport()"
+      (keydown)="onModalBackdropKeydown($event, 'backup-import')"
+    ></div>
     <div class="settings__modal" role="dialog" aria-label="Import encrypted backup">
       @if (backupImportStep() === 'pass') {
         <h3 class="settings__modal-title">
@@ -1124,8 +1172,9 @@
         </h3>
         <p class="settings__hint">Enter the passphrase used when this file was exported.</p>
         <div class="settings__field settings__field--stack">
-          <label class="settings__label">Passphrase</label>
+          <label class="settings__label" for="settings-backup-import-pass">Passphrase</label>
           <input
+            id="settings-backup-import-pass"
             type="password"
             autocomplete="off"
             [ngModel]="backupImportPass()"
@@ -1168,7 +1217,14 @@
   }
 
   @if (resetDataConfirmOpen()) {
-    <div class="settings__modal-backdrop" (click)="cancelResetData()"></div>
+    <div
+      class="settings__modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Close"
+      (click)="cancelResetData()"
+      (keydown)="onModalBackdropKeydown($event, 'reset-data')"
+    ></div>
     <div class="settings__modal" role="dialog" aria-label="Reset data">
       <h3 class="settings__modal-title">
         <i class="fa-solid fa-trash" aria-hidden="true"></i> Reset local data?
@@ -1186,7 +1242,14 @@
   }
 
   @if (shortcutsResetConfirmOpen()) {
-    <div class="settings__modal-backdrop" (click)="cancelShortcutsReset()"></div>
+    <div
+      class="settings__modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Close"
+      (click)="cancelShortcutsReset()"
+      (keydown)="onModalBackdropKeydown($event, 'shortcuts-reset')"
+    ></div>
     <div class="settings__modal" role="dialog" aria-label="Reset shortcuts">
       <h3 class="settings__modal-title">
         <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset all shortcuts?

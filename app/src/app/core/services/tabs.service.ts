@@ -120,7 +120,8 @@ export class TabsService {
   unregisterWebview(tabId: string): void {
     this.webviewHandlers.delete(tabId);
     this.guestNavState.update((m) => {
-      const { [tabId]: _, ...rest } = m;
+      const rest = { ...m };
+      delete rest[tabId];
       return rest;
     });
   }

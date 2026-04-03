@@ -565,6 +565,28 @@ export class SettingsComponent {
     this.backupExportOpen.set(false);
   }
 
+  onModalBackdropKeydown(
+    ev: KeyboardEvent,
+    target: 'backup-export' | 'backup-import' | 'reset-data' | 'shortcuts-reset',
+  ): void {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    ev.preventDefault();
+    switch (target) {
+      case 'backup-export':
+        this.closeBackupExportModal();
+        break;
+      case 'backup-import':
+        this.cancelBackupImport();
+        break;
+      case 'reset-data':
+        this.cancelResetData();
+        break;
+      case 'shortcuts-reset':
+        this.cancelShortcutsReset();
+        break;
+    }
+  }
+
   async submitBackupExport(): Promise<void> {
     const pass = this.backupExportPass().trim();
     const pass2 = this.backupExportPass2().trim();

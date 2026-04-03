@@ -382,7 +382,15 @@
   </div>
 
   @if (dialog(); as dlg) {
-    <div class="sidebar__dialog-backdrop" (click)="dismissDialog()"></div>
+    <div
+      class="sidebar__dialog-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Cancel"
+      (click)="dismissDialog()"
+      (keydown.enter)="dismissDialog()"
+      (keydown.space)="$event.preventDefault(); dismissDialog()"
+    ></div>
     <div
       class="sidebar__dialog"
       role="dialog"
@@ -413,7 +421,6 @@
         [ngModel]="dlg.value"
         (ngModelChange)="setDialogValue($event)"
         (keydown)="dialogKeydown($event)"
-        autofocus
       />
       <div class="sidebar__dialog-actions">
         <button

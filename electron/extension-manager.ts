@@ -24,9 +24,13 @@ function extensionsDir(): string {
 }
 
 function crxDownloadUrl(extensionId: string): string {
+  // Use the actual Chromium major version bundled with this Electron build.
+  // A stale prodversion (e.g. 120) can cause the CDN to reject the request or
+  // return an incompatible CRX variant.
+  const major = (process.versions.chrome ?? '120').split('.')[0];
   return (
     'https://clients2.google.com/service/update2/crx' +
-    '?response=redirect&prodversion=120.0.0.0&acceptformat=crx3' +
+    `?response=redirect&prodversion=${major}.0.0.0&acceptformat=crx3` +
     `&x=id%3D${extensionId}%26uc`
   );
 }

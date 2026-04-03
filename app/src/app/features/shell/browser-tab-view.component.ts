@@ -38,6 +38,7 @@ interface WebviewEl extends HTMLElement {
   isDevToolsOpened(): boolean;
   executeJavaScript(code: string, userGesture?: boolean): Promise<unknown>;
   inspectElement?(x: number, y: number): void;
+  getWebContentsId?(): number;
 }
 
 @Component({
@@ -222,11 +223,10 @@ export class BrowserTabViewComponent implements OnInit, AfterViewInit, OnDestroy
         this.wv.inspectElement?.(x, y);
       },
       getWebContentsId: () => {
-        const wv = this.wv as any;
+        const wv = this.wv;
         if (!this.guestReady || !wv) return undefined;
-        return typeof wv.getWebContentsId === 'function'
-          ? (wv.getWebContentsId() as number)
-          : undefined;
+        const id = wv.getWebContentsId?.();
+        return typeof id === 'number' ? id : undefined;
       },
     };
     this.tabsSvc.registerWebview(this.tab().id, handler);

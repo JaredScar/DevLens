@@ -51,6 +51,13 @@ export class SessionsWidgetComponent {
     this.saveDialog.set(null);
   }
 
+  onSessionsModalBackdropKeydown(ev: KeyboardEvent, which: 'save' | 'restore'): void {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    ev.preventDefault();
+    if (which === 'save') this.dismissSaveDialog();
+    else this.dismissRestoreChoice();
+  }
+
   setSaveDialogValue(value: string): void {
     this.saveDialog.update((d) => (d ? { value } : d));
   }

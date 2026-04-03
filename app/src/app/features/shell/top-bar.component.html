@@ -256,7 +256,7 @@
       </svg>
     </button>
     <!-- More options -->
-    <div class="topbar__more-wrap" (click)="moreMenuClick($event)">
+    <div class="topbar__more-wrap">
       <button
         type="button"
         class="topbar__icon-btn"
@@ -271,10 +271,20 @@
       </button>
       @if (moreMenuOpen()) {
         <div class="topbar__more-menu" role="menu">
-          <button type="button" role="menuitem" (click)="openActiveUrlExternally()">
+          <button
+            type="button"
+            role="menuitem"
+            (click)="$event.stopPropagation(); openActiveUrlExternally()"
+          >
             Open in system browser
           </button>
-          <button type="button" role="menuitem" (click)="openSettingsFromMenu()">Settings</button>
+          <button
+            type="button"
+            role="menuitem"
+            (click)="$event.stopPropagation(); openSettingsFromMenu()"
+          >
+            Settings
+          </button>
         </div>
       }
     </div>

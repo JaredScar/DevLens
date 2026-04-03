@@ -533,24 +533,62 @@ function registerIpc(): void {
 // shim calls window.__devlensExt.requestInstall() (exposed by
 // webview-console-preload via contextBridge) which sends the IPC handled above.
 
+/**
+ * Injected into every Chrome Web Store page via executeJavaScript (main-world, bypasses CSP).
+ *
+ * Runs on dom-ready (before React hydration) and again on did-finish-load for
+ * SPA navigations.  Provides the three Chrome APIs the Web Store checks before
+ * deciding whether to show the install button or "Item currently unavailable":
+ *
+ *   • chrome.app        — isInstalled / installState / runningState
+ *   • chrome.runtime    — basic event stubs (must be truthy)
+ *   • chrome.webstore   — install() that forwards to our IPC via __devlensExt
+ */
 const WEBSTORE_SHIM = `(function() {
-  if (window.chrome && window.chrome.webstore) return;
   window.chrome = window.chrome || {};
-  window.chrome.webstore = {
-    install: function(url, successCb, failureCb) {
-      var m = window.location.pathname.match(/\\/([a-z]{32})(?:\\/|$|\\?)/);
-      var extId = m ? m[1] : null;
-      if (!extId && url) { var um = url.match(/([a-z]{32})/); extId = um ? um[1] : null; }
-      if (extId && window.__devlensExt) {
-        window.__devlensExt.requestInstall(extId);
-        if (successCb) successCb();
-      } else if (failureCb) {
-        failureCb('Dev-Lens: could not detect extension ID');
-      }
-    },
-    onInstallStageChanged: { addListener: function(){}, removeListener: function(){} },
-    onDownloadProgress:    { addListener: function(){}, removeListener: function(){} }
-  };
+
+  if (!window.chrome.app) {
+    window.chrome.app = {
+      isInstalled: false,
+      getDetails: function() { return null; },
+      getIsInstalled: function() { return false; },
+      installState: function(cb) { if (typeof cb === 'function') cb('not_installed'); },
+      runningState: function() { return 'cannot_run'; }
+    };
+  }
+
+  if (!window.chrome.runtime) {
+    var noop = function() {};
+    var listener = { addListener: noop, removeListener: noop };
+    window.chrome.runtime = {
+      id: undefined,
+      lastError: null,
+      connect: function() {
+        return { postMessage: noop, disconnect: noop, onMessage: listener, onDisconnect: listener };
+      },
+      sendMessage: noop,
+      onMessage: listener,
+      onConnect: listener
+    };
+  }
+
+  if (!window.chrome.webstore) {
+    window.chrome.webstore = {
+      install: function(url, successCb, failureCb) {
+        var m = window.location.pathname.match(/\\/([a-z]{32})(?:\\/|$|\\?)/);
+        var extId = m ? m[1] : null;
+        if (!extId && url) { var um = String(url).match(/([a-z]{32})/); extId = um ? um[1] : null; }
+        if (extId && window.__devlensExt) {
+          window.__devlensExt.requestInstall(extId);
+          if (typeof successCb === 'function') successCb();
+        } else if (typeof failureCb === 'function') {
+          failureCb('Dev-Lens: could not detect extension ID');
+        }
+      },
+      onInstallStageChanged: { addListener: function(){}, removeListener: function(){} },
+      onDownloadProgress:    { addListener: function(){}, removeListener: function(){} }
+    };
+  }
 })();`;
 
 function isWebStorePage(url: string): boolean {
@@ -592,18 +630,25 @@ void app
       sessionManager.initSession(`persist:dev-lens-ws-${sanitizePartition(ws.id)}`);
     }
 
-    // Inject chrome.webstore shim into Chrome Web Store pages so "Add to
-    // Chrome" button appears.  We hook ALL webContents so webviews are covered.
-    app.on('web-contents-created', (_e, wc) => {
-      wc.on('did-finish-load', () => {
-        try {
-          if (isWebStorePage(wc.getURL())) {
-            void wc.executeJavaScript(WEBSTORE_SHIM);
-          }
-        } catch {
-          /* ignore */
+    // Inject the chrome API shim into Chrome Web Store pages.
+    // We hook ALL webContents so webviews are covered.
+    //
+    // dom-ready       → fires at DOMContentLoaded, before React hydration — primary injection.
+    // did-finish-load → fallback; also catches SPA navigations where dom-ready may
+    //                   not re-fire (e.g. history.pushState on chromewebstore.google.com).
+    const injectWebStoreShim = (wc: import('electron').WebContents): void => {
+      try {
+        if (isWebStorePage(wc.getURL())) {
+          void wc.executeJavaScript(WEBSTORE_SHIM);
         }
-      });
+      } catch {
+        /* ignore */
+      }
+    };
+
+    app.on('web-contents-created', (_e, wc) => {
+      wc.on('dom-ready', () => injectWebStoreShim(wc));
+      wc.on('did-finish-load', () => injectWebStoreShim(wc));
     });
 
     registerIpc();

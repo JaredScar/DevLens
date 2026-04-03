@@ -166,10 +166,6 @@ export class TopBarComponent {
     this.moreMenuOpen.set(false);
   }
 
-  moreMenuClick(ev: MouseEvent): void {
-    ev.stopPropagation();
-  }
-
   async openActiveUrlExternally(): Promise<void> {
     this.closeMoreMenu();
     const tab = this.tabs.activeTab();

@@ -102,7 +102,14 @@
   </ul>
 
   @if (saveDialog(); as dlg) {
-    <div class="sess__modal-backdrop" (click)="dismissSaveDialog()"></div>
+    <div
+      class="sess__modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Cancel"
+      (click)="dismissSaveDialog()"
+      (keydown)="onSessionsModalBackdropKeydown($event, 'save')"
+    ></div>
     <div class="sess__modal" role="dialog" aria-label="Save session">
       <p class="sess__modal-label">Session name</p>
       <input
@@ -127,7 +134,14 @@
   }
 
   @if (restoreChoiceSession(); as rs) {
-    <div class="sess__modal-backdrop" (click)="dismissRestoreChoice()"></div>
+    <div
+      class="sess__modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Cancel"
+      (click)="dismissRestoreChoice()"
+      (keydown)="onSessionsModalBackdropKeydown($event, 'restore')"
+    ></div>
     <div class="sess__modal" role="dialog" aria-label="Restore session">
       <p class="sess__modal-label">Restore “{{ rs.name }}”</p>
       <p class="sess__modal-hint">

@@ -1,4 +1,15 @@
-import { Component, inject, signal, computed, HostListener } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  HostListener,
+  effect,
+  viewChild,
+  ElementRef,
+  Injector,
+  afterNextRender,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, CdkDragEnd, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import type { UiTab } from '@core/services/tabs.service';
@@ -32,6 +43,17 @@ export class LeftSidebarComponent {
   private readonly persisted = inject(PersistedStateService);
   private readonly automation = inject(AutomationService);
   private readonly toast = inject(ToastService);
+  private readonly injector = inject(Injector);
+  readonly dialogInputRef = viewChild<ElementRef<HTMLInputElement>>('dialogInput');
+
+  constructor() {
+    effect(() => {
+      if (!this.dialog()) return;
+      afterNextRender(() => this.dialogInputRef()?.nativeElement?.focus(), {
+        injector: this.injector,
+      });
+    });
+  }
 
   readonly workspaceColorPresets = [
     '#58a6ff',

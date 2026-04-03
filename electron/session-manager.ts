@@ -76,10 +76,12 @@ export class SessionManager {
     // Remove "Electron/X.X.X" from the user-agent so that websites (including
     // the Chrome Web Store) treat the webview as a regular Chrome browser.
     // Without this, the Chrome Web Store hides the "Add to Chrome" button.
-    attachWebStoreChromeBranding(ses);
-
     const cleanUA = ses.getUserAgent().replace(/ Electron\/[\d.]+/, '');
     ses.setUserAgent(cleanUA);
+
+    // Fix sec-ch-ua Client Hints so the Web Store server-side render sees
+    // "Google Chrome" and returns the install button instead of "unavailable".
+    attachWebStoreChromeBranding(ses);
 
     attachRequestBlocker(ses, this.isBlockerEnabled, () => {
       this.blockedSession++;
