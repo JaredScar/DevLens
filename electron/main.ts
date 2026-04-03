@@ -39,6 +39,7 @@ import {
   shell,
   webContents,
 } from 'electron';
+import type { Session as ElectronSession } from 'electron';
 import {
   IPC_CHANNELS,
   IPC_EVENTS,
@@ -78,6 +79,31 @@ const isDev = process.env.NODE_ENV === 'development';
 let mainWindow: BrowserWindow | null = null;
 let store: UserStore;
 let sessionManager: SessionManager;
+
+/**
+ * `chrome-extension://` navigations only succeed on sessions where the extension
+ * was registered with loadExtension. Prefer the active workspace partition
+ * (matches `<webview partition>`) then fall back to default + other sessions.
+ */
+function pickSessionHostingExtension(
+  extensionId: string,
+  preferredPartition?: string,
+): ElectronSession {
+  const candidates: ElectronSession[] = [];
+  if (preferredPartition?.startsWith('persist:')) {
+    candidates.push(session.fromPartition(preferredPartition));
+  }
+  candidates.push(session.defaultSession);
+  candidates.push(...sessionManager.getInitializedSessions());
+  for (const ses of candidates) {
+    try {
+      if (ses.extensions.getExtension(extensionId)) return ses;
+    } catch {
+      /* ignore */
+    }
+  }
+  return session.defaultSession;
+}
 
 let forceQuitAfterSave = false;
 let lastSystemClipboard = '';
@@ -569,6 +595,8 @@ function registerIpc(): void {
     const p = (payload ?? {}) as {
       extensionId?: string;
       popupPath?: string;
+      /** Same string as the browser `<webview partition>` (e.g. persist:dev-lens-ws-…). */
+      partition?: string;
       anchor?: { x: number; y: number; width: number; height: number };
     };
     const extensionId = p.extensionId;
@@ -578,6 +606,15 @@ function registerIpc(): void {
     }
     if (!isExtensionInstalled(extensionId)) {
       return { ok: false as const, error: 'Extension is not installed' };
+    }
+
+    const extSession = pickSessionHostingExtension(extensionId, p.partition);
+    if (!extSession.extensions.getExtension(extensionId)) {
+      return {
+        ok: false as const,
+        error:
+          'Extension is not loaded in any session. Restart Dev-Lens or reinstall the extension.',
+      };
     }
 
     const parent = BrowserWindow.fromWebContents(event.sender) ?? mainWindow;
@@ -600,8 +637,11 @@ function registerIpc(): void {
       resizable: true,
       skipTaskbar: true,
       webPreferences: {
-        session: session.defaultSession,
-        sandbox: true,
+        session: extSession,
+        // Sandboxed renderers cannot load chrome-extension:// pages (ERR_BLOCKED_BY_CLIENT).
+        sandbox: false,
+        nodeIntegration: false,
+        contextIsolation: true,
       },
     });
 

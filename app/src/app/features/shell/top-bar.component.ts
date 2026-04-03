@@ -11,6 +11,7 @@ import { PersistedStateService } from '@core/services/persisted-state.service';
 import { SplitViewService } from '@core/services/split-view.service';
 import { TabsService } from '@core/services/tabs.service';
 import { WidgetRegistryService } from '@core/services/widget-registry.service';
+import { WorkspaceService } from '@core/services/workspace.service';
 import { resolveNavigationInput } from '@core/navigation-url';
 
 @Component({
@@ -28,6 +29,7 @@ export class TopBarComponent {
   private readonly persisted = inject(PersistedStateService);
   private readonly pageAi = inject(PageAiIntentService);
   private readonly widgets = inject(WidgetRegistryService);
+  private readonly workspace = inject(WorkspaceService);
 
   readonly inputUrl = signal('');
   readonly blocked = signal(0);
@@ -126,11 +128,15 @@ export class TopBarComponent {
     }
     const el = ev.currentTarget as HTMLElement;
     const r = el.getBoundingClientRect();
+    const tab = this.tabs.activeTab();
+    const wsId = tab?.kind === 'browser' ? tab.workspaceId : this.workspace.activeWorkspaceId();
+    const partition = `persist:dev-lens-ws-${wsId}`;
     const res = (await this.bridge.invoke<{ ok: boolean; error?: string }>(
       IPC_CHANNELS.EXT_OPEN_POPUP,
       {
         extensionId: ext.id,
         popupPath: ext.popupPath,
+        partition,
         anchor: { x: r.left, y: r.top, width: r.width, height: r.height },
       },
     )) as { ok: boolean; error?: string };
