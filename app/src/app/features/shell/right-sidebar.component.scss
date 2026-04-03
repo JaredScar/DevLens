@@ -32,19 +32,19 @@
   width: var(--dl-right-sidebar-width);
   min-width: var(--dl-right-sidebar-width);
   border-left: 1px solid var(--dl-border);
-  background: var(--dl-bg-surface);
+  background: var(--dl-bg-base);
   min-height: 0;
   flex-shrink: 0;
 }
 
-/* ── Icon rail ────────────────────────────────────────────────────────────── */
+/* ── Icon rail (matches Settings nav density & active state) ─────────────── */
 .rside__rail {
   display: flex;
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
   gap: 2px;
-  padding: 4px 6px;
+  padding: 8px;
   border-bottom: 1px solid var(--dl-border);
   background: var(--dl-bg-elevated);
   flex-shrink: 0;
@@ -52,9 +52,9 @@
 }
 
 .rside__btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--dl-radius);
   border: 1px solid transparent;
   background: transparent;
   color: var(--dl-muted);
@@ -63,9 +63,9 @@
   align-items: center;
   justify-content: center;
   transition:
-    background var(--dl-motion),
-    color var(--dl-motion),
-    border-color var(--dl-motion);
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
   flex-shrink: 0;
 }
 
@@ -75,9 +75,9 @@
 }
 
 .rside__btn--active {
-  color: var(--dl-accent);
-  background: var(--dl-accent-muted);
-  border-color: var(--dl-accent);
+  color: var(--dl-accent) !important;
+  background: color-mix(in srgb, var(--dl-accent) 10%, transparent) !important;
+  border-color: var(--dl-accent) !important;
 }
 
 .rside__plug {
@@ -92,10 +92,10 @@
 }
 
 .rside__close {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--dl-radius);
+  border: 1px solid transparent;
   background: transparent;
   color: var(--dl-muted);
   cursor: pointer;
@@ -105,12 +105,14 @@
   flex-shrink: 0;
   margin-left: 4px;
   transition:
-    background var(--dl-motion),
-    color var(--dl-motion);
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .rside__close:hover {
-  background: rgba(248, 81, 73, 0.12);
+  background: color-mix(in srgb, var(--dl-danger) 12%, transparent);
+  border-color: color-mix(in srgb, var(--dl-danger) 35%, transparent);
   color: var(--dl-danger);
 }
 

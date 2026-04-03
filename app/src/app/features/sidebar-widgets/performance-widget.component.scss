@@ -1,0 +1,55 @@
+@use './widget-shared' as *;
+
+.perf {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.perf__inner {
+  gap: 14px;
+  padding-bottom: 20px;
+}
+
+.perf__scope strong {
+  color: var(--dl-text);
+}
+
+.perf__grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.perf__grid dt {
+  color: var(--dl-muted);
+  margin: 0;
+  font-weight: 500;
+}
+
+.perf__grid dd {
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  color: var(--dl-text);
+  font-weight: 600;
+}
+
+.perf__tabs-line {
+  margin: 0;
+  font-size: 13px;
+  color: var(--dl-text);
+  line-height: 1.5;
+}
+
+.perf__tabs-line strong {
+  color: var(--dl-accent);
+  font-weight: 700;
+}
+
+.perf__tabs-body {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}

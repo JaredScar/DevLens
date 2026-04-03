@@ -1,126 +1,157 @@
 <div class="api">
-  <div class="api__request">
-    <div class="api__url-row">
-      <select class="api__method" [ngModel]="method()" (ngModelChange)="method.set($event)">
-        @for (m of methods; track m) {
-          <option [value]="m">{{ m }}</option>
-        }
-      </select>
-      <input
-        class="api__url"
-        type="url"
-        placeholder="Enter URL"
-        [ngModel]="url()"
-        (ngModelChange)="url.set($event)"
-        (keydown.enter)="send()"
-        spellcheck="false"
-        autocomplete="off"
-      />
-      <button class="api__send" (click)="send()" [disabled]="loading()">
-        {{ loading() ? '…' : 'Send' }}
-      </button>
+  <div class="sw__body api__inner">
+    <div class="sw__page-header">
+      <i class="fa-solid fa-plug sw__page-icon" aria-hidden="true"></i>
+      <div>
+        <h2 class="sw__page-title">API tester</h2>
+        <p class="sw__page-desc">Send HTTP requests from the app. Headers and body stay local.</p>
+      </div>
     </div>
 
-    <button type="button" class="api__toggle-body" (click)="showReqHeaders.set(!showReqHeaders())">
-      {{ showReqHeaders() ? '▲' : '▼' }} Request headers
-    </button>
-    @if (showReqHeaders()) {
-      <div class="api__hdr-block">
-        <textarea
-          class="api__headers"
-          rows="4"
-          placeholder="Authorization: Bearer …&#10;X-Custom: value"
-          [ngModel]="requestHeadersText()"
-          (ngModelChange)="requestHeadersText.set($event)"
-          spellcheck="false"
-        ></textarea>
-        <div class="api__bearer-row">
+    <div class="sw__card">
+      <div class="sw__card-header">Request</div>
+      <div class="sw__card-body api__req-body">
+        <div class="api__url-row">
+          <select
+            class="sw__select api__method"
+            [ngModel]="method()"
+            (ngModelChange)="method.set($event)"
+          >
+            @for (m of methods; track m) {
+              <option [value]="m">{{ m }}</option>
+            }
+          </select>
           <input
-            type="password"
-            class="api__bearer"
-            placeholder="Paste bearer token"
-            [ngModel]="bearerToken()"
-            (ngModelChange)="bearerToken.set($event)"
+            class="sw__input api__url"
+            type="url"
+            placeholder="https://…"
+            [ngModel]="url()"
+            (ngModelChange)="url.set($event)"
+            (keydown.enter)="send()"
+            spellcheck="false"
             autocomplete="off"
           />
-          <button type="button" class="api__bearer-btn" (click)="applyBearer()">
-            Apply Bearer
+          <button
+            type="button"
+            class="sw__btn sw__btn--primary api__send"
+            (click)="send()"
+            [disabled]="loading()"
+          >
+            {{ loading() ? '…' : 'Send' }}
           </button>
         </div>
-        <div class="api__basic-row">
-          <input
-            type="text"
-            class="api__basic-user"
-            placeholder="Basic auth user"
-            [ngModel]="basicUser()"
-            (ngModelChange)="basicUser.set($event)"
-            autocomplete="username"
-          />
-          <input
-            type="password"
-            class="api__basic-pass"
-            placeholder="Password"
-            [ngModel]="basicPassword()"
-            (ngModelChange)="basicPassword.set($event)"
-            autocomplete="current-password"
-          />
-          <button type="button" class="api__bearer-btn" (click)="applyBasic()">Apply Basic</button>
-        </div>
-      </div>
-    }
 
-    @if (method() !== 'GET' && method() !== 'HEAD') {
-      <button type="button" class="api__toggle-body" (click)="showBody.set(!showBody())">
-        {{ showBody() ? '▲' : '▼' }} Body
-      </button>
-      @if (showBody()) {
-        <textarea
-          class="api__body"
-          placeholder='{"key": "value"}'
-          [ngModel]="body()"
-          (ngModelChange)="body.set($event)"
-          rows="4"
-          spellcheck="false"
-        ></textarea>
-      }
-    }
-
-    @if (history().length) {
-      <div class="api__history">
-        <span class="api__history-label">Recent</span>
-        @for (h of history(); track h.at) {
-          <button type="button" class="api__history-chip" (click)="loadHistoryItem(h)">
-            {{ h.method }} {{ historyUrlShort(h.url) }}
-          </button>
+        <button
+          type="button"
+          class="api__toggle-body"
+          (click)="showReqHeaders.set(!showReqHeaders())"
+        >
+          {{ showReqHeaders() ? '▲' : '▼' }} Request headers
+        </button>
+        @if (showReqHeaders()) {
+          <div class="api__hdr-block">
+            <textarea
+              class="sw__textarea api__headers"
+              rows="4"
+              placeholder="Authorization: Bearer …&#10;X-Custom: value"
+              [ngModel]="requestHeadersText()"
+              (ngModelChange)="requestHeadersText.set($event)"
+              spellcheck="false"
+            ></textarea>
+            <div class="api__bearer-row">
+              <input
+                type="password"
+                class="sw__input api__bearer"
+                placeholder="Paste bearer token"
+                [ngModel]="bearerToken()"
+                (ngModelChange)="bearerToken.set($event)"
+                autocomplete="off"
+              />
+              <button type="button" class="sw__btn sw__btn--sm" (click)="applyBearer()">
+                Apply Bearer
+              </button>
+            </div>
+            <div class="api__basic-row">
+              <input
+                type="text"
+                class="sw__input api__basic-user"
+                placeholder="Basic auth user"
+                [ngModel]="basicUser()"
+                (ngModelChange)="basicUser.set($event)"
+                autocomplete="username"
+              />
+              <input
+                type="password"
+                class="sw__input api__basic-pass"
+                placeholder="Password"
+                [ngModel]="basicPassword()"
+                (ngModelChange)="basicPassword.set($event)"
+                autocomplete="current-password"
+              />
+              <button type="button" class="sw__btn sw__btn--sm" (click)="applyBasic()">
+                Apply Basic
+              </button>
+            </div>
+          </div>
         }
+
+        @if (method() !== 'GET' && method() !== 'HEAD') {
+          <button type="button" class="api__toggle-body" (click)="showBody.set(!showBody())">
+            {{ showBody() ? '▲' : '▼' }} Body
+          </button>
+          @if (showBody()) {
+            <textarea
+              class="sw__textarea api__body"
+              placeholder='{"key": "value"}'
+              [ngModel]="body()"
+              (ngModelChange)="body.set($event)"
+              rows="4"
+              spellcheck="false"
+            ></textarea>
+          }
+        }
+
+        @if (history().length) {
+          <div class="api__history">
+            <span class="api__history-label">Recent</span>
+            @for (h of history(); track h.at) {
+              <button type="button" class="api__history-chip" (click)="loadHistoryItem(h)">
+                {{ h.method }} {{ historyUrlShort(h.url) }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (error()) {
+      <div class="sw__error-banner api__error">{{ error() }}</div>
+    }
+
+    @if (response(); as r) {
+      <div class="sw__card">
+        <div class="sw__card-header">Response</div>
+        <div class="sw__card-body api__resp-body">
+          <div class="api__response-header">
+            <span class="api__status" [class]="'api__status--' + statusColor">
+              {{ r.status }} {{ r.statusText }}
+            </span>
+            <span class="api__elapsed">{{ r.elapsed }}ms</span>
+          </div>
+          <button
+            type="button"
+            class="api__toggle-body"
+            (click)="showRespHeaders.set(!showRespHeaders())"
+          >
+            {{ showRespHeaders() ? '▲' : '▼' }} Response headers
+          </button>
+          @if (showRespHeaders()) {
+            <pre class="api__headers-pre">{{ responseHeadersFormatted() }}</pre>
+          }
+          <span class="api__label">Body</span>
+          <pre class="api__body-pre">{{ formattedBody() }}</pre>
+        </div>
       </div>
     }
   </div>
-
-  @if (error()) {
-    <div class="api__error">{{ error() }}</div>
-  }
-
-  @if (response(); as r) {
-    <div class="api__response">
-      <div class="api__response-header">
-        <span class="api__status" [class]="'api__status--' + statusColor">
-          {{ r.status }} {{ r.statusText }}
-        </span>
-        <span class="api__elapsed">{{ r.elapsed }}ms</span>
-      </div>
-      <button
-        type="button"
-        class="api__toggle-body"
-        (click)="showRespHeaders.set(!showRespHeaders())"
-      >
-        {{ showRespHeaders() ? '▲' : '▼' }} Response headers
-      </button>
-      @if (showRespHeaders()) {
-        <pre class="api__headers-pre">{{ responseHeadersFormatted() }}</pre>
-      }
-      <span class="api__label">Body</span>
-      <pre class="api__body-pre">{{ formattedBody() }}</pre>
-    </div>
-  }
 </div>

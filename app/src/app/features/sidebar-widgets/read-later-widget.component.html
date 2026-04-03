@@ -1,0 +1,52 @@
+<div class="rl">
+  <div class="sw__body rl__inner">
+    <div class="sw__page-header">
+      <i class="fa-solid fa-book-open sw__page-icon" aria-hidden="true"></i>
+      <div>
+        <h2 class="sw__page-title">Read later</h2>
+        <p class="sw__page-desc">Local queue — export companion JSON from Settings → Sync.</p>
+      </div>
+    </div>
+
+    <div class="sw__card">
+      <div class="sw__card-header">Add link</div>
+      <div class="sw__card-body rl__add-body">
+        <div class="rl__add">
+          <input
+            class="sw__input"
+            type="url"
+            placeholder="https://…"
+            [(ngModel)]="draftUrl"
+            (keydown.enter)="add()"
+          />
+          <button type="button" class="sw__btn sw__btn--primary" (click)="add()">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sw__card rl__queue-card">
+      <div class="sw__card-header">Queue</div>
+      <div class="sw__card-body rl__queue-body">
+        <ul class="rl__list">
+          @for (e of entries(); track e.id) {
+            <li class="rl__item">
+              <button type="button" class="rl__link" (click)="open(e)">
+                {{ e.title || e.url }}
+              </button>
+              <button
+                type="button"
+                class="rl__x sw__icon-btn"
+                title="Remove"
+                (click)="remove(e.id)"
+              >
+                ×
+              </button>
+            </li>
+          } @empty {
+            <li class="rl__empty sw__empty">Nothing saved yet.</li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

@@ -29,9 +29,12 @@ import { PluginRuntimeService } from '@core/services/plugin-runtime.service';
       border: none;
     }
     .plugin-host__empty {
-      padding: 12px;
+      margin: 0;
+      padding: 20px 16px;
       color: var(--dl-muted);
       font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
     }
   `,
 })

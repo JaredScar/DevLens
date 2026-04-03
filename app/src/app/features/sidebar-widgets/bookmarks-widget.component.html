@@ -1,56 +1,75 @@
 <div class="sw">
-  <h3 class="sw__title">Bookmarks</h3>
-  @if (bookmarks().length === 0) {
-    <p class="sw__empty">No bookmarks yet. Star a page from the toolbar to add one.</p>
-  } @else {
-    <ul class="sw__list">
-      @for (b of bookmarks(); track b.id) {
-        <li class="sw__card">
-          @if (editingId() === b.id) {
-            <div class="sw__edit">
-              <input
-                class="sw__edit-input"
-                type="text"
-                placeholder="Title"
-                [ngModel]="editTitle()"
-                (ngModelChange)="editTitle.set($event)"
-              />
-              <input
-                class="sw__edit-input"
-                type="url"
-                placeholder="URL"
-                [ngModel]="editUrl()"
-                (ngModelChange)="editUrl.set($event)"
-              />
-              <div class="sw__edit-actions">
-                <button type="button" class="sw__edit-btn" (click)="cancelEdit()">Cancel</button>
-                <button
-                  type="button"
-                  class="sw__edit-btn sw__edit-btn--primary"
-                  (click)="saveEdit()"
-                >
-                  Save
+  <div class="sw__body">
+    <div class="sw__page-header">
+      <i class="fa-solid fa-bookmark sw__page-icon" aria-hidden="true"></i>
+      <div>
+        <h2 class="sw__page-title">Bookmarks</h2>
+        <p class="sw__page-desc">Saved pages from the toolbar star. Edit titles or URLs inline.</p>
+      </div>
+    </div>
+
+    @if (bookmarks().length === 0) {
+      <p class="sw__empty">No bookmarks yet. Star a page from the toolbar to add one.</p>
+    } @else {
+      <ul class="sw__list">
+        @for (b of bookmarks(); track b.id) {
+          <li class="sw__list-card">
+            @if (editingId() === b.id) {
+              <div class="sw__edit">
+                <div class="sw__field">
+                  <label class="sw__label" for="bm-title-{{ b.id }}">Title</label>
+                  <input
+                    [id]="'bm-title-' + b.id"
+                    class="sw__input"
+                    type="text"
+                    placeholder="Title"
+                    [ngModel]="editTitle()"
+                    (ngModelChange)="editTitle.set($event)"
+                  />
+                </div>
+                <div class="sw__field">
+                  <label class="sw__label" for="bm-url-{{ b.id }}">URL</label>
+                  <input
+                    [id]="'bm-url-' + b.id"
+                    class="sw__input"
+                    type="url"
+                    placeholder="URL"
+                    [ngModel]="editUrl()"
+                    (ngModelChange)="editUrl.set($event)"
+                  />
+                </div>
+                <div class="sw__edit-actions">
+                  <button type="button" class="sw__btn sw__btn--sm" (click)="cancelEdit()">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    class="sw__btn sw__btn--primary sw__btn--sm"
+                    (click)="saveEdit()"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="sw__row">
+                <button type="button" class="sw__link" (click)="open(b.url, b.title)">
+                  {{ b.title || b.url }}
+                  <span class="sw__muted">{{ b.url }}</span>
+                </button>
+                <button type="button" class="sw__icon-btn" title="Edit" (click)="startEdit(b)">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M9 2l2 2-7 7H2v-2z" />
+                  </svg>
+                </button>
+                <button type="button" class="sw__icon-btn" title="Remove" (click)="remove(b.id)">
+                  ×
                 </button>
               </div>
-            </div>
-          } @else {
-            <div class="sw__row">
-              <button type="button" class="sw__link" (click)="open(b.url, b.title)">
-                {{ b.title || b.url }}
-                <span class="sw__muted">{{ b.url }}</span>
-              </button>
-              <button type="button" class="sw__icon-btn" title="Edit" (click)="startEdit(b)">
-                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M9 2l2 2-7 7H2v-2z" />
-                </svg>
-              </button>
-              <button type="button" class="sw__icon-btn" title="Remove" (click)="remove(b.id)">
-                ×
-              </button>
-            </div>
-          }
-        </li>
-      }
-    </ul>
-  }
+            }
+          </li>
+        }
+      </ul>
+    }
+  </div>
 </div>

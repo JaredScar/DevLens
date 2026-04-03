@@ -7,72 +7,13 @@
   min-height: 0;
 }
 
-.notes__filter {
-  margin: var(--dl-space-3) var(--dl-space-3) 0;
-  height: 34px;
-  border-radius: var(--dl-radius);
-  border: 1px solid var(--dl-border);
-  background: var(--dl-bg-base);
-  color: inherit;
-  padding: 0 10px;
-  font-size: 13px;
-  flex-shrink: 0;
+.notes__scroll {
+  padding-bottom: 20px;
 }
 
-.notes__compose {
-  padding: var(--dl-space-3);
-  border-bottom: 1px solid var(--dl-border);
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.notes__title,
-.notes__url {
-  width: 100%;
-  height: 34px;
-  border-radius: var(--dl-radius);
-  border: 1px solid var(--dl-border);
-  background: var(--dl-bg-base);
-  color: inherit;
-  padding: 0 10px;
-  font-size: 13px;
-}
-
-.notes__textarea {
-  width: 100%;
-  border-radius: var(--dl-radius);
-  border: 1px solid var(--dl-border);
-  background: var(--dl-bg-base);
-  color: inherit;
-  padding: 10px;
-  font-size: 13px;
-  resize: none;
+.notes__compose-md {
+  min-height: 88px;
   font-family: inherit;
-  line-height: 1.5;
-  outline: none;
-  transition: border-color var(--dl-motion);
-}
-
-.notes__textarea:focus {
-  border-color: var(--dl-accent);
-}
-
-.notes__add-btn {
-  height: 36px;
-  border-radius: var(--dl-radius);
-  border: none;
-  background: var(--dl-accent);
-  color: #fff;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 13px;
-  transition: filter var(--dl-motion);
-}
-
-.notes__add-btn:hover {
-  filter: brightness(1.1);
 }
 
 .notes__compose-actions {
@@ -80,22 +21,7 @@
   gap: 8px;
   justify-content: flex-end;
   align-items: center;
-}
-
-.notes__cancel-btn {
-  height: 36px;
-  padding: 0 12px;
-  border-radius: var(--dl-radius);
-  border: 1px solid var(--dl-border);
-  background: transparent;
-  color: var(--dl-muted);
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.notes__cancel-btn:hover {
-  color: var(--dl-text);
-  border-color: var(--dl-border-strong);
+  flex-wrap: wrap;
 }
 
 .notes__card--flash {
@@ -114,24 +40,13 @@
 }
 
 .notes__list {
-  flex: 1;
-  overflow-y: auto;
-  list-style: none;
-  margin: 0;
-  padding: var(--dl-space-3);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-shrink: 0;
 }
 
 .notes__card {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  border: 1px solid var(--dl-border);
-  border-radius: var(--dl-radius);
-  padding: 10px 12px;
-  background: var(--dl-bg-elevated);
 }
 
 .notes__card-body {
@@ -159,13 +74,6 @@
   text-decoration: underline;
 }
 
-.notes__card-text {
-  margin: 0;
-  font-size: 12px;
-  color: var(--dl-muted);
-  line-height: 1.4;
-}
-
 .notes__card-md {
   font-size: 12px;
   color: var(--dl-muted);
@@ -188,7 +96,7 @@
 .notes__card-date {
   font-size: 11px;
   color: var(--dl-muted);
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 .notes__card-actions {

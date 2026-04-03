@@ -1,130 +1,159 @@
 <div class="sess">
-  <button
-    class="sess__save-btn"
-    type="button"
-    (click)="openSaveSessionDialog()"
-    [disabled]="saving()"
-  >
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5">
-      <path d="M8 1v8M5 6l3 3 3-3M2 11h10a1 1 0 011 1v1H1v-1a1 1 0 011-1z" />
-    </svg>
-    Save Current Session
-  </button>
-
-  @if (sessions().length >= 2) {
-    <div class="sess__diff-bar">
-      <span class="sess__diff-label">Compare</span>
-      <select class="sess__diff-select" [ngModel]="diffA()" (ngModelChange)="diffA.set($event)">
-        <option [ngValue]="null">Session A…</option>
-        @for (s of sessions(); track s.id) {
-          <option [ngValue]="s.id">{{ s.name }}</option>
-        }
-      </select>
-      <span class="sess__diff-vs">vs</span>
-      <select class="sess__diff-select" [ngModel]="diffB()" (ngModelChange)="diffB.set($event)">
-        <option [ngValue]="null">Session B…</option>
-        @for (s of sessions(); track s.id) {
-          <option [ngValue]="s.id">{{ s.name }}</option>
-        }
-      </select>
+  <div class="sw__body sess__body">
+    <div class="sw__page-header">
+      <i class="fa-solid fa-layer-group sw__page-icon" aria-hidden="true"></i>
+      <div>
+        <h2 class="sw__page-title">Sessions</h2>
+        <p class="sw__page-desc">Save and restore sets of tabs in this workspace.</p>
+      </div>
     </div>
-    @if (diffResult(); as d) {
-      <div class="sess__diff-panel">
-        <div class="sess__diff-col">
-          <h4 class="sess__diff-h">Only in {{ d.nameA }} ({{ d.onlyA.length }})</h4>
-          <ul class="sess__diff-list">
-            @for (u of d.onlyA; track u) {
-              <li>{{ u }}</li>
-            }
-            @if (d.onlyA.length === 0) {
-              <li class="sess__diff-empty">—</li>
-            }
-          </ul>
-        </div>
-        <div class="sess__diff-col">
-          <h4 class="sess__diff-h">Only in {{ d.nameB }} ({{ d.onlyB.length }})</h4>
-          <ul class="sess__diff-list">
-            @for (u of d.onlyB; track u) {
-              <li>{{ u }}</li>
-            }
-            @if (d.onlyB.length === 0) {
-              <li class="sess__diff-empty">—</li>
-            }
-          </ul>
-        </div>
-        <div class="sess__diff-col sess__diff-col--full">
-          <h4 class="sess__diff-h">In both ({{ d.both.length }})</h4>
-          <ul class="sess__diff-list sess__diff-list--compact">
-            @for (u of d.both; track u) {
-              <li>{{ u }}</li>
-            }
-            @if (d.both.length === 0) {
-              <li class="sess__diff-empty">—</li>
-            }
-          </ul>
+
+    <button
+      class="sess__save-btn sw__btn sw__btn--primary"
+      type="button"
+      (click)="openSaveSessionDialog()"
+      [disabled]="saving()"
+    >
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 1v8M5 6l3 3 3-3M2 11h10a1 1 0 011 1v1H1v-1a1 1 0 011-1z" />
+      </svg>
+      Save current session
+    </button>
+
+    @if (sessions().length >= 2) {
+      <div class="sw__card sess__diff-card">
+        <div class="sw__card-header">Compare sessions</div>
+        <div class="sw__card-body sess__diff-inner">
+          <div class="sess__diff-row">
+            <select
+              class="sw__select sess__diff-select"
+              [ngModel]="diffA()"
+              (ngModelChange)="diffA.set($event)"
+            >
+              <option [ngValue]="null">Session A…</option>
+              @for (s of sessions(); track s.id) {
+                <option [ngValue]="s.id">{{ s.name }}</option>
+              }
+            </select>
+            <span class="sess__diff-vs">vs</span>
+            <select
+              class="sw__select sess__diff-select"
+              [ngModel]="diffB()"
+              (ngModelChange)="diffB.set($event)"
+            >
+              <option [ngValue]="null">Session B…</option>
+              @for (s of sessions(); track s.id) {
+                <option [ngValue]="s.id">{{ s.name }}</option>
+              }
+            </select>
+          </div>
+          @if (diffResult(); as d) {
+            <div class="sess__diff-panel">
+              <div class="sess__diff-col">
+                <h4 class="sess__diff-h">Only in {{ d.nameA }} ({{ d.onlyA.length }})</h4>
+                <ul class="sess__diff-list">
+                  @for (u of d.onlyA; track u) {
+                    <li>{{ u }}</li>
+                  }
+                  @if (d.onlyA.length === 0) {
+                    <li class="sess__diff-empty">—</li>
+                  }
+                </ul>
+              </div>
+              <div class="sess__diff-col">
+                <h4 class="sess__diff-h">Only in {{ d.nameB }} ({{ d.onlyB.length }})</h4>
+                <ul class="sess__diff-list">
+                  @for (u of d.onlyB; track u) {
+                    <li>{{ u }}</li>
+                  }
+                  @if (d.onlyB.length === 0) {
+                    <li class="sess__diff-empty">—</li>
+                  }
+                </ul>
+              </div>
+              <div class="sess__diff-col sess__diff-col--full">
+                <h4 class="sess__diff-h">In both ({{ d.both.length }})</h4>
+                <ul class="sess__diff-list sess__diff-list--compact">
+                  @for (u of d.both; track u) {
+                    <li>{{ u }}</li>
+                  }
+                  @if (d.both.length === 0) {
+                    <li class="sess__diff-empty">—</li>
+                  }
+                </ul>
+              </div>
+            </div>
+          }
         </div>
       </div>
     }
-  }
 
-  @if (sessions().length === 0) {
-    <p class="sess__empty">No saved sessions yet.</p>
-  }
-
-  <ul class="sess__list">
-    @for (s of sessions(); track s.id) {
-      <li class="sess__item">
-        <div
-          class="sess__item-body"
-          role="button"
-          tabindex="0"
-          (click)="openRestoreChoice(s)"
-          (keydown.enter)="openRestoreChoice(s)"
-          title="Restore session"
-        >
-          <span class="sess__item-name">{{ s.name }}</span>
-          <span class="sess__item-meta"
-            >{{ s.tabs.length }} tab{{ s.tabs.length !== 1 ? 's' : '' }}</span
-          >
-          <span class="sess__item-date">{{ formatSessionDate(s.savedAt) }}</span>
-        </div>
-        <button
-          type="button"
-          class="sess__item-share"
-          title="Copy session share JSON"
-          (click)="shareSessionJson(s); $event.stopPropagation()"
-        >
-          ⧉
-        </button>
-        <button class="sess__item-del" title="Delete" (click)="deleteSession(s.id)">×</button>
-      </li>
+    @if (sessions().length === 0) {
+      <p class="sw__empty sess__empty">No saved sessions yet.</p>
     }
-  </ul>
+
+    <ul class="sess__list">
+      @for (s of sessions(); track s.id) {
+        <li class="sess__item sw__list-card">
+          <div
+            class="sess__item-body"
+            role="button"
+            tabindex="0"
+            (click)="openRestoreChoice(s)"
+            (keydown.enter)="openRestoreChoice(s)"
+            title="Restore session"
+          >
+            <span class="sess__item-name">{{ s.name }}</span>
+            <span class="sess__item-meta"
+              >{{ s.tabs.length }} tab{{ s.tabs.length !== 1 ? 's' : '' }}</span
+            >
+            <span class="sess__item-date">{{ formatSessionDate(s.savedAt) }}</span>
+          </div>
+          <button
+            type="button"
+            class="sess__item-share sw__icon-btn"
+            title="Copy session share JSON"
+            (click)="shareSessionJson(s); $event.stopPropagation()"
+          >
+            ⧉
+          </button>
+          <button
+            type="button"
+            class="sess__item-del sw__icon-btn"
+            title="Delete"
+            (click)="deleteSession(s.id)"
+          >
+            ×
+          </button>
+        </li>
+      }
+    </ul>
+  </div>
 
   @if (saveDialog(); as dlg) {
     <div
-      class="sess__modal-backdrop"
+      class="sw__modal-backdrop"
       role="button"
       tabindex="0"
       aria-label="Cancel"
       (click)="dismissSaveDialog()"
       (keydown)="onSessionsModalBackdropKeydown($event, 'save')"
     ></div>
-    <div class="sess__modal" role="dialog" aria-label="Save session">
-      <p class="sess__modal-label">Session name</p>
+    <div class="sw__modal" role="dialog" aria-label="Save session">
+      <p class="sw__modal-label">Session name</p>
       <input
-        class="sess__modal-input"
+        class="sw__modal-input"
         type="text"
         [ngModel]="dlg.value"
         (ngModelChange)="setSaveDialogValue($event)"
         (keydown.enter)="confirmSaveSession()"
         (keydown.escape)="dismissSaveDialog()"
       />
-      <div class="sess__modal-actions">
-        <button type="button" class="sess__modal-btn" (click)="dismissSaveDialog()">Cancel</button>
+      <div class="sw__modal-actions">
+        <button type="button" class="sw__modal-btn" (click)="dismissSaveDialog()">Cancel</button>
         <button
           type="button"
-          class="sess__modal-btn sess__modal-btn--primary"
+          class="sw__modal-btn sw__modal-btn--primary"
           (click)="confirmSaveSession()"
         >
           Save
@@ -135,33 +164,31 @@
 
   @if (restoreChoiceSession(); as rs) {
     <div
-      class="sess__modal-backdrop"
+      class="sw__modal-backdrop"
       role="button"
       tabindex="0"
       aria-label="Cancel"
       (click)="dismissRestoreChoice()"
       (keydown)="onSessionsModalBackdropKeydown($event, 'restore')"
     ></div>
-    <div class="sess__modal" role="dialog" aria-label="Restore session">
-      <p class="sess__modal-label">Restore “{{ rs.name }}”</p>
-      <p class="sess__modal-hint">
+    <div class="sw__modal" role="dialog" aria-label="Restore session">
+      <p class="sw__modal-label">Restore “{{ rs.name }}”</p>
+      <p class="sw__modal-hint">
         {{ rs.tabs.length }} tab(s). Keep your current tabs or replace browser tabs in this
         workspace.
       </p>
-      <div class="sess__modal-actions sess__modal-actions--stack">
+      <div class="sw__modal-actions sw__modal-actions--stack">
         <button
           type="button"
-          class="sess__modal-btn sess__modal-btn--primary"
+          class="sw__modal-btn sw__modal-btn--primary"
           (click)="restoreKeepExisting()"
         >
           Add tabs (keep current)
         </button>
-        <button type="button" class="sess__modal-btn" (click)="restoreReplaceBrowserTabs()">
+        <button type="button" class="sw__modal-btn" (click)="restoreReplaceBrowserTabs()">
           Replace browser tabs
         </button>
-        <button type="button" class="sess__modal-btn" (click)="dismissRestoreChoice()">
-          Cancel
-        </button>
+        <button type="button" class="sw__modal-btn" (click)="dismissRestoreChoice()">Cancel</button>
       </div>
     </div>
   }

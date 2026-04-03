@@ -1,0 +1,90 @@
+@use './widget-shared' as *;
+
+.rl {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.rl__inner {
+  gap: 14px;
+  padding-bottom: 20px;
+}
+
+.rl__add-body {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.rl__add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.rl__add .sw__input {
+  flex: 1;
+  min-width: 140px;
+}
+
+.rl__queue-body {
+  padding: 0 !important;
+}
+
+.rl__queue-card {
+  flex: 1;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rl__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rl__item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--dl-border);
+  transition: background 0.15s;
+}
+
+.rl__item:last-child {
+  border-bottom: none;
+}
+
+.rl__item:hover {
+  background: var(--dl-bg-base);
+}
+
+.rl__link {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  border: none;
+  background: none;
+  color: var(--dl-text);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.rl__link:hover {
+  color: var(--dl-accent);
+}
+
+.rl__empty {
+  padding: 14px 16px !important;
+  list-style: none;
+}

@@ -1,26 +1,50 @@
 <div class="jf">
-  <p class="jf__hint">
-    Paste JSON and press <strong>Parse</strong> for a tree, or <strong>Format</strong> to
-    pretty-print.
-  </p>
-  <textarea
-    class="jf__ta"
-    rows="8"
-    spellcheck="false"
-    [ngModel]="raw()"
-    (ngModelChange)="raw.set($event)"
-    placeholder='{"hello": "world"}'
-  ></textarea>
-  <div class="jf__actions">
-    <button type="button" class="jf__btn jf__btn--primary" (click)="apply()">Parse tree</button>
-    <button type="button" class="jf__btn" (click)="pretty()">Format</button>
-  </div>
-  @if (error()) {
-    <div class="jf__err">{{ error() }}</div>
-  }
-  @if (hasTree()) {
-    <div class="jf__tree">
-      <app-json-node [value]="parsed()!" [depth]="0" />
+  <div class="sw__body jf__inner">
+    <div class="sw__page-header">
+      <i class="fa-solid fa-code sw__page-icon" aria-hidden="true"></i>
+      <div>
+        <h2 class="sw__page-title">JSON</h2>
+        <p class="sw__page-desc">Parse into a tree or format text without leaving the panel.</p>
+      </div>
     </div>
-  }
+
+    <div class="sw__card">
+      <div class="sw__card-header">Input</div>
+      <div class="sw__card-body jf__input-block">
+        <p class="sw__hint">
+          Paste JSON and press <strong>Parse tree</strong> for a tree, or <strong>Format</strong> to
+          pretty-print.
+        </p>
+        <textarea
+          class="sw__textarea jf__ta"
+          rows="8"
+          spellcheck="false"
+          [ngModel]="raw()"
+          (ngModelChange)="raw.set($event)"
+          placeholder='{"hello": "world"}'
+        ></textarea>
+        <div class="jf__actions">
+          <button type="button" class="sw__btn sw__btn--primary" (click)="apply()">
+            Parse tree
+          </button>
+          <button type="button" class="sw__btn" (click)="pretty()">Format</button>
+        </div>
+      </div>
+    </div>
+
+    @if (error()) {
+      <div class="sw__error-banner">{{ error() }}</div>
+    }
+
+    @if (hasTree()) {
+      <div class="sw__card jf__tree-card">
+        <div class="sw__card-header">Tree</div>
+        <div class="sw__card-body jf__tree-body">
+          <div class="jf__tree">
+            <app-json-node [value]="parsed()!" [depth]="0" />
+          </div>
+        </div>
+      </div>
+    }
+  </div>
 </div>

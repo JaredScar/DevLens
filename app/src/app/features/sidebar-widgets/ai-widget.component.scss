@@ -10,33 +10,32 @@
 
 .ai__demo-banner {
   flex-shrink: 0;
-  display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 12px;
-  padding: 8px 12px;
-  font-size: 11px;
-  line-height: 1.4;
-  color: var(--dl-text);
-  background: rgba(210, 153, 34, 0.12);
-  border-bottom: 1px solid var(--dl-warning);
+  margin: 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
 }
 
-.ai__demo-link {
-  border: none;
-  background: transparent;
-  color: var(--dl-accent);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0;
+.ai__demo-text {
+  flex: 1;
+  min-width: 140px;
+}
+
+.ai__header {
+  flex-shrink: 0;
+  padding: 12px 16px 10px;
+  margin: 0;
+  border-bottom: 1px solid var(--dl-border);
+  background: var(--dl-bg-elevated);
 }
 
 .ai__messages {
   flex: 1;
   overflow-y: auto;
-  padding: var(--dl-space-3);
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -61,7 +60,7 @@
 
 .ai__msg--user {
   align-self: flex-end;
-  background: var(--dl-accent-muted);
+  background: color-mix(in srgb, var(--dl-accent) 12%, transparent);
   border: 1px solid var(--dl-accent);
   border-radius: 12px 4px 12px 12px;
 }
@@ -104,44 +103,25 @@
 .ai__input-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: var(--dl-space-2) var(--dl-space-3) var(--dl-space-3);
+  gap: 8px;
+  padding: 12px 16px 14px;
   border-top: 1px solid var(--dl-border);
+  flex-shrink: 0;
+  background: var(--dl-bg-elevated);
 }
 
 .ai__input {
   flex: 1;
-  height: 36px;
-  border-radius: var(--dl-radius);
-  border: 1px solid var(--dl-border);
-  background: var(--dl-bg-base);
-  color: inherit;
-  padding: 0 10px;
-  font-size: 13px;
-}
-
-.ai__input:focus {
-  outline: none;
-  border-color: var(--dl-accent);
+  min-width: 0;
 }
 
 .ai__send {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 34px;
+  padding: 0;
   flex-shrink: 0;
-  border-radius: var(--dl-radius);
-  border: none;
-  background: var(--dl-accent);
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.ai__send:hover {
-  filter: brightness(1.1);
-}
 .ai__send:disabled {
   opacity: 0.5;
   cursor: default;

@@ -1,0 +1,50 @@
+<div class="perf">
+  <div class="sw__body perf__inner">
+    <div class="sw__page-header">
+      <i class="fa-solid fa-gauge-high sw__page-icon" aria-hidden="true"></i>
+      <div>
+        <h2 class="sw__page-title">Performance</h2>
+        <p class="sw__page-desc">Main process memory — not in-page Web Vitals.</p>
+      </div>
+    </div>
+
+    <div class="sw__card">
+      <div class="sw__card-header">Scope</div>
+      <div class="sw__card-body">
+        <p class="sw__hint perf__scope">
+          For load time and paint on the active page, open the <strong>Console</strong> widget and
+          use the <strong>PERF</strong> tab.
+        </p>
+        <p class="sw__hint">Tab webviews run in separate processes; RSS here is the shell only.</p>
+      </div>
+    </div>
+
+    @if (metrics(); as m) {
+      <div class="sw__card">
+        <div class="sw__card-header">Main process</div>
+        <div class="sw__card-body">
+          <dl class="perf__grid">
+            <dt>RSS</dt>
+            <dd>{{ formatBytes(m.rss) }}</dd>
+            <dt>Heap used</dt>
+            <dd>{{ formatBytes(m.heapUsed) }}</dd>
+            <dt>Heap total</dt>
+            <dd>{{ formatBytes(m.heapTotal) }}</dd>
+          </dl>
+        </div>
+      </div>
+    } @else {
+      <p class="sw__empty">No data (run inside Electron).</p>
+    }
+
+    <div class="sw__card">
+      <div class="sw__card-header">Tabs</div>
+      <div class="sw__card-body perf__tabs-body">
+        <p class="perf__tabs-line">
+          Browser tabs: <strong>{{ browserTabCount() }}</strong> · Suspended:
+          <strong>{{ suspendedCount() }}</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

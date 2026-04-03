@@ -1,30 +1,50 @@
 <div class="hist">
-  <div class="hist__head">
-    <h3 class="hist__title">Browsing history</h3>
-    @if (groups().length > 0) {
-      <button type="button" class="hist__clear" (click)="clearAllHistory()">Clear all</button>
+  <div class="sw__body hist__body">
+    <div class="sw__page-header">
+      <i class="fa-solid fa-clock-rotate-left sw__page-icon" aria-hidden="true"></i>
+      <div>
+        <h2 class="sw__page-title">History</h2>
+        <p class="sw__page-desc">Recent pages in this workspace. Open or remove entries.</p>
+      </div>
+    </div>
+
+    <div class="hist__toolbar">
+      @if (groups().length > 0) {
+        <button type="button" class="sw__btn sw__btn--sm hist__clear" (click)="clearAllHistory()">
+          Clear all
+        </button>
+      }
+    </div>
+
+    @if (groups().length === 0) {
+      <p class="sw__empty">No history entries yet.</p>
+    }
+
+    @for (g of groups(); track g.label) {
+      <section class="sw__card hist__day">
+        <div class="sw__card-header">{{ g.label }}</div>
+        <div class="sw__card-body hist__day-body">
+          <ul class="hist__list">
+            @for (e of g.entries; track e.id) {
+              <li class="hist__item">
+                <button type="button" class="hist__link" (click)="openUrl(e.url)" [title]="e.url">
+                  <span class="hist__item-title">{{ e.title || e.url }}</span>
+                  <span class="hist__item-url">{{ e.url }}</span>
+                  <span class="hist__item-time">{{ formatTime(e.at) }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="hist__del sw__icon-btn"
+                  title="Remove"
+                  (click)="removeEntry(e.id)"
+                >
+                  ×
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      </section>
     }
   </div>
-  @if (groups().length === 0) {
-    <p class="hist__empty">No history entries yet.</p>
-  }
-  @for (g of groups(); track g.label) {
-    <section class="hist__day">
-      <h4 class="hist__day-label">{{ g.label }}</h4>
-      <ul class="hist__list">
-        @for (e of g.entries; track e.id) {
-          <li class="hist__item">
-            <button type="button" class="hist__link" (click)="openUrl(e.url)" [title]="e.url">
-              <span class="hist__item-title">{{ e.title || e.url }}</span>
-              <span class="hist__item-url">{{ e.url }}</span>
-              <span class="hist__item-time">{{ formatTime(e.at) }}</span>
-            </button>
-            <button type="button" class="hist__del" title="Remove" (click)="removeEntry(e.id)">
-              ×
-            </button>
-          </li>
-        }
-      </ul>
-    </section>
-  }
 </div>

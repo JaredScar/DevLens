@@ -1,10 +1,23 @@
 <div class="ai">
   @if (showDemoBanner()) {
-    <div class="ai__demo-banner" role="status">
-      <span>Demo mode: replies are canned until you add an OpenAI API key in Settings → AI.</span>
-      <button type="button" class="ai__demo-link" (click)="openAiSettings()">Open Settings</button>
+    <div class="sw__warn ai__demo-banner" role="status">
+      <span class="ai__demo-text"
+        >Demo mode: replies are canned until you add an OpenAI API key in Settings → AI.</span
+      >
+      <button type="button" class="sw__btn sw__btn--sm" (click)="openAiSettings()">
+        Open Settings
+      </button>
     </div>
   }
+
+  <div class="ai__header sw__page-header">
+    <i class="fa-solid fa-wand-magic-sparkles sw__page-icon" aria-hidden="true"></i>
+    <div>
+      <h2 class="sw__page-title">Assistant</h2>
+      <p class="sw__page-desc">Ask about the page or anything else. Uses your AI settings.</p>
+    </div>
+  </div>
+
   <div class="ai__messages" #scroll>
     @for (msg of messages(); track $index) {
       <div
@@ -24,7 +37,7 @@
 
   <div class="ai__input-row">
     <input
-      class="ai__input"
+      class="ai__input sw__input"
       type="text"
       placeholder="Ask anything…"
       [ngModel]="input()"
@@ -33,7 +46,13 @@
       [disabled]="loading()"
       autocomplete="off"
     />
-    <button class="ai__send" (click)="send()" [disabled]="loading()" title="Send">
+    <button
+      type="button"
+      class="ai__send sw__btn sw__btn--primary"
+      (click)="send()"
+      [disabled]="loading()"
+      title="Send"
+    >
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
         <path d="M14 8L2 2l2.5 6L2 14l12-6z" fill="currentColor" />
       </svg>

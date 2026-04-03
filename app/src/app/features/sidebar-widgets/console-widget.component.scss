@@ -22,23 +22,29 @@
 .con__dt-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
+  gap: 8px;
+  padding: 9px 14px;
   border-bottom: 1px solid var(--dl-border);
   flex-shrink: 0;
-  background: var(--dl-bg-elevated);
+  background: var(--dl-bg-base);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dl-muted);
 }
 
 .con__dt-icon {
   color: var(--dl-accent);
-  font-size: 11px;
+  font-size: 12px;
+  text-transform: none;
 }
 
 .con__dt-label {
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--dl-text);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--dl-muted);
   flex: 1;
 }
 
@@ -136,33 +142,44 @@
 .con__tabs {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 2px 0;
+  align-items: stretch;
+  gap: 0;
   border-bottom: 1px solid var(--dl-border);
   flex-shrink: 0;
-  padding: 0 4px;
+  padding: 8px 8px 0;
+  background: var(--dl-bg-elevated);
 }
 
 .con__tab {
-  padding: 7px 10px;
-  border: none;
-  background: transparent;
+  padding: 8px 12px;
+  border: 1px solid var(--dl-border);
+  border-bottom: none;
+  margin-right: -1px;
+  margin-bottom: -1px;
+  background: var(--dl-bg-base);
   color: var(--dl-muted);
   cursor: pointer;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
+  font-family: inherit;
+  border-radius: var(--dl-radius) var(--dl-radius) 0 0;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .con__tab:hover {
   color: var(--dl-text);
+  background: var(--dl-bg-elevated);
 }
 
 .con__tab--active {
-  color: var(--dl-text);
-  border-bottom-color: var(--dl-accent);
+  color: var(--dl-accent) !important;
+  background: color-mix(in srgb, var(--dl-accent) 10%, transparent) !important;
+  border-color: var(--dl-accent);
+  position: relative;
+  z-index: 1;
 }
 
 .con__tabs-spacer {
@@ -170,21 +187,27 @@
 }
 
 .con__clear {
-  width: 24px;
-  height: 24px;
-  border: none;
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
   background: transparent;
   color: var(--dl-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: var(--dl-radius);
+  margin-bottom: 8px;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .con__clear:hover {
-  background: var(--dl-bg-elevated);
-  color: var(--dl-text);
+  background: color-mix(in srgb, var(--dl-danger) 10%, transparent);
+  border-color: color-mix(in srgb, var(--dl-danger) 25%, transparent);
+  color: var(--dl-danger);
 }
 
 .con__log-area {
@@ -292,20 +315,24 @@
 }
 
 .con__har {
-  margin-right: 4px;
-  padding: 4px 8px;
+  margin: 0 6px 8px auto;
+  padding: 6px 12px;
   border: 1px solid var(--dl-border);
-  border-radius: 4px;
+  border-radius: var(--dl-radius);
   background: var(--dl-bg-elevated);
   color: var(--dl-muted);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.03em;
   cursor: pointer;
+  font-family: inherit;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .con__har:hover {
-  color: var(--dl-text);
+  color: var(--dl-accent);
   border-color: var(--dl-accent);
 }
 
@@ -423,16 +450,18 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
+  gap: 8px;
+  padding: 9px 14px;
   border-bottom: 1px solid var(--dl-border);
+  background: var(--dl-bg-base);
 }
 
 .con__panel-label {
   flex: 1;
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.06em;
   color: var(--dl-muted);
 }
 
