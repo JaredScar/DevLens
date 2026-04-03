@@ -1,0 +1,130 @@
+{
+  "name": "dev-lens-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Dev-Lens — Electron + Angular browser shell",
+  "author": "Dev-Lens",
+  "main": "dist-electron/main.js",
+  "workspaces": [
+    "app",
+    "shared"
+  ],
+  "dependencies": {
+    "@dev-lens/shared": "*",
+    "@types/adm-zip": "^0.5.8",
+    "adm-zip": "^0.5.17",
+    "electron-store": "^8.2.0",
+    "zod": "^3.25.76"
+  },
+  "scripts": {
+    "gen-icon": "node scripts/gen-icon.mjs",
+    "build:shared": "npm run build -w @dev-lens/shared",
+    "build:electron": "npm run build:shared && tsc -p electron/tsconfig.json",
+    "build:app": "npm run build -w dev-lens",
+    "build": "npm run build:shared && npm run build:app && npm run build:electron",
+    "serve:app": "npm run start -w dev-lens",
+    "dev:electron": "wait-on -t 180000 http-get://127.0.0.1:4200/ && cross-env NODE_ENV=development electron .",
+    "dev": "npm run build:electron && concurrently -k -n ng,electron -c cyan,magenta \"npm run serve:app\" \"npm run dev:electron\"",
+    "start:electron": "cross-env NODE_ENV=development electron .",
+    "pack": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir",
+    "dist": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
+    "lint": "npm run lint -w dev-lens && eslint \"electron/**/*.ts\"",
+    "lint:fix": "npm run lint -w dev-lens -- --fix && eslint \"electron/**/*.ts\" --fix",
+    "format": "prettier --write \"app/src/**/*.{ts,html,scss}\" \"electron/**/*.ts\" \"shared/src/**/*.ts\" \"*.{json,md}\"",
+    "typecheck:electron": "tsc -p electron/tsconfig.json --noEmit",
+    "test:e2e": "playwright test",
+    "test:unit": "npm run test -w dev-lens -- --no-watch --browsers=ChromeHeadless",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "app/src/**/*.{ts,html,scss}": [
+      "prettier --write"
+    ],
+    "electron/**/*.ts": [
+      "eslint -c eslint.config.mjs --fix",
+      "prettier --write"
+    ],
+    "shared/src/**/*.ts": [
+      "prettier --write"
+    ],
+    "*.{scss,json,md}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.59.1",
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/node": "^22.10.2",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^33.3.1",
+    "electron-builder": "^25.1.8",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.4.2",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.19.1",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.devlens.app",
+    "productName": "Dev-Lens",
+    "directories": {
+      "app": ".",
+      "output": "release"
+    },
+    "icon": "electron/assets/icon.png",
+    "files": [
+      "dist-electron/**/*.js",
+      "package.json",
+      {
+        "from": "electron/assets",
+        "to": "assets",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "electron/bundled-plugins",
+        "to": "bundled-plugins",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "app/dist/dev-lens/browser",
+        "to": "angular",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asar": true,
+    "mac": {
+      "category": "public.app-category.utilities",
+      "icon": "electron/assets/icon.png",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "icon": "electron/assets/icon.png",
+      "signAndEditExecutable": false,
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "linux": {
+      "icon": "electron/assets/icon.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
+  }
+}

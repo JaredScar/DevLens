@@ -1,0 +1,282 @@
+<header class="topbar" role="banner">
+  <!-- ── Nav ─────────────────────────────────────────────────────────────── -->
+  <div class="topbar__nav" aria-label="Navigation">
+    <button
+      type="button"
+      class="nav-btn"
+      title="Go back"
+      [disabled]="!tabs.activeGuestNav().canBack"
+      (click)="goBack()"
+    >
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+    </button>
+    <button
+      type="button"
+      class="nav-btn"
+      title="Go forward"
+      [disabled]="!tabs.activeGuestNav().canFwd"
+      (click)="goForward()"
+    >
+      <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+    </button>
+    <button
+      type="button"
+      class="nav-btn"
+      [title]="tabs.activeGuestNav().loading ? 'Stop loading' : 'Reload'"
+      (click)="reloadOrStop()"
+    >
+      @if (tabs.activeGuestNav().loading) {
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      } @else {
+        <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+      }
+    </button>
+  </div>
+
+  <!-- ── Omnibox ──────────────────────────────────────────────────────────── -->
+  <div class="topbar__omni">
+    <!-- Blocker badge -->
+    <div
+      class="topbar__badge"
+      [class.topbar__badge--active]="blocked() > 0"
+      title="Requests blocked this session"
+    >
+      <span class="topbar__badge-dot"></span>
+      <span class="topbar__badge-count">{{ blocked() }}</span>
+    </div>
+
+    <!-- Lock/security indicator -->
+    <div class="topbar__lock" [class.topbar__lock--secure]="httpsHint()">
+      @if (httpsHint()) {
+        <svg
+          width="13"
+          height="13"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          viewBox="0 0 16 16"
+        >
+          <rect x="3" y="7" width="10" height="8" rx="1.5" />
+          <path d="M5 7V5a3 3 0 016 0v2" />
+        </svg>
+      } @else {
+        <svg
+          width="13"
+          height="13"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          viewBox="0 0 16 16"
+        >
+          <circle cx="8" cy="8" r="6" />
+          <path d="M8 5v3M8 11v.5" />
+        </svg>
+      }
+    </div>
+
+    <!-- URL input + suggestions dropdown -->
+    <div class="omnibox">
+      <input
+        class="omnibox__input"
+        type="text"
+        [ngModel]="inputUrl()"
+        (ngModelChange)="onOmniboxInput($event)"
+        (keydown)="keydownOmnibox($event)"
+        (focus)="onFocusInput()"
+        (blur)="onBlurInput()"
+        placeholder="Search or enter address"
+        spellcheck="false"
+        autocomplete="off"
+      />
+      @if (suggestionsOpen() && suggestionRowsList().length) {
+        <ul class="omnibox__suggest" role="listbox">
+          @for (r of suggestionRowsList(); track idx; let idx = $index) {
+            <li
+              role="option"
+              [attr.aria-selected]="idx === selectedSuggestion()"
+              [class.omnibox__suggest--active]="idx === selectedSuggestion()"
+              (mousedown)="pickSuggestion(r.url)"
+            >
+              <span class="omnibox__kind">{{ r.kind }}</span>
+              <span class="omnibox__title">{{ r.title }}</span>
+              <span class="omnibox__url">{{ r.url }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    @if (autofillHintsList().length) {
+      <div class="topbar__fill-wrap" tabindex="-1" (focusout)="onAutofillFocusOut()">
+        <button
+          type="button"
+          class="topbar__fill-btn"
+          [class.topbar__fill-btn--open]="autofillOpen()"
+          title="Fill form field on page"
+          (click)="toggleAutofillMenu()"
+        >
+          Fill
+        </button>
+        @if (autofillOpen()) {
+          <ul class="topbar__fill-menu" role="menu">
+            @for (h of autofillHintsList(); track h.id) {
+              <li role="none">
+                <button type="button" role="menuitem" (mousedown)="fillAutofillHint(h.value)">
+                  {{ h.label || h.value }}
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+
+    <!-- Summarize page (AI) -->
+    <button
+      type="button"
+      class="topbar__action-btn"
+      title="Summarize this page with AI"
+      (click)="summarizePage()"
+    >
+      <svg
+        width="14"
+        height="14"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        viewBox="0 0 16 16"
+      >
+        <path d="M3 12h10M3 8h7M3 4h10" />
+      </svg>
+    </button>
+
+    <!-- Copy URL -->
+    <button type="button" class="topbar__action-btn" title="Copy URL" (click)="shareUrl()">
+      <svg
+        width="14"
+        height="14"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        viewBox="0 0 16 16"
+      >
+        <rect x="5" y="5" width="9" height="9" rx="1" />
+        <path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1" />
+      </svg>
+    </button>
+
+    <!-- Inspect shortcut -->
+    <button type="button" class="topbar__action-btn" title="Inspect (DevTools)" (click)="inspect()">
+      <svg
+        width="14"
+        height="14"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        viewBox="0 0 16 16"
+      >
+        <path d="M2 4l4 4-4 4" />
+        <path d="M9 12h5" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- ── Right actions ─────────────────────────────────────────────────────── -->
+  <div class="topbar__actions" aria-label="Actions">
+    <button type="button" class="topbar__icon-btn" title="New tab" (click)="newTab()">
+      <svg
+        width="14"
+        height="14"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 16 16"
+      >
+        <path d="M8 2v12M2 8h12" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="topbar__icon-btn"
+      [class.topbar__icon-btn--active]="splitView.enabled()"
+      title="Split view"
+      (click)="toggleSplit()"
+    >
+      <svg
+        width="14"
+        height="14"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        viewBox="0 0 16 16"
+      >
+        <rect x="1" y="2" width="6" height="12" rx="1" />
+        <rect x="9" y="2" width="6" height="12" rx="1" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="topbar__icon-btn"
+      title="Bookmark this page"
+      (click)="toggleBookmark()"
+    >
+      <svg
+        width="14"
+        height="14"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        viewBox="0 0 16 16"
+      >
+        @if (isBookmarked()) {
+          <path fill="currentColor" d="M3 2h10a1 1 0 011 1v11l-6-3-6 3V3a1 1 0 011-1z" />
+        } @else {
+          <path d="M3 2h10a1 1 0 011 1v11l-6-3-6 3V3a1 1 0 011-1z" />
+        }
+      </svg>
+    </button>
+    <!-- Toggle right sidebar / panels -->
+    <button
+      type="button"
+      class="topbar__icon-btn"
+      [class.topbar__icon-btn--active]="layout.rightSidebarOpen()"
+      title="Toggle panels"
+      (click)="togglePanels()"
+    >
+      <svg
+        width="14"
+        height="14"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        viewBox="0 0 16 16"
+      >
+        <rect x="1" y="1" width="14" height="14" rx="2" />
+        <path d="M10 1v14" />
+      </svg>
+    </button>
+    <!-- More options -->
+    <div class="topbar__more-wrap" (click)="moreMenuClick($event)">
+      <button
+        type="button"
+        class="topbar__icon-btn"
+        title="More options"
+        (click)="$event.stopPropagation(); toggleMoreMenu()"
+      >
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+          <circle cx="3" cy="8" r="1.3" />
+          <circle cx="8" cy="8" r="1.3" />
+          <circle cx="13" cy="8" r="1.3" />
+        </svg>
+      </button>
+      @if (moreMenuOpen()) {
+        <div class="topbar__more-menu" role="menu">
+          <button type="button" role="menuitem" (click)="openActiveUrlExternally()">
+            Open in system browser
+          </button>
+          <button type="button" role="menuitem" (click)="openSettingsFromMenu()">Settings</button>
+        </div>
+      }
+    </div>
+  </div>
+</header>

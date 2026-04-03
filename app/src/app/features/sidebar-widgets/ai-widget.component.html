@@ -1,0 +1,42 @@
+<div class="ai">
+  @if (showDemoBanner()) {
+    <div class="ai__demo-banner" role="status">
+      <span>Demo mode: replies are canned until you add an OpenAI API key in Settings → AI.</span>
+      <button type="button" class="ai__demo-link" (click)="openAiSettings()">Open Settings</button>
+    </div>
+  }
+  <div class="ai__messages" #scroll>
+    @for (msg of messages(); track $index) {
+      <div
+        class="ai__msg"
+        [class.ai__msg--user]="msg.role === 'user'"
+        [class.ai__msg--bot]="msg.role === 'bot'"
+      >
+        {{ msg.text }}
+      </div>
+    }
+    @if (loading()) {
+      <div class="ai__msg ai__msg--bot ai__msg--loading">
+        <span class="ai__dot"></span><span class="ai__dot"></span><span class="ai__dot"></span>
+      </div>
+    }
+  </div>
+
+  <div class="ai__input-row">
+    <input
+      class="ai__input"
+      type="text"
+      placeholder="Ask anything…"
+      [ngModel]="input()"
+      (ngModelChange)="input.set($event)"
+      (keydown.enter)="send()"
+      [disabled]="loading()"
+      autocomplete="off"
+    />
+    <button class="ai__send" (click)="send()" [disabled]="loading()" title="Send">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M14 8L2 2l2.5 6L2 14l12-6z" fill="currentColor" />
+      </svg>
+    </button>
+  </div>
+</div>

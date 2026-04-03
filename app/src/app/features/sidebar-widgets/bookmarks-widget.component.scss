@@ -1,0 +1,41 @@
+@use './widget-shared' as *;
+
+.sw__edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sw__edit-input {
+  width: 100%;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--dl-border);
+  background: var(--dl-bg-base);
+  color: inherit;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.sw__edit-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.sw__edit-btn {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--dl-border);
+  background: transparent;
+  color: var(--dl-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sw__edit-btn--primary {
+  background: var(--dl-accent);
+  color: #fff;
+  border-color: var(--dl-accent);
+}

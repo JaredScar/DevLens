@@ -1,0 +1,343 @@
+<div class="con">
+  @if (bridge.isElectron) {
+    <!-- ── Embedded Chromium DevTools (Electron) ───────────────────────────── -->
+    <div class="con__dt-header">
+      <i class="fa-solid fa-bug con__dt-icon" aria-hidden="true"></i>
+      <span class="con__dt-label">Chromium DevTools</span>
+      @if (dtStatus() === 'attaching') {
+        <span class="con__dt-badge con__dt-badge--pending">Connecting…</span>
+      } @else if (dtStatus() === 'attached') {
+        <span class="con__dt-badge con__dt-badge--ok">Live</span>
+      } @else if (dtStatus() === 'error') {
+        <span class="con__dt-badge con__dt-badge--err">Error</span>
+      }
+    </div>
+
+    @if (activeBrowserTabId()) {
+      @if (dtStatus() === 'error' && dtError()) {
+        <p class="con__dt-error">
+          <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+          {{ dtError() }}
+        </p>
+      }
+
+      <!--
+        The BrowserView overlay is created and positioned by the main process
+        directly over this element. We only render a placeholder div so that
+        Angular's layout gives us valid getBoundingClientRect() coordinates to
+        pass to the main process via the DEVTOOLS_ATTACH / DEVTOOLS_SET_BOUNDS IPCs.
+      -->
+      <div #dtArea class="con__devtools-area">
+        @if (dtStatus() === 'attaching') {
+          <div class="con__dt-loading">
+            <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+            <span>Attaching DevTools…</span>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- No browser tab is active (e.g. Settings page is open) -->
+      <div class="con__dt-no-tab">
+        <i class="fa-solid fa-arrow-pointer con__dt-no-tab-icon" aria-hidden="true"></i>
+        <p class="con__dt-no-tab-title">No browser tab selected</p>
+        <p class="con__dt-no-tab-hint">
+          Switch to a browser tab in the left sidebar — DevTools will attach automatically.
+        </p>
+      </div>
+    }
+  } @else {
+    <!-- ── Custom fallback panels (non-Electron / web preview) ─────────────── -->
+    <div class="con__tabs">
+      <button
+        class="con__tab"
+        [class.con__tab--active]="activeTab() === 'console'"
+        (click)="activeTab.set('console')"
+      >
+        CONSOLE
+      </button>
+      <button
+        class="con__tab"
+        [class.con__tab--active]="activeTab() === 'network'"
+        (click)="activeTab.set('network')"
+      >
+        NETWORK
+      </button>
+      <button
+        class="con__tab"
+        [class.con__tab--active]="activeTab() === 'elements'"
+        (click)="activeTab.set('elements')"
+      >
+        ELEMENTS
+      </button>
+      <button
+        class="con__tab"
+        [class.con__tab--active]="activeTab() === 'sources'"
+        (click)="activeTab.set('sources')"
+      >
+        SOURCES
+      </button>
+      <button
+        class="con__tab"
+        [class.con__tab--active]="activeTab() === 'performance'"
+        (click)="activeTab.set('performance')"
+      >
+        PERF
+      </button>
+      <div class="con__tabs-spacer"></div>
+      @if (activeTab() === 'network') {
+        <button class="con__har" type="button" title="Export HAR (minimal)" (click)="exportHar()">
+          Export HAR
+        </button>
+      }
+      <button
+        class="con__clear"
+        [title]="activeTab() === 'network' ? 'Clear network log' : 'Clear console'"
+        (click)="clearPanel()"
+      >
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M2 2l8 8M10 2l-8 8" />
+        </svg>
+      </button>
+    </div>
+
+    @if (activeTab() === 'console') {
+      <div class="con__log-area">
+        @if (consoleLines().length === 0) {
+          <p class="con__empty">
+            No log entries yet. Guest <code>console.*</code> output and REPL results appear here.
+          </p>
+        }
+        @for (entry of consoleLines(); track $index) {
+          <div class="con__entry" [class]="'con__entry--' + entry.level">
+            <span class="con__entry-icon">
+              @if (entry.level === 'warn') {
+                ⚠
+              } @else if (entry.level === 'error') {
+                ✕
+              } @else if (entry.level === 'info') {
+                ›
+              } @else {
+                ←
+              }
+            </span>
+            <pre class="con__entry-text">{{ entry.text }}</pre>
+            <span class="con__entry-time">{{ entry.time }}</span>
+          </div>
+        }
+      </div>
+      <div class="con__input-row">
+        <span class="con__prompt">›</span>
+        <input
+          class="con__input"
+          type="text"
+          placeholder="Enter command…"
+          [ngModel]="command()"
+          (ngModelChange)="command.set($event)"
+          (keydown.enter)="runCommand()"
+          spellcheck="false"
+          autocomplete="off"
+        />
+      </div>
+    } @else if (activeTab() === 'network') {
+      <div class="con__net-wrap">
+        <div class="con__net-toolbar">
+          <input
+            class="con__net-search"
+            type="search"
+            placeholder="Filter URL…"
+            [ngModel]="networkUrlFilter()"
+            (ngModelChange)="networkUrlFilter.set($event)"
+            aria-label="Filter network requests by URL"
+          />
+          <select
+            class="con__net-filter"
+            [ngModel]="guestLog.networkResourceFilter()"
+            (ngModelChange)="guestLog.setNetworkResourceFilter($event)"
+            aria-label="Filter by resource type"
+          >
+            @for (opt of netFilterOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="con__net-area">
+          @if (filteredNetworkLines().length === 0) {
+            <p class="con__empty">
+              @if (networkLines().length === 0) {
+                No requests captured yet. Navigate to a URL in the active tab.
+              } @else {
+                No requests match the current filter.
+              }
+            </p>
+          }
+          @for (row of filteredNetworkLines(); track $index) {
+            <div class="con__net-row">
+              <span class="con__net-method">{{ row.method }}</span>
+              <span class="con__net-rtype" [title]="row.resourceType">{{ row.resourceType }}</span>
+              <span class="con__net-status" [class]="statusClass(row.statusCode)">{{
+                row.statusCode
+              }}</span>
+              <span class="con__net-url" [title]="row.url">{{ row.url }}</span>
+              <span class="con__net-time">{{ netTimeLabel(row.t) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    } @else if (activeTab() === 'elements') {
+      <div class="con__panel-toolbar">
+        <span class="con__panel-label">Live DOM snapshot</span>
+        <button
+          class="con__refresh-btn"
+          type="button"
+          (click)="openNativeDevTools()"
+          title="Open native DevTools"
+        >
+          <i
+            class="fa-solid fa-up-right-from-square"
+            style="font-size: 10px"
+            aria-hidden="true"
+          ></i>
+          DevTools
+        </button>
+        <button
+          class="con__refresh-btn"
+          type="button"
+          (click)="refreshElements()"
+          title="Refresh DOM snapshot"
+        >
+          <i class="fa-solid fa-rotate-right" style="font-size: 10px" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="con__tree-area">
+        @if (domLoading()) {
+          <p class="con__empty">Loading…</p>
+        } @else if (!domTree()) {
+          <p class="con__empty">Navigate to a page, then click Refresh.</p>
+        } @else {
+          <ng-container
+            *ngTemplateOutlet="domNodeTpl; context: { $implicit: domTree(), depth: 0 }"
+          />
+        }
+      </div>
+    } @else if (activeTab() === 'sources') {
+      <div class="con__panel-toolbar">
+        <span class="con__panel-label">Loaded resources (up to 80)</span>
+        <button class="con__refresh-btn" type="button" (click)="refreshSources()" title="Refresh">
+          <svg
+            width="12"
+            height="12"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            viewBox="0 0 16 16"
+          >
+            <path d="M13.5 8a5.5 5.5 0 11-1.1-3.3" />
+            <path d="M13.5 2v3.5H10" />
+          </svg>
+        </button>
+      </div>
+      <div class="con__src-area">
+        @if (sourcesLoading()) {
+          <p class="con__empty">Loading…</p>
+        } @else if (sourcesEntries().length === 0) {
+          <p class="con__empty">No resources found. Navigate to a page, then click Refresh.</p>
+        } @else {
+          @for (s of sourcesEntries(); track $index) {
+            <div class="con__src-row">
+              <span class="con__src-type" [class]="'con__src-type--' + s.type">{{ s.type }}</span>
+              <span class="con__src-url" [title]="s.name">{{ s.name }}</span>
+              <span class="con__src-size">{{ fmtBytes(s.size) }}</span>
+              <span class="con__src-dur">{{ s.duration }}ms</span>
+            </div>
+          }
+        }
+      </div>
+    } @else if (activeTab() === 'performance') {
+      <div class="con__panel-toolbar">
+        <span class="con__panel-label">Page performance metrics</span>
+        <button class="con__refresh-btn" type="button" (click)="refreshPerf()" title="Refresh">
+          <svg
+            width="12"
+            height="12"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            viewBox="0 0 16 16"
+          >
+            <path d="M13.5 8a5.5 5.5 0 11-1.1-3.3" />
+            <path d="M13.5 2v3.5H10" />
+          </svg>
+        </button>
+      </div>
+      <div class="con__perf-area">
+        @if (perfLoading()) {
+          <p class="con__empty">Loading…</p>
+        } @else if (!perfMetrics()) {
+          <p class="con__empty">Navigate to a page, then click Refresh.</p>
+        } @else {
+          <table class="con__perf-table">
+            <tr>
+              <td class="con__perf-k">Load time</td>
+              <td class="con__perf-v">
+                {{ perfMetrics()!.loadMs !== null ? perfMetrics()!.loadMs + ' ms' : '—' }}
+              </td>
+            </tr>
+            <tr>
+              <td class="con__perf-k">DOM ready</td>
+              <td class="con__perf-v">
+                {{ perfMetrics()!.domReadyMs !== null ? perfMetrics()!.domReadyMs + ' ms' : '—' }}
+              </td>
+            </tr>
+            @for (p of perfMetrics()!.paint; track p.name) {
+              <tr>
+                <td class="con__perf-k">{{ p.name }}</td>
+                <td class="con__perf-v">{{ p.time }} ms</td>
+              </tr>
+            }
+            @if (perfMetrics()!.lcp !== null) {
+              <tr>
+                <td class="con__perf-k">LCP</td>
+                <td class="con__perf-v">{{ perfMetrics()!.lcp }} ms</td>
+              </tr>
+            }
+            <tr>
+              <td class="con__perf-k">Resources</td>
+              <td class="con__perf-v">{{ perfMetrics()!.resources }}</td>
+            </tr>
+            <tr>
+              <td class="con__perf-k">Scripts</td>
+              <td class="con__perf-v">{{ perfMetrics()!.scripts }}</td>
+            </tr>
+            <tr>
+              <td class="con__perf-k">JS heap used</td>
+              <td class="con__perf-v">{{ fmtBytes(perfMetrics()!.memUsed) }}</td>
+            </tr>
+            <tr>
+              <td class="con__perf-k">JS heap total</td>
+              <td class="con__perf-v">{{ fmtBytes(perfMetrics()!.memTotal) }}</td>
+            </tr>
+          </table>
+        }
+      </div>
+    }
+  }
+</div>
+
+<ng-template #domNodeTpl let-node let-depth="depth">
+  <div class="con__dom-node" [style.padding-left.px]="depth * 12">
+    <span class="con__dom-tag">&lt;{{ node.tag }}</span>
+    @if (node.id) {
+      <span class="con__dom-attr"> id="{{ node.id }}"</span>
+    }
+    @if (node.classes) {
+      <span class="con__dom-attr"> class="{{ node.classes }}"</span>
+    }
+    <span class="con__dom-tag">&gt;</span>
+    @if (node.textSnippet) {
+      <span class="con__dom-text"> {{ node.textSnippet }}</span>
+    }
+  </div>
+  @for (child of node.children; track $index) {
+    <ng-container *ngTemplateOutlet="domNodeTpl; context: { $implicit: child, depth: depth + 1 }" />
+  }
+</ng-template>

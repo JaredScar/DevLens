@@ -1,0 +1,291 @@
+@if (layout.rightSidebarOpen()) {
+  <div class="rside-wrap">
+    <div
+      class="rside__resize"
+      title="Drag to resize panel"
+      (mousedown)="onResizeDown($event)"
+    ></div>
+    <aside class="rside">
+      <!-- ── Icon rail ─────────────────────────────────────────────────────── -->
+      <nav class="rside__rail" aria-label="Panel widgets">
+        <!-- Notes -->
+        <button
+          type="button"
+          class="rside__btn"
+          [class.rside__btn--active]="widgets.activeId() === 'notes'"
+          title="Notes"
+          (click)="pick('notes')"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 16 16"
+          >
+            <path d="M4 2h6l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" />
+            <path d="M10 2v3h3M5 8h6M5 11h4" />
+          </svg>
+        </button>
+
+        <!-- AI -->
+        <button
+          type="button"
+          class="rside__btn"
+          [class.rside__btn--active]="widgets.activeId() === 'ai'"
+          title="AI Assistant"
+          (click)="pick('ai')"
+        >
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 1L9.5 6.5 15 8l-5.5 1.5L8 15 6.5 9.5 1 8l5.5-1.5z" />
+          </svg>
+        </button>
+
+        <!-- Console -->
+        <button
+          type="button"
+          class="rside__btn"
+          [class.rside__btn--active]="widgets.activeId() === 'console'"
+          title="Console"
+          (click)="pick('console')"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 16 16"
+          >
+            <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" />
+            <path d="M4 6.5L6.5 8.5 4 10.5M9 10.5h3" />
+          </svg>
+        </button>
+
+        <!-- Clipboard -->
+        <button
+          type="button"
+          class="rside__btn"
+          [class.rside__btn--active]="widgets.activeId() === 'clipboard'"
+          title="Clipboard"
+          (click)="pick('clipboard')"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 16 16"
+          >
+            <rect x="3" y="3" width="10" height="12" rx="1" />
+            <path d="M6 3V2a1 1 0 012 0v1" />
+            <path d="M5 7h6M5 10h4" />
+          </svg>
+        </button>
+
+        <!-- Sessions -->
+        <button
+          type="button"
+          class="rside__btn"
+          [class.rside__btn--active]="widgets.activeId() === 'sessions'"
+          title="Sessions"
+          (click)="pick('sessions')"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 16 16"
+          >
+            <circle cx="8" cy="8" r="6" />
+            <path d="M8 5v3l2.5 2" />
+          </svg>
+        </button>
+
+        <!-- API Tester -->
+        <button
+          type="button"
+          class="rside__btn"
+          [class.rside__btn--active]="widgets.activeId() === 'api'"
+          title="API Tester"
+          (click)="pick('api')"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 16 16"
+          >
+            <circle cx="4" cy="4" r="2" />
+            <circle cx="12" cy="4" r="2" />
+            <circle cx="8" cy="12" r="2" />
+            <path d="M4 6v1.5a2 2 0 002 2h4a2 2 0 002-2V6" />
+            <path d="M8 9.5v1" />
+          </svg>
+        </button>
+
+        <!-- History -->
+        <button
+          type="button"
+          class="rside__btn"
+          [class.rside__btn--active]="widgets.activeId() === 'history'"
+          title="History"
+          (click)="pick('history')"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 16 16"
+          >
+            <circle cx="8" cy="8" r="6" />
+            <path d="M8 4v4l3 2" />
+          </svg>
+        </button>
+
+        <!-- Read later -->
+        <button
+          type="button"
+          class="rside__btn"
+          [class.rside__btn--active]="widgets.activeId() === 'readlater'"
+          title="Read later"
+          (click)="pick('readlater')"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 16 16"
+          >
+            <path d="M4 2.5h8a1 1 0 011 1v10l-5-3-5 3v-10a1 1 0 011-1z" />
+          </svg>
+        </button>
+
+        <!-- Performance -->
+        <button
+          type="button"
+          class="rside__btn"
+          [class.rside__btn--active]="widgets.activeId() === 'perf'"
+          title="Performance"
+          (click)="pick('perf')"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 16 16"
+          >
+            <path d="M3 13h10M4 9l3-3 2 2 3-4" />
+          </svg>
+        </button>
+
+        <!-- JSON -->
+        <button
+          type="button"
+          class="rside__btn"
+          [class.rside__btn--active]="widgets.activeId() === 'json'"
+          title="JSON formatter"
+          (click)="pick('json')"
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 16 16"
+          >
+            <path d="M5 3L3 5l2 2M11 3l2 2-2 2M6 13h4" />
+          </svg>
+        </button>
+
+        @for (p of pluginRuntime.sidebarPlugins(); track p.id) {
+          <button
+            type="button"
+            class="rside__btn rside__btn--plugin"
+            [class.rside__btn--active]="widgets.activeId() === 'plugin:' + p.id"
+            [title]="p.name"
+            (click)="pick('plugin:' + p.id)"
+          >
+            <span class="rside__plug">{{ p.sidebarTitle.charAt(0).toUpperCase() }}</span>
+          </button>
+        }
+
+        <!-- Divider -->
+        <div class="rside__spacer"></div>
+
+        <!-- Close -->
+        <button type="button" class="rside__close" title="Close panel" (click)="close()">
+          <svg
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            viewBox="0 0 16 16"
+          >
+            <path d="M2 2l12 12M14 2L2 14" />
+          </svg>
+        </button>
+      </nav>
+
+      <!-- ── Widget panel ───────────────────────────────────────────────────── -->
+      <div class="rside__panel">
+        @if (widgets.activeId().startsWith('plugin:')) {
+          <app-plugin-host-widget [pluginId]="widgets.activeId().slice(7)" />
+        } @else {
+          @switch (widgets.activeId()) {
+            @case ('notes') {
+              <app-notes-widget />
+            }
+            @case ('bookmarks') {
+              <app-bookmarks-widget />
+            }
+            @case ('ai') {
+              <app-ai-widget />
+            }
+            @case ('console') {
+              <app-console-widget />
+            }
+            @case ('clipboard') {
+              <app-clipboard-widget />
+            }
+            @case ('sessions') {
+              <app-sessions-widget />
+            }
+            @case ('api') {
+              <app-api-tester-widget />
+            }
+            @case ('history') {
+              <app-history-widget />
+            }
+            @case ('readlater') {
+              <app-read-later-widget />
+            }
+            @case ('perf') {
+              <app-performance-widget />
+            }
+            @case ('json') {
+              <app-json-formatter-widget />
+            }
+            @default {
+              <app-notes-widget />
+            }
+          }
+        }
+      </div>
+    </aside>
+  </div>
+}

@@ -1,0 +1,151 @@
+.ntp {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+.ntp__hero {
+  text-align: center;
+  padding: 32px 0 28px;
+}
+
+.ntp__hero h1 {
+  margin: 0 0 4px;
+  font-size: 2.4rem;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+.ntp__greeting {
+  margin: 0 0 4px;
+  font-size: 16px;
+  color: var(--dl-text);
+  font-weight: 500;
+}
+
+.ntp__ws {
+  margin: 0;
+  color: var(--dl-muted);
+  font-size: 13px;
+}
+
+.ntp__clock {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--dl-muted);
+}
+
+/* ── Search bar ─────────────────────────────────────────────────────────── */
+.ntp__search-wrap {
+  margin: 28px auto 0;
+  max-width: 540px;
+  position: relative;
+}
+
+.ntp__search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dl-muted);
+  pointer-events: none;
+}
+
+.ntp__search {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  border-radius: 24px;
+  border: 1.5px solid var(--dl-border);
+  background: var(--dl-bg-surface);
+  color: var(--dl-text);
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  transition:
+    border-color var(--dl-motion),
+    box-shadow var(--dl-motion);
+}
+
+.ntp__search:focus {
+  border-color: var(--dl-accent);
+  box-shadow: 0 0 0 3px var(--dl-accent-muted);
+}
+
+.ntp__section {
+  margin-top: 36px;
+}
+
+.ntp__section h2 {
+  margin: 0 0 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--dl-muted);
+  font-weight: 600;
+}
+
+.ntp__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.ntp__tile {
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: var(--dl-radius);
+  border: 1px solid var(--dl-border);
+  background: var(--dl-bg-surface);
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.ntp__tile:hover {
+  border-color: var(--dl-accent);
+}
+
+.ntp__tile--sub {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ntp__tile-title {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.ntp__tile-url {
+  font-size: 11px;
+  color: var(--dl-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ntp__empty {
+  grid-column: 1 / -1;
+  color: var(--dl-muted);
+  font-size: 14px;
+}
+
+.ntp__foot {
+  margin-top: 32px;
+  display: flex;
+  gap: 16px;
+}
+
+.ntp__link {
+  border: none;
+  background: none;
+  color: var(--dl-accent);
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+}

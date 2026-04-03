@@ -1,0 +1,135 @@
+.hist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dl-space-3);
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding: 2px 0;
+}
+
+.hist__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 var(--dl-space-3);
+}
+
+.hist__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.hist__clear {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--dl-border);
+  background: transparent;
+  color: var(--dl-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hist__clear:hover {
+  color: var(--dl-danger);
+  border-color: var(--dl-danger);
+}
+
+.hist__empty {
+  margin: 0;
+  font-size: 12px;
+  color: var(--dl-muted);
+}
+
+.hist__day-label {
+  margin: 12px 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--dl-muted);
+}
+
+.hist__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hist__item {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.hist__item + .hist__item {
+  border-top: 1px solid var(--dl-border);
+}
+
+.hist__del {
+  flex-shrink: 0;
+  width: 28px;
+  border: none;
+  background: transparent;
+  color: var(--dl-muted);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.hist__del:hover {
+  color: var(--dl-danger);
+  background: rgba(248, 81, 73, 0.08);
+}
+
+.hist__link {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 2px 8px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.hist__link:hover {
+  background: var(--dl-bg-elevated);
+}
+
+.hist__item-title {
+  grid-column: 1;
+  font-size: 12px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hist__item-url {
+  grid-column: 1;
+  font-size: 10px;
+  color: var(--dl-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hist__item-time {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-size: 10px;
+  color: var(--dl-muted);
+  font-variant-numeric: tabular-nums;
+}

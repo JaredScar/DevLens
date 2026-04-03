@@ -1,0 +1,50 @@
+<div class="shell" [class.shell--focus]="focusMode.hidesChrome()">
+  <app-top-bar />
+  <div class="shell__mid">
+    <app-left-sidebar />
+
+    <div
+      class="shell__content"
+      role="main"
+      aria-label="Browser"
+      [class.shell__content--split]="splitUi()"
+      [style.grid-template-columns]="splitUi() ? splitGridCols() : null"
+    >
+      <!--
+        All browser tabs stay mounted; visibility toggles active / split panes / hidden.
+      -->
+      @for (t of tabs.browserTabs(); track t.id) {
+        <app-browser-tab-view
+          [tab]="t"
+          [class.shell__browser-tab--hidden]="!browserPaneVisible(t.id)"
+          [class.shell__browser-tab--split-left]="splitUi() && tabs.activeTabId() === t.id"
+          [class.shell__browser-tab--split-right]="splitUi() && splitView.secondaryTabId() === t.id"
+        />
+      }
+
+      @if (splitUi()) {
+        <div
+          class="shell__split-grabber"
+          (mousedown)="onSplitGrabDown($event)"
+          title="Drag to resize"
+        ></div>
+      }
+
+      @if (showInternalOutlet()) {
+        <div class="internal-pane">
+          <router-outlet />
+        </div>
+      }
+    </div>
+
+    <app-right-sidebar />
+  </div>
+  <app-spotlight />
+  <app-toast-container />
+
+  @if (focusMode.enabled()) {
+    <button type="button" class="shell__focus-exit" (click)="focusMode.disable()">
+      Exit focus mode
+    </button>
+  }
+</div>

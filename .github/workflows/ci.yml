@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - name: Install Chromium (Karma unit tests)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium
+      - run: npm run test:unit
+        env:
+          CHROME_BIN: /usr/bin/chromium
+      - run: npx playwright install chromium --with-deps
+      - run: npx playwright test
+      - run: npm audit --audit-level=critical

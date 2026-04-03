@@ -1,0 +1,111 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 0;
+  background: var(--dl-bg-base);
+  color: var(--dl-text);
+  position: relative;
+}
+
+.shell--focus app-top-bar,
+.shell--focus app-left-sidebar,
+.shell--focus app-right-sidebar {
+  display: none !important;
+}
+
+.shell--focus .shell__mid {
+  flex: 1;
+  min-height: 0;
+}
+
+.shell__focus-exit {
+  position: fixed;
+  bottom: var(--dl-space-4);
+  right: var(--dl-space-4);
+  z-index: 400;
+  padding: 8px 14px;
+  border-radius: var(--dl-radius);
+  border: 1px solid var(--dl-border);
+  background: var(--dl-bg-elevated);
+  color: var(--dl-text);
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: var(--dl-shadow);
+}
+
+.shell__focus-exit:hover {
+  border-color: var(--dl-accent);
+  color: var(--dl-accent);
+}
+
+.shell__mid {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  /* z-index: 0 so the topbar (z-index: 50) and overlays stay above webviews */
+  position: relative;
+  z-index: 0;
+}
+
+.shell__content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  &--split {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    align-items: stretch;
+  }
+}
+
+.shell__split-grabber {
+  grid-column: 2;
+  grid-row: 1;
+  z-index: 3;
+  cursor: col-resize;
+  background: var(--dl-border);
+  transition: background var(--dl-motion);
+}
+
+.shell__split-grabber:hover {
+  background: var(--dl-accent);
+}
+
+/*
+ * All BrowserTabViewComponent host elements fill the content area.
+ * Only the active one is visible; others are hidden with display:none which
+ * keeps the webview process alive but stops painting.
+ */
+app-browser-tab-view {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.shell__content--split app-browser-tab-view.shell__browser-tab--split-left {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.shell__content--split app-browser-tab-view.shell__browser-tab--split-right {
+  grid-column: 3;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.shell__browser-tab--hidden {
+  display: none !important;
+}
+
+.internal-pane {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--dl-space-4);
+}

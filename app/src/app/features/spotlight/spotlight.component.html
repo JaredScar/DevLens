@@ -1,0 +1,58 @@
+@if (visible()) {
+  <div class="spotlight-backdrop" (mousedown)="spotlight.hide()"></div>
+  <div class="spotlight" role="dialog" aria-modal="true" (mousedown)="$event.stopPropagation()">
+    <input
+      #spotIn
+      class="spotlight__input"
+      type="search"
+      placeholder="Search tabs, bookmarks, history, notes…"
+      [ngModel]="query()"
+      (ngModelChange)="query.set($event); onInput()"
+      (keydown.escape)="$event.stopPropagation(); spotlight.hide()"
+    />
+    <ul class="spotlight__list" role="listbox">
+      @for (r of rows(); track r.id; let i = $index) {
+        <li
+          role="option"
+          tabindex="0"
+          [attr.aria-selected]="i === selected()"
+          [class.spotlight__row--active]="i === selected()"
+          (click)="pick(i)"
+          (keydown.enter)="pick(i)"
+          (keydown.space)="$event.preventDefault(); pick(i)"
+        >
+          <span class="spotlight__cat">
+            <span class="spotlight__cat-ico">
+              @switch (r.category) {
+                @case ('Open tabs') {
+                  🗂
+                }
+                @case ('Bookmarks') {
+                  🔖
+                }
+                @case ('History') {
+                  🕑
+                }
+                @case ('Notes') {
+                  📝
+                }
+                @case ('Commands') {
+                  ⌘
+                }
+                @default {
+                  ⌘
+                }
+              }
+            </span>
+            <span class="spotlight__cat-label">{{ r.category }}</span>
+          </span>
+          <span class="spotlight__label">{{ r.label }}</span>
+          @if (r.sub) {
+            <span class="spotlight__sub">{{ r.sub }}</span>
+          }
+        </li>
+      }
+    </ul>
+    <p class="spotlight__hint">↑↓ navigate · ↵ open · Esc close · Ctrl+K toggle</p>
+  </div>
+}

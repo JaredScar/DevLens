@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Network</title>
+  <style>
+    body { font: 13px system-ui, sans-serif; margin: 12px; background: #0d1117; color: #e6edf3; }
+    h1 { font-size: 14px; margin: 0 0 8px; }
+    .stat { font-size: 22px; font-weight: 600; color: #3fb950; margin: 8px 0; }
+    p { opacity: 0.85; line-height: 1.4; }
+    input { width: 100%; box-sizing: border-box; margin: 8px 0; padding: 8px; border-radius: 6px; border: 1px solid #30363d; background: #161b22; color: inherit; }
+    button { padding: 6px 12px; cursor: pointer; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Privacy blocker</h1>
+  <p>Requests blocked this session (approx.):</p>
+  <div class="stat" id="n">…</div>
+  <p>Open a URL in a new browser tab:</p>
+  <input type="text" id="url" placeholder="https://example.com" />
+  <button type="button" id="go">Open</button>
+  <script>
+    const api = window.devLensPlugin;
+    async function poll() {
+      const s = await api.getBlockerStats();
+      document.getElementById('n').textContent = s ? String(s.blockedSession) : '—';
+    }
+    document.getElementById('go').onclick = async () => {
+      const u = document.getElementById('url').value.trim();
+      if (u) await api.openInNewTab(u);
+    };
+    poll();
+    setInterval(poll, 3000);
+  </script>
+</body>
+</html>

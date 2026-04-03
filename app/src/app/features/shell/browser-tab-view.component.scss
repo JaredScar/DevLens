@@ -1,0 +1,19 @@
+/*
+ * :host must participate in the parent flex layout.
+ * `display: contents` was used previously but causes height: 100% on `.wv`
+ * to resolve to 0 inside a flex-direction:column container.
+ */
+:host {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.wv {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  border: none;
+  background: var(--dl-bg-base);
+}

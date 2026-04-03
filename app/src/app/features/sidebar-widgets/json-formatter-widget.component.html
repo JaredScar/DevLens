@@ -1,0 +1,26 @@
+<div class="jf">
+  <p class="jf__hint">
+    Paste JSON and press <strong>Parse</strong> for a tree, or <strong>Format</strong> to
+    pretty-print.
+  </p>
+  <textarea
+    class="jf__ta"
+    rows="8"
+    spellcheck="false"
+    [ngModel]="raw()"
+    (ngModelChange)="raw.set($event)"
+    placeholder='{"hello": "world"}'
+  ></textarea>
+  <div class="jf__actions">
+    <button type="button" class="jf__btn jf__btn--primary" (click)="apply()">Parse tree</button>
+    <button type="button" class="jf__btn" (click)="pretty()">Format</button>
+  </div>
+  @if (error()) {
+    <div class="jf__err">{{ error() }}</div>
+  }
+  @if (hasTree()) {
+    <div class="jf__tree">
+      <app-json-node [value]="parsed()!" [depth]="0" />
+    </div>
+  }
+</div>

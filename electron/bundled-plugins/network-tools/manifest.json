@@ -1,0 +1,12 @@
+{
+  "devLensPlugin": 1,
+  "id": "network-tools",
+  "name": "Network / blocker",
+  "version": "0.1.0",
+  "description": "Session blocked-request count (Privacy blocker). Toggle blocking in Settings → Privacy.",
+  "permissions": ["blocker", "tabs"],
+  "sidebar": {
+    "title": "Network",
+    "entry": "index.html"
+  }
+}

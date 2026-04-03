@@ -1,0 +1,66 @@
+.jf {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dl-space-2);
+  height: 100%;
+  min-height: 0;
+  padding: 2px 0;
+}
+
+.jf__hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--dl-muted);
+  font-family: system-ui, sans-serif;
+}
+
+.jf__ta {
+  width: 100%;
+  min-height: 120px;
+  flex: 0 0 auto;
+  resize: vertical;
+  border: 1px solid var(--dl-border);
+  border-radius: var(--dl-radius);
+  background: var(--dl-bg-elevated);
+  color: var(--dl-text);
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  padding: 8px;
+}
+
+.jf__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.jf__btn {
+  padding: 6px 12px;
+  border-radius: var(--dl-radius);
+  border: 1px solid var(--dl-border);
+  background: var(--dl-bg-surface);
+  color: var(--dl-text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.jf__btn--primary {
+  background: var(--dl-accent-muted);
+  border-color: var(--dl-accent);
+  color: var(--dl-accent);
+}
+
+.jf__err {
+  font-size: 12px;
+  color: var(--dl-danger);
+  font-family: ui-monospace, monospace;
+}
+
+.jf__tree {
+  flex: 1;
+  min-height: 120px;
+  overflow: auto;
+  padding: 8px;
+  border: 1px solid var(--dl-border);
+  border-radius: var(--dl-radius);
+  background: var(--dl-bg-base);
+}

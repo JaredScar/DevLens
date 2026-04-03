@@ -1,0 +1,67 @@
+<div class="ntp">
+  <header class="ntp__hero">
+    <h1>Dev-Lens</h1>
+    <p class="ntp__greeting">{{ greeting() }}</p>
+    <p class="ntp__clock">{{ now() | date: 'EEEE, MMMM d' }} · {{ now() | date: 'shortTime' }}</p>
+    <p class="ntp__ws">
+      <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+      {{ activeWorkspaceName() }}
+    </p>
+
+    <!-- Search bar -->
+    <div class="ntp__search-wrap">
+      <i class="fa-solid fa-magnifying-glass ntp__search-icon" aria-hidden="true"></i>
+      <input
+        class="ntp__search"
+        type="search"
+        placeholder="Search or enter address…"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        (keydown.enter)="submitSearch()"
+        aria-label="Search or navigate"
+      />
+    </div>
+  </header>
+
+  @if ((persisted.snapshot()?.bookmarks ?? []).length > 0) {
+    <section class="ntp__section">
+      <h2><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Bookmarks</h2>
+      <div class="ntp__grid">
+        @for (b of persisted.snapshot()?.bookmarks ?? []; track b.id) {
+          <button type="button" class="ntp__tile" (click)="open(b.url, b.title)" [title]="b.url">
+            <span class="ntp__tile-title">{{ b.title }}</span>
+            <span class="ntp__tile-url">{{ b.url }}</span>
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  <section class="ntp__section">
+    <h2><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Recent</h2>
+    <div class="ntp__grid">
+      @for (h of (persisted.snapshot()?.history ?? []).slice(0, 12); track h.id) {
+        <button
+          type="button"
+          class="ntp__tile ntp__tile--sub"
+          (click)="open(h.url, h.title)"
+          [title]="h.url"
+        >
+          <span class="ntp__tile-title">{{ h.title }}</span>
+          <span class="ntp__tile-url">{{ h.url }}</span>
+        </button>
+      } @empty {
+        <p class="ntp__empty">History appears as you browse.</p>
+      }
+    </div>
+  </section>
+
+  <footer class="ntp__foot">
+    <button type="button" class="ntp__link" (click)="openSettings()">
+      <i class="fa-solid fa-gear" aria-hidden="true"></i> Settings
+    </button>
+    <button type="button" class="ntp__link" (click)="tabs.addBrowserTab('about:blank', 'New Tab')">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i> New tab
+    </button>
+  </footer>
+</div>

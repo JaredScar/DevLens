@@ -1,0 +1,124 @@
+:host {
+  display: flex;
+  min-height: 0;
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+.rside-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.rside__resize {
+  width: 5px;
+  flex-shrink: 0;
+  cursor: ew-resize;
+  background: transparent;
+  transition: background var(--dl-motion);
+}
+
+.rside__resize:hover {
+  background: var(--dl-border);
+}
+
+.rside {
+  display: flex;
+  flex-direction: column;
+  width: var(--dl-right-sidebar-width);
+  min-width: var(--dl-right-sidebar-width);
+  border-left: 1px solid var(--dl-border);
+  background: var(--dl-bg-surface);
+  min-height: 0;
+  flex-shrink: 0;
+}
+
+/* ── Icon rail ────────────────────────────────────────────────────────────── */
+.rside__rail {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--dl-border);
+  background: var(--dl-bg-elevated);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.rside__btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--dl-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--dl-motion),
+    color var(--dl-motion),
+    border-color var(--dl-motion);
+  flex-shrink: 0;
+}
+
+.rside__btn:hover {
+  background: var(--dl-bg-base);
+  color: var(--dl-text);
+}
+
+.rside__btn--active {
+  color: var(--dl-accent);
+  background: var(--dl-accent-muted);
+  border-color: var(--dl-accent);
+}
+
+.rside__plug {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.rside__spacer {
+  flex: 1;
+  min-width: 4px;
+}
+
+.rside__close {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--dl-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 4px;
+  transition:
+    background var(--dl-motion),
+    color var(--dl-motion);
+}
+
+.rside__close:hover {
+  background: rgba(248, 81, 73, 0.12);
+  color: var(--dl-danger);
+}
+
+/* ── Widget panel ─────────────────────────────────────────────────────────── */
+.rside__panel {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}

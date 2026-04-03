@@ -1,0 +1,1207 @@
+<div class="settings">
+  <!-- ── Sidebar nav ────────────────────────────────────────────────────── -->
+  <nav class="settings__nav">
+    @for (item of nav; track item.id) {
+      <button
+        type="button"
+        class="settings__nav-btn"
+        [class.settings__nav--active]="section() === item.id"
+        (click)="section.set(item.id)"
+      >
+        <i class="fa-solid {{ item.icon }}" aria-hidden="true"></i>
+        {{ item.label }}
+      </button>
+    }
+  </nav>
+
+  <!-- ── Content body ───────────────────────────────────────────────────── -->
+  <div class="settings__body">
+    @if (persisted.snapshot(); as snap) {
+      @switch (section()) {
+        <!-- ══ GENERAL ═══════════════════════════════════════════════════ -->
+        @case ('general') {
+          <div class="settings__page-header">
+            <i class="fa-solid fa-gear settings__page-icon" aria-hidden="true"></i>
+            <div>
+              <h2>General</h2>
+              <p class="settings__page-desc">Core browser behaviour and default preferences.</p>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-sliders" aria-hidden="true"></i> Behaviour
+            </div>
+            <div class="settings__card-body">
+              <div class="settings__field">
+                <label class="settings__label">Default search engine</label>
+                <select
+                  [ngModel]="snap.settings.searchEngine"
+                  (ngModelChange)="patchSettings({ searchEngine: $event })"
+                >
+                  <option value="ddg">DuckDuckGo</option>
+                  <option value="google">Google</option>
+                </select>
+              </div>
+              <div class="settings__field">
+                <label class="settings__label">Startup</label>
+                <select
+                  [ngModel]="snap.settings.startupBehavior"
+                  (ngModelChange)="setStartup($event)"
+                >
+                  <option value="restore">Restore last session</option>
+                  <option value="new-tab">New tab</option>
+                </select>
+              </div>
+              <div class="settings__field">
+                <label class="settings__label">Language</label>
+                <input
+                  type="text"
+                  [ngModel]="snap.settings.language"
+                  (ngModelChange)="setLanguage($event)"
+                  placeholder="en"
+                />
+              </div>
+              <div class="settings__field">
+                <label class="settings__label">Suspend inactive tabs</label>
+                <select
+                  [ngModel]="snap.settings.tabSuspendAfterMinutes"
+                  (ngModelChange)="patchSettings({ tabSuspendAfterMinutes: +$event })"
+                >
+                  <option [ngValue]="0">Off</option>
+                  <option [ngValue]="5">After 5 minutes</option>
+                  <option [ngValue]="10">After 10 minutes</option>
+                  <option [ngValue]="15">After 15 minutes</option>
+                  <option [ngValue]="30">After 30 minutes</option>
+                  <option [ngValue]="60">After 60 minutes</option>
+                </select>
+                <p class="settings__field-hint">
+                  Background tabs unload to save memory; selecting the tab reloads the page.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-fill-drip" aria-hidden="true"></i> Form autofill hints
+            </div>
+            <div class="settings__card-body">
+              <p class="settings__hint">
+                Saved values appear in the top bar "Fill" menu to insert into email / username
+                fields.
+              </p>
+              @for (h of snap.settings.autofillHints; track h.id) {
+                <div class="settings__autofill-card">
+                  <div class="settings__field settings__field--row">
+                    <label class="settings__label">Label</label>
+                    <input
+                      type="text"
+                      [ngModel]="h.label"
+                      (ngModelChange)="updateAutofillHint(h.id, { label: $event })"
+                    />
+                  </div>
+                  <div class="settings__field settings__field--row">
+                    <label class="settings__label">Value</label>
+                    <input
+                      type="text"
+                      [ngModel]="h.value"
+                      (ngModelChange)="updateAutofillHint(h.id, { value: $event })"
+                      placeholder="email, username…"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    class="settings__danger settings__danger--small"
+                    (click)="removeAutofillHint(h.id)"
+                  >
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i> Remove
+                  </button>
+                </div>
+              } @empty {
+                <p class="settings__hint">No hints yet.</p>
+              }
+              <button
+                type="button"
+                class="settings__btn settings__btn--primary"
+                (click)="addAutofillHint()"
+              >
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Add hint
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ══ PRIVACY ════════════════════════════════════════════════════ -->
+        @case ('privacy') {
+          <div class="settings__page-header">
+            <i class="fa-solid fa-shield-halved settings__page-icon" aria-hidden="true"></i>
+            <div>
+              <h2>Privacy</h2>
+              <p class="settings__page-desc">Tracking protection, HTTPS, and clipboard controls.</p>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-ban" aria-hidden="true"></i> Tracking &amp; ad blocking
+            </div>
+            <div class="settings__card-body">
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="snap.settings.blockerEnabled"
+                  (ngModelChange)="patchSettings({ blockerEnabled: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label"
+                  >Tracker &amp; ad blocking (curated + remote hosts list)</span
+                >
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="snap.settings.httpsOnlyMode"
+                  (ngModelChange)="patchSettings({ httpsOnlyMode: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label"
+                  >Prefer HTTPS — rewrite <code>http://</code> to <code>https://</code></span
+                >
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="snap.settings.blockListAutoUpdate"
+                  (ngModelChange)="patchSettings({ blockListAutoUpdate: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Auto-refresh remote block list daily</span>
+              </label>
+
+              <div class="settings__field settings__field--stack">
+                <label class="settings__label"
+                  >Allowlisted hosts <span class="settings__label-hint">(one per line)</span></label
+                >
+                <textarea
+                  class="settings__textarea"
+                  rows="4"
+                  [ngModel]="allowlistLines(snap)"
+                  (ngModelChange)="setAllowlistText($event)"
+                  placeholder="example-cdn.com"
+                ></textarea>
+              </div>
+              <div class="settings__field settings__field--stack">
+                <label class="settings__label"
+                  >Extra blocked hosts
+                  <span class="settings__label-hint">(one per line)</span></label
+                >
+                <textarea
+                  class="settings__textarea"
+                  rows="3"
+                  [ngModel]="userBlockedLines(snap)"
+                  (ngModelChange)="setUserBlockedText($event)"
+                  placeholder="distraction.example"
+                ></textarea>
+              </div>
+              <div class="settings__field settings__field--stack">
+                <label class="settings__label"
+                  >Block list URL <span class="settings__label-hint">(optional)</span></label
+                >
+                <input
+                  type="url"
+                  class="settings__input-wide"
+                  [ngModel]="snap.settings.blockListSourceUrl || ''"
+                  (ngModelChange)="patchSettings({ blockListSourceUrl: $event || undefined })"
+                  placeholder="Default: Peter Lowe ad server list"
+                />
+              </div>
+              <div class="settings__row--inline">
+                <button type="button" class="settings__btn" (click)="refreshRemoteBlockList()">
+                  <i class="fa-solid fa-rotate" aria-hidden="true"></i> Update block list now
+                </button>
+                @if (blockListStatus()) {
+                  <span class="settings__inline-status">{{ blockListStatus() }}</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-clipboard" aria-hidden="true"></i> Clipboard
+            </div>
+            <div class="settings__card-body">
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="snap.settings.clipboardMonitoringPaused"
+                  (ngModelChange)="patchSettings({ clipboardMonitoringPaused: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Pause clipboard history (privacy)</span>
+              </label>
+              @if (bridge.isElectron) {
+                <label class="settings__toggle">
+                  <input
+                    type="checkbox"
+                    [ngModel]="snap.settings.systemClipboardWatch"
+                    (ngModelChange)="patchSettings({ systemClipboardWatch: $event })"
+                  />
+                  <span class="settings__toggle-track"
+                    ><span class="settings__toggle-thumb"></span
+                  ></span>
+                  <span class="settings__toggle-label">Watch OS clipboard from other apps</span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- ══ APPEARANCE ════════════════════════════════════════════════ -->
+        @case ('appearance') {
+          <div class="settings__page-header">
+            <i class="fa-solid fa-palette settings__page-icon" aria-hidden="true"></i>
+            <div>
+              <h2>Appearance</h2>
+              <p class="settings__page-desc">Themes, font size, layout, and focus mode.</p>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-swatchbook" aria-hidden="true"></i> Color theme
+            </div>
+            <div class="settings__card-body">
+              <div class="settings__theme-swatches">
+                @for (
+                  t of [
+                    { value: 'dark', label: 'Dark' },
+                    { value: 'light', label: 'Light' },
+                    { value: 'midnight', label: 'Midnight' },
+                    { value: 'solarized', label: 'Solarized' },
+                    { value: 'high-contrast', label: 'High contrast' },
+                  ];
+                  track t.value
+                ) {
+                  <button
+                    type="button"
+                    class="settings__swatch"
+                    [class.settings__swatch--active]="snap.settings.themePreset === t.value"
+                    [attr.data-theme]="t.value"
+                    (click)="setThemePreset(t.value)"
+                    [title]="t.label"
+                  >
+                    <span class="settings__swatch-dot"></span>
+                    <span class="settings__swatch-label">{{ t.label }}</span>
+                  </button>
+                }
+              </div>
+
+              <div class="settings__row--inline" style="margin-top: 8px">
+                <button type="button" class="settings__btn" (click)="exportThemeFile()">
+                  <i class="fa-solid fa-file-export" aria-hidden="true"></i> Export theme JSON
+                </button>
+                <label class="settings__file-label">
+                  <input
+                    type="file"
+                    accept="application/json,.json"
+                    (change)="onImportThemePick($event)"
+                  />
+                  <i class="fa-solid fa-file-import" aria-hidden="true"></i> Import theme JSON
+                </label>
+              </div>
+              <p class="settings__hint">
+                Export captures computed CSS variables; import merges into
+                <code>customThemeVariables</code>.
+              </p>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-text-height" aria-hidden="true"></i> Layout &amp; typography
+            </div>
+            <div class="settings__card-body">
+              <div class="settings__field">
+                <label class="settings__label">Font size</label>
+                <div class="settings__seg-group">
+                  @for (
+                    fs of [
+                      { v: 12, l: 'Small' },
+                      { v: 14, l: 'Medium' },
+                      { v: 16, l: 'Large' },
+                    ];
+                    track fs.v
+                  ) {
+                    <button
+                      type="button"
+                      class="settings__seg-btn"
+                      [class.settings__seg-btn--active]="snap.settings.fontSize === fs.v"
+                      (click)="setFontSize(fs.v)"
+                    >
+                      {{ fs.l }}
+                    </button>
+                  }
+                </div>
+              </div>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="snap.settings.uiRtl"
+                  (ngModelChange)="patchSettings({ uiRtl: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label"
+                  >Right-to-left layout
+                  <span class="settings__label-hint">(experimental)</span></span
+                >
+              </label>
+              <div class="settings__field settings__field--range">
+                <label class="settings__label">Right panel width</label>
+                <div class="settings__range-wrap">
+                  <input
+                    type="range"
+                    min="200"
+                    max="560"
+                    step="10"
+                    [ngModel]="snap.settings.rightSidebarWidthPx"
+                    (ngModelChange)="patchSettings({ rightSidebarWidthPx: +$event })"
+                  />
+                  <span class="settings__range-val">{{ snap.settings.rightSidebarWidthPx }}px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-crosshairs" aria-hidden="true"></i> Focus mode
+            </div>
+            <div class="settings__card-body">
+              <p class="settings__hint">
+                Press <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd> to toggle. Chrome hides unless the
+                active tab's host matches an entry below.
+              </p>
+              <div class="settings__field">
+                <label class="settings__label">Focus timer</label>
+                <select
+                  [ngModel]="snap.settings.focusPomodoroMinutes"
+                  (ngModelChange)="patchSettings({ focusPomodoroMinutes: +$event })"
+                >
+                  <option [ngValue]="0">Off</option>
+                  <option [ngValue]="15">15 minutes</option>
+                  <option [ngValue]="25">25 minutes</option>
+                  <option [ngValue]="45">45 minutes</option>
+                  <option [ngValue]="60">60 minutes</option>
+                </select>
+              </div>
+              <div class="settings__field settings__field--stack">
+                <label class="settings__label"
+                  >Hosts that keep chrome visible
+                  <span class="settings__label-hint">(one per line)</span></label
+                >
+                <textarea
+                  class="settings__textarea"
+                  rows="4"
+                  [ngModel]="focusAllowlistLines(snap)"
+                  (ngModelChange)="setFocusAllowlistText($event)"
+                  placeholder="news.ycombinator.com&#10;*.github.com"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-users" aria-hidden="true"></i> Community themes
+            </div>
+            <div class="settings__card-body">
+              <p class="settings__hint">
+                Static catalog from <code>theme-registry.json</code>. Use "Import theme JSON" above
+                to apply.
+              </p>
+              @if (themeRegistryEntries().length === 0) {
+                <p class="settings__hint">No entries (or registry not loaded).</p>
+              } @else {
+                <div class="settings__theme-list">
+                  @for (t of themeRegistryEntries(); track t.id) {
+                    <div class="settings__theme-entry">
+                      <strong>{{ t.name }}</strong>
+                      @if (t.sourceUrl) {
+                        <a
+                          class="settings__theme-link"
+                          [href]="t.sourceUrl"
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          <i class="fa-solid fa-download" aria-hidden="true"></i> Download JSON
+                        </a>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- ══ AUTOMATION ════════════════════════════════════════════════ -->
+        @case ('automation') {
+          <div class="settings__page-header">
+            <i class="fa-solid fa-bolt settings__page-icon" aria-hidden="true"></i>
+            <div>
+              <h2>Automation</h2>
+              <p class="settings__page-desc">
+                Rules fire on URL navigation, workspace switch, or a local-time window.
+              </p>
+            </div>
+          </div>
+
+          <!-- Marketplace -->
+          <div class="settings__marketplace">
+            <h3 class="settings__marketplace-title">
+              <i class="fa-solid fa-store" aria-hidden="true"></i> Rule Marketplace
+            </h3>
+            <p class="settings__hint">
+              Curated rules maintained by the Dev-Lens team. Click Install to add to your list.
+            </p>
+            <div class="settings__marketplace-grid">
+              @for (mr of marketplaceRules; track $index) {
+                <div class="settings__marketplace-card">
+                  <span class="settings__marketplace-badge">{{ mr.triggerType | titlecase }}</span>
+                  <strong>{{ mr.name }}</strong>
+                  <p class="settings__marketplace-desc">{{ mr.description }}</p>
+                  <button
+                    type="button"
+                    class="settings__btn settings__btn--sm"
+                    (click)="installMarketplaceRule(mr)"
+                  >
+                    <i class="fa-solid fa-download" aria-hidden="true"></i> Install
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="settings__row--inline" style="margin-top: 16px">
+            <button
+              type="button"
+              class="settings__btn settings__btn--primary"
+              (click)="addAutomationRule()"
+            >
+              <i class="fa-solid fa-plus" aria-hidden="true"></i> New rule
+            </button>
+          </div>
+
+          @for (r of snap.automationRules; track r.id) {
+            <div class="settings__rule-card">
+              <div class="settings__rule-header">
+                <label class="settings__rule-toggle">
+                  <input
+                    type="checkbox"
+                    [ngModel]="r.enabled"
+                    (ngModelChange)="updateRule(r.id, { enabled: $event })"
+                  />
+                  <span>{{ r.enabled ? 'Enabled' : 'Disabled' }}</span>
+                </label>
+                <input
+                  class="settings__rule-name"
+                  type="text"
+                  placeholder="Rule name…"
+                  [ngModel]="r.name"
+                  (ngModelChange)="updateRule(r.id, { name: $event })"
+                />
+                <button
+                  type="button"
+                  class="settings__danger settings__danger--small"
+                  (click)="removeRule(r.id)"
+                  title="Delete rule"
+                >
+                  <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="settings__rule-section">
+                <span class="settings__rule-label">WHEN</span>
+                <select
+                  [ngModel]="r.triggerType"
+                  (ngModelChange)="updateRule(r.id, { triggerType: $event, triggerValue: '' })"
+                >
+                  <option value="url_contains">URL contains</option>
+                  <option value="workspace_active">Workspace becomes active</option>
+                  <option value="time_window">Time window (local)</option>
+                </select>
+                @if (r.triggerType === 'url_contains') {
+                  <input
+                    type="url"
+                    placeholder="e.g. github.com or /pull/"
+                    [ngModel]="r.triggerValue"
+                    (ngModelChange)="updateRule(r.id, { triggerValue: $event })"
+                  />
+                } @else if (r.triggerType === 'workspace_active') {
+                  <select
+                    [ngModel]="r.triggerValue"
+                    (ngModelChange)="updateRule(r.id, { triggerValue: $event })"
+                  >
+                    <option value="">— pick workspace —</option>
+                    @for (ws of workspaces(); track ws.id) {
+                      <option [value]="ws.id">{{ ws.name }}</option>
+                    }
+                  </select>
+                } @else if (r.triggerType === 'time_window') {
+                  <div class="settings__time-row">
+                    <input
+                      type="time"
+                      [ngModel]="ruleTimeStart(r.triggerValue)"
+                      (ngModelChange)="
+                        updateRule(r.id, {
+                          triggerValue: $event + '-' + ruleTimeEnd(r.triggerValue),
+                        })
+                      "
+                      title="Start time"
+                    />
+                    <span>–</span>
+                    <input
+                      type="time"
+                      [ngModel]="ruleTimeEnd(r.triggerValue)"
+                      (ngModelChange)="
+                        updateRule(r.id, {
+                          triggerValue: ruleTimeStart(r.triggerValue) + '-' + $event,
+                        })
+                      "
+                      title="End time"
+                    />
+                  </div>
+                }
+              </div>
+              <div class="settings__rule-section">
+                <span class="settings__rule-label">THEN</span>
+                <select
+                  [ngModel]="r.actionType"
+                  (ngModelChange)="updateRule(r.id, { actionType: $event, actionValue: '' })"
+                >
+                  <option value="open_widget">Open widget</option>
+                  <option value="switch_workspace">Switch workspace</option>
+                  <option value="run_javascript">Run JavaScript in active tab</option>
+                  <option value="block_hostname">Block hostname</option>
+                </select>
+                @if (r.actionType === 'open_widget') {
+                  <select
+                    [ngModel]="r.actionValue"
+                    (ngModelChange)="updateRule(r.id, { actionValue: $event })"
+                  >
+                    <option value="">— pick widget —</option>
+                    <option value="notes">Notes</option>
+                    <option value="ai">AI Assistant</option>
+                    <option value="bookmarks">Bookmarks</option>
+                    <option value="history">History</option>
+                    <option value="sessions">Sessions</option>
+                    <option value="clipboard">Clipboard</option>
+                    <option value="console">Console</option>
+                    <option value="api">API Tester</option>
+                    <option value="perf">Performance</option>
+                    <option value="json">JSON Formatter</option>
+                  </select>
+                } @else if (r.actionType === 'switch_workspace') {
+                  <select
+                    [ngModel]="r.actionValue"
+                    (ngModelChange)="updateRule(r.id, { actionValue: $event })"
+                  >
+                    <option value="">— pick workspace —</option>
+                    @for (ws of workspaces(); track ws.id) {
+                      <option [value]="ws.id">{{ ws.name }}</option>
+                    }
+                  </select>
+                } @else if (r.actionType === 'run_javascript') {
+                  <textarea
+                    rows="3"
+                    placeholder="e.g. document.body.style.background = 'red';"
+                    [ngModel]="r.actionValue"
+                    (ngModelChange)="updateRule(r.id, { actionValue: $event })"
+                    spellcheck="false"
+                  ></textarea>
+                } @else if (r.actionType === 'block_hostname') {
+                  <input
+                    type="text"
+                    placeholder="e.g. ads.example.com"
+                    [ngModel]="r.actionValue"
+                    (ngModelChange)="updateRule(r.id, { actionValue: $event })"
+                  />
+                }
+              </div>
+            </div>
+          }
+        }
+
+        <!-- ══ AI ════════════════════════════════════════════════════════ -->
+        @case ('ai') {
+          <div class="settings__page-header">
+            <i class="fa-solid fa-robot settings__page-icon" aria-hidden="true"></i>
+            <div>
+              <h2>AI Assistant</h2>
+              <p class="settings__page-desc">
+                OpenAI-compatible chat API. Keys are stored only on this device.
+              </p>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-plug" aria-hidden="true"></i> Provider
+            </div>
+            <div class="settings__card-body">
+              <div class="settings__ai-provider-group">
+                @for (
+                  p of [
+                    {
+                      v: 'mock',
+                      l: 'Local mock',
+                      icon: 'fa-flask',
+                      desc: 'Canned replies — no API key required',
+                    },
+                    {
+                      v: 'openai',
+                      l: 'OpenAI-compatible',
+                      icon: 'fa-brain',
+                      desc: 'Any OpenAI-compatible endpoint',
+                    },
+                  ];
+                  track p.v
+                ) {
+                  <button
+                    type="button"
+                    class="settings__ai-provider-btn"
+                    [class.settings__ai-provider-btn--active]="snap.settings.aiProvider === p.v"
+                    (click)="setAiProvider(p.v)"
+                  >
+                    <i class="fa-solid {{ p.icon }}" aria-hidden="true"></i>
+                    <strong>{{ p.l }}</strong>
+                    <span class="settings__ai-provider-desc">{{ p.desc }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          @if (snap.settings.aiProvider === 'openai') {
+            <div class="settings__card">
+              <div class="settings__card-header">
+                <i class="fa-solid fa-key" aria-hidden="true"></i> Credentials
+              </div>
+              <div class="settings__card-body">
+                <div class="settings__field settings__field--stack">
+                  <label class="settings__label">API key</label>
+                  <div class="settings__password-wrap">
+                    <input
+                      [type]="apiKeyVisible() ? 'text' : 'password'"
+                      class="settings__input-wide"
+                      autocomplete="off"
+                      [ngModel]="snap.settings.aiApiKey"
+                      (ngModelChange)="patchSettings({ aiApiKey: $event })"
+                      placeholder="sk-…"
+                    />
+                    <button
+                      type="button"
+                      class="settings__password-toggle"
+                      (click)="apiKeyVisible.set(!apiKeyVisible())"
+                      [title]="apiKeyVisible() ? 'Hide' : 'Show'"
+                    >
+                      <i
+                        class="fa-solid {{ apiKeyVisible() ? 'fa-eye-slash' : 'fa-eye' }}"
+                        aria-hidden="true"
+                      ></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="settings__field settings__field--stack">
+                  <label class="settings__label"
+                    >API base URL <span class="settings__label-hint">(optional)</span></label
+                  >
+                  <input
+                    type="url"
+                    class="settings__input-wide"
+                    [ngModel]="snap.settings.aiBaseUrl || ''"
+                    (ngModelChange)="patchSettings({ aiBaseUrl: $event || '' })"
+                    placeholder="https://api.openai.com/v1"
+                  />
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-microchip" aria-hidden="true"></i> Model
+            </div>
+            <div class="settings__card-body">
+              <div class="settings__field settings__field--stack">
+                <label class="settings__label">Model identifier</label>
+                <input
+                  type="text"
+                  class="settings__input-wide"
+                  [ngModel]="snap.settings.aiModel"
+                  (ngModelChange)="patchSettings({ aiModel: $event })"
+                  placeholder="gpt-4o-mini"
+                />
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- ══ SHORTCUTS ══════════════════════════════════════════════════ -->
+        @case ('shortcuts') {
+          <div class="settings__page-header">
+            <i class="fa-solid fa-keyboard settings__page-icon" aria-hidden="true"></i>
+            <div>
+              <h2>Shortcuts</h2>
+              <p class="settings__page-desc">
+                Use <code>ctrl+…</code> form (Cmd on macOS maps to Ctrl). Clear to restore default.
+              </p>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-file-export" aria-hidden="true"></i> Profile
+            </div>
+            <div class="settings__card-body">
+              <div class="settings__row--inline">
+                <button type="button" class="settings__btn" (click)="exportShortcutProfile()">
+                  <i class="fa-solid fa-file-export" aria-hidden="true"></i> Export JSON
+                </button>
+                <label class="settings__file-label">
+                  <input
+                    type="file"
+                    accept="application/json,.json"
+                    (change)="onImportShortcutProfilePick($event)"
+                  />
+                  <i class="fa-solid fa-file-import" aria-hidden="true"></i> Import JSON
+                </label>
+                <button type="button" class="settings__btn" (click)="requestResetAllShortcuts()">
+                  <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset all to defaults
+                </button>
+              </div>
+            </div>
+          </div>
+
+          @if (shortcutConflicts().length) {
+            <div class="settings__warn">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+              <strong> Conflicts detected:</strong>
+              <ul>
+                @for (line of shortcutConflicts(); track line) {
+                  <li>{{ line }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-keyboard" aria-hidden="true"></i> Bindings
+            </div>
+            <div class="settings__card-body">
+              @for (row of shortcutRows; track row.id) {
+                <div class="settings__shortcut-row">
+                  <span class="settings__shortcut-label">{{ row.label }}</span>
+                  <input
+                    type="text"
+                    class="settings__shortcut-input"
+                    spellcheck="false"
+                    autocomplete="off"
+                    [ngModel]="shortcutDisplayValue(snap, row.id)"
+                    (ngModelChange)="updateShortcutBinding(row.id, $event)"
+                    [placeholder]="shortcutDisplayValue(snap, row.id) || 'unset'"
+                  />
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- ══ PLUGINS ════════════════════════════════════════════════════ -->
+        @case ('plugins') {
+          <div class="settings__page-header">
+            <i class="fa-solid fa-puzzle-piece settings__page-icon" aria-hidden="true"></i>
+            <div>
+              <h2>Plugins</h2>
+              <p class="settings__page-desc">
+                Each plugin runs in a sandboxed sidebar webview with permission-gated APIs.
+              </p>
+            </div>
+          </div>
+
+          @if (bridge.isElectron) {
+            <div class="settings__card">
+              <div class="settings__card-header">
+                <i class="fa-solid fa-folder-open" aria-hidden="true"></i> Installation
+              </div>
+              <div class="settings__card-body">
+                <p class="settings__hint">
+                  Drop an unpacked plugin folder at
+                  <code>userData/plugins/&lt;id&gt;/manifest.json</code> (folder name must match the
+                  manifest <code>id</code>).
+                </p>
+                <button type="button" class="settings__btn" (click)="pluginRuntime.refresh()">
+                  <i class="fa-solid fa-rotate" aria-hidden="true"></i> Refresh list
+                </button>
+              </div>
+            </div>
+
+            @for (p of pluginRuntime.allPlugins(); track p.id) {
+              <div class="settings__card settings__plugin-card">
+                <div class="settings__card-body">
+                  <div class="settings__plugin-header">
+                    <div class="settings__plugin-icon">
+                      <i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i>
+                    </div>
+                    <div class="settings__plugin-meta">
+                      <strong>{{ p.name }}</strong>
+                      <span class="settings__hint"
+                        >{{ p.id }} · v{{ p.version }}{{ p.bundled ? ' · bundled' : '' }}</span
+                      >
+                    </div>
+                    <label class="settings__toggle settings__toggle--compact">
+                      <input
+                        type="checkbox"
+                        [ngModel]="p.enabled"
+                        (ngModelChange)="pluginRuntime.setEnabled(p.id, $event)"
+                      />
+                      <span class="settings__toggle-track"
+                        ><span class="settings__toggle-thumb"></span
+                      ></span>
+                    </label>
+                  </div>
+                  <div class="settings__plugin-perms">
+                    @for (perm of p.permissions; track perm) {
+                      <span class="settings__perm-badge">{{ perm }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            } @empty {
+              <div class="settings__card">
+                <div class="settings__card-body">
+                  <p class="settings__hint">
+                    No plugins discovered yet. Drop a plugin folder in the location above and click
+                    Refresh.
+                  </p>
+                </div>
+              </div>
+            }
+          } @else {
+            <div class="settings__card">
+              <div class="settings__card-body">
+                <p class="settings__hint">
+                  <i class="fa-solid fa-info-circle" aria-hidden="true"></i>
+                  Plugins are available in the Electron app only.
+                </p>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- ══ SYNC ═══════════════════════════════════════════════════════ -->
+        @case ('sync') {
+          <div class="settings__page-header">
+            <i class="fa-solid fa-cloud-arrow-up settings__page-icon" aria-hidden="true"></i>
+            <div>
+              <h2>Sync &amp; backup</h2>
+              <p class="settings__page-desc">
+                Dev-Lens is offline-first. Export backups to move data between machines.
+              </p>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-file-code" aria-hidden="true"></i> Companion snapshot
+            </div>
+            <div class="settings__card-body">
+              <p class="settings__hint">
+                Browser-agnostic JSON (bookmarks, read-later, session names) for future mobile /
+                sync tools.
+              </p>
+              <button
+                type="button"
+                class="settings__btn settings__btn--primary"
+                (click)="exportCompanionSnapshot()"
+              >
+                <i class="fa-solid fa-download" aria-hidden="true"></i> Export companion JSON
+              </button>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-lock" aria-hidden="true"></i> Encrypted backup
+            </div>
+            <div class="settings__card-body">
+              <p class="settings__hint">
+                AES-GCM encrypted with a PBKDF2 passphrase (local only). Includes bookmarks, notes,
+                sessions, automation, tabs, history, clipboard, plugins, and settings.
+              </p>
+              <div class="settings__field">
+                <label class="settings__label">Import strategy</label>
+                <select
+                  [ngModel]="snap.settings.encryptedImportMode"
+                  (ngModelChange)="patchSettings({ encryptedImportMode: $event })"
+                >
+                  <option value="replace">Replace sections from file (full restore)</option>
+                  <option value="merge_lww">
+                    Merge lists — last-write-wins; keeps local settings &amp; tabs
+                  </option>
+                </select>
+              </div>
+              @if (snap.settings.lastEncryptedBackupAt) {
+                <p class="settings__hint">
+                  <i class="fa-solid fa-clock" aria-hidden="true"></i>
+                  Last export: {{ snap.settings.lastEncryptedBackupAt }}
+                </p>
+              }
+              <div class="settings__row--inline">
+                <button
+                  type="button"
+                  class="settings__btn settings__btn--primary"
+                  (click)="openBackupExportModal()"
+                >
+                  <i class="fa-solid fa-shield" aria-hidden="true"></i> Export encrypted backup
+                </button>
+                <label class="settings__file-label">
+                  <input
+                    type="file"
+                    accept="application/json,.json"
+                    (change)="onImportEncryptedBackupPick($event)"
+                  />
+                  <i class="fa-solid fa-file-import" aria-hidden="true"></i> Import encrypted backup
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-chart-line" aria-hidden="true"></i> Telemetry
+            </div>
+            <div class="settings__card-body">
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="snap.settings.telemetryOptIn"
+                  (ngModelChange)="patchSettings({ telemetryOptIn: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Opt in to anonymous console heartbeats</span>
+              </label>
+              <p class="settings__hint">
+                When enabled, the main process may log a periodic diagnostic line. No data leaves
+                your machine.
+              </p>
+            </div>
+          </div>
+        }
+
+        <!-- ══ ADVANCED ══════════════════════════════════════════════════ -->
+        @case ('advanced') {
+          <div class="settings__page-header">
+            <i class="fa-solid fa-wrench settings__page-icon" aria-hidden="true"></i>
+            <div>
+              <h2>Advanced</h2>
+              <p class="settings__page-desc">Developer options and data management.</p>
+            </div>
+          </div>
+
+          @if (bridge.isElectron) {
+            <div class="settings__card">
+              <div class="settings__card-header">
+                <i class="fa-solid fa-window-restore" aria-hidden="true"></i> Session
+              </div>
+              <div class="settings__card-body">
+                <label class="settings__toggle">
+                  <input
+                    type="checkbox"
+                    [ngModel]="snap.settings.autoSaveSessionOnClose"
+                    (ngModelChange)="patchSettings({ autoSaveSessionOnClose: $event })"
+                  />
+                  <span class="settings__toggle-track"
+                    ><span class="settings__toggle-thumb"></span
+                  ></span>
+                  <span class="settings__toggle-label"
+                    >Auto-save open tabs as a session when closing the window</span
+                  >
+                </label>
+                <p class="settings__hint">
+                  On close, saves a snapshot named "Auto-saved …" before exiting. May add a short
+                  delay.
+                </p>
+              </div>
+            </div>
+          }
+
+          <div class="settings__card settings__card--danger">
+            <div class="settings__card-header settings__card-header--danger">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Danger zone
+            </div>
+            <div class="settings__card-body">
+              <p class="settings__hint">
+                These actions are irreversible. Make a backup before proceeding.
+              </p>
+              <button type="button" class="settings__danger" (click)="requestResetData()">
+                <i class="fa-solid fa-trash" aria-hidden="true"></i> Reset local data
+              </button>
+              <p class="settings__hint">
+                Clears tabs, bookmarks, history, and notes from this device.
+              </p>
+            </div>
+          </div>
+        }
+      }
+    } @else {
+      <p class="settings__hint">Loading settings…</p>
+    }
+  </div>
+
+  <!-- ── Modals ──────────────────────────────────────────────────────────── -->
+  @if (backupExportOpen()) {
+    <div class="settings__modal-backdrop" (click)="closeBackupExportModal()"></div>
+    <div class="settings__modal" role="dialog" aria-label="Export encrypted backup">
+      <h3 class="settings__modal-title">
+        <i class="fa-solid fa-shield" aria-hidden="true"></i> Export encrypted backup
+      </h3>
+      <div class="settings__field settings__field--stack">
+        <label class="settings__label"
+          >Passphrase <span class="settings__label-hint">(min 8 characters)</span></label
+        >
+        <input
+          type="password"
+          autocomplete="new-password"
+          [ngModel]="backupExportPass()"
+          (ngModelChange)="backupExportPass.set($event)"
+        />
+      </div>
+      <div class="settings__field settings__field--stack">
+        <label class="settings__label">Confirm passphrase</label>
+        <input
+          type="password"
+          autocomplete="new-password"
+          [ngModel]="backupExportPass2()"
+          (ngModelChange)="backupExportPass2.set($event)"
+        />
+      </div>
+      <div class="settings__modal-actions">
+        <button type="button" class="settings__btn" (click)="closeBackupExportModal()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="settings__btn settings__btn--primary"
+          (click)="submitBackupExport()"
+        >
+          <i class="fa-solid fa-download" aria-hidden="true"></i> Download
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (backupImportOpen()) {
+    <div class="settings__modal-backdrop" (click)="cancelBackupImport()"></div>
+    <div class="settings__modal" role="dialog" aria-label="Import encrypted backup">
+      @if (backupImportStep() === 'pass') {
+        <h3 class="settings__modal-title">
+          <i class="fa-solid fa-lock-open" aria-hidden="true"></i> Import encrypted backup
+        </h3>
+        <p class="settings__hint">Enter the passphrase used when this file was exported.</p>
+        <div class="settings__field settings__field--stack">
+          <label class="settings__label">Passphrase</label>
+          <input
+            type="password"
+            autocomplete="off"
+            [ngModel]="backupImportPass()"
+            (ngModelChange)="backupImportPass.set($event)"
+          />
+        </div>
+        <div class="settings__modal-actions">
+          <button type="button" class="settings__btn" (click)="cancelBackupImport()">Cancel</button>
+          <button
+            type="button"
+            class="settings__btn settings__btn--primary"
+            (click)="backupImportDecryptStep()"
+          >
+            Next <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      } @else {
+        <h3 class="settings__modal-title">
+          <i class="fa-solid fa-check-circle" aria-hidden="true"></i> Apply backup
+        </h3>
+        <p class="settings__hint">
+          @if (persisted.snapshot()?.settings?.encryptedImportMode === 'merge_lww') {
+            Merge imported data (last-write-wins for lists; local settings and open tabs are kept).
+          } @else {
+            Replace store sections wherever the backup contains data.
+          }
+        </p>
+        <div class="settings__modal-actions">
+          <button type="button" class="settings__btn" (click)="cancelBackupImport()">Cancel</button>
+          <button
+            type="button"
+            class="settings__btn settings__btn--primary"
+            (click)="applyBackupImport()"
+          >
+            <i class="fa-solid fa-file-import" aria-hidden="true"></i> Import
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  @if (resetDataConfirmOpen()) {
+    <div class="settings__modal-backdrop" (click)="cancelResetData()"></div>
+    <div class="settings__modal" role="dialog" aria-label="Reset data">
+      <h3 class="settings__modal-title">
+        <i class="fa-solid fa-trash" aria-hidden="true"></i> Reset local data?
+      </h3>
+      <p class="settings__hint">
+        This clears tabs, bookmarks, history, and notes on this device. The page will reload.
+      </p>
+      <div class="settings__modal-actions">
+        <button type="button" class="settings__btn" (click)="cancelResetData()">Cancel</button>
+        <button type="button" class="settings__danger" (click)="confirmResetData()">
+          Reset everything
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (shortcutsResetConfirmOpen()) {
+    <div class="settings__modal-backdrop" (click)="cancelShortcutsReset()"></div>
+    <div class="settings__modal" role="dialog" aria-label="Reset shortcuts">
+      <h3 class="settings__modal-title">
+        <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset all shortcuts?
+      </h3>
+      <p class="settings__hint">All keyboard shortcuts will return to their defaults.</p>
+      <div class="settings__modal-actions">
+        <button type="button" class="settings__btn" (click)="cancelShortcutsReset()">Cancel</button>
+        <button
+          type="button"
+          class="settings__btn settings__btn--primary"
+          (click)="confirmResetAllShortcuts()"
+        >
+          Reset
+        </button>
+      </div>
+    </div>
+  }
+</div>

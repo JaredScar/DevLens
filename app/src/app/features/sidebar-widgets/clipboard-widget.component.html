@@ -1,0 +1,63 @@
+<div class="clip">
+  @if (persisted.snapshot(); as sn) {
+    @if (sn.settings.clipboardMonitoringPaused) {
+      <p class="clip__banner">Clipboard capture is paused in Settings → Privacy.</p>
+    }
+    @if (sn.settings.systemClipboardWatch && !sn.settings.clipboardMonitoringPaused) {
+      <p class="clip__banner clip__banner--muted">
+        Also recording copies from other apps (main process).
+      </p>
+    }
+  }
+  <div class="clip__header">
+    <span class="clip__title">Clipboard History</span>
+    <button class="clip__clear-btn" title="Clear all" (click)="clearAll()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 3h8l-.8 8H3.8L3 3zM1.5 3h11M5 3V2a1 1 0 012 0v1" />
+      </svg>
+    </button>
+  </div>
+
+  @if (entries().length === 0) {
+    <p class="clip__empty">No clipboard history yet. Copy something to get started.</p>
+  }
+
+  <ul class="clip__list">
+    @for (entry of entries(); track entry.id) {
+      <li
+        class="clip__item"
+        role="button"
+        tabindex="0"
+        (click)="copy(entry)"
+        (keydown.enter)="copy(entry)"
+        title="Click to copy"
+      >
+        <div class="clip__item-icon">
+          @if (entry.kind === 'url') {
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path
+                d="M6.5 8.5A3 3 0 0010 12h.5A3.5 3.5 0 0014 8.5v0A3.5 3.5 0 0010.5 5H9M7.5 5.5A3 3 0 004 2h-.5A3.5 3.5 0 000 5.5v0A3.5 3.5 0 003.5 9H5"
+              />
+            </svg>
+          } @else {
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="1" width="8" height="12" rx="1" />
+              <path d="M6 1h2a1 1 0 010 2H6a1 1 0 010-2zM5 7h4M5 10h3" />
+            </svg>
+          }
+        </div>
+        <div class="clip__item-body">
+          <span class="clip__item-text">{{ displayText(entry.text) }}</span>
+          <span class="clip__item-time">{{ entry.savedAt | date: 'h:mm:ss a' }}</span>
+        </div>
+        <button
+          class="clip__item-remove"
+          title="Remove"
+          (click)="$event.stopPropagation(); remove(entry.id)"
+        >
+          ×
+        </button>
+      </li>
+    }
+  </ul>
+</div>

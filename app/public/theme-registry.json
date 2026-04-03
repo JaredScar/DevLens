@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "themes": [
+    {
+      "id": "catalog-placeholder",
+      "name": "Curate entries here (id, name, optional sourceUrl to a theme JSON file)"
+    }
+  ]
+}

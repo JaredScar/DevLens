@@ -1,0 +1,12 @@
+{
+  "devLensPlugin": 1,
+  "id": "hello-world",
+  "name": "Hello Plugin",
+  "version": "0.1.0",
+  "description": "Sample Dev-Lens sidebar plugin (storage + active tab).",
+  "permissions": ["storage", "activeTab"],
+  "sidebar": {
+    "title": "Hello",
+    "entry": "index.html"
+  }
+}

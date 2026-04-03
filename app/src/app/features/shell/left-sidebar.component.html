@@ -1,0 +1,484 @@
+<aside class="sidebar" [class.sidebar--collapsed]="layout.leftSidebarCollapsed()">
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <div class="sidebar__header">
+    <button
+      type="button"
+      class="sidebar__collapse-btn"
+      (click)="layout.toggleLeftSidebar()"
+      [title]="layout.leftSidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+    >
+      <svg
+        width="14"
+        height="14"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        viewBox="0 0 16 16"
+      >
+        @if (layout.leftSidebarCollapsed()) {
+          <path d="M6 3l5 5-5 5" />
+        } @else {
+          <path d="M10 3L5 8l5 5" />
+        }
+      </svg>
+    </button>
+    @if (!layout.leftSidebarCollapsed()) {
+      <span class="sidebar__header-label">WORKSPACES</span>
+    }
+  </div>
+
+  @if (!layout.leftSidebarCollapsed()) {
+    <!-- ── Workspace selector ─────────────────────────────────────────────── -->
+    <div
+      class="sidebar__ws-row"
+      role="button"
+      tabindex="0"
+      (click)="$event.stopPropagation(); toggleWsDropdown()"
+      (keydown.enter)="$event.stopPropagation(); toggleWsDropdown()"
+      (keydown.space)="$event.preventDefault(); $event.stopPropagation(); toggleWsDropdown()"
+    >
+      <span class="sidebar__ws-dot" [style.background]="activeWorkspaceColor()"></span>
+      <span class="sidebar__ws-name">{{ activeWorkspaceName() }}</span>
+      <svg
+        class="sidebar__ws-chevron"
+        width="12"
+        height="12"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 12 12"
+      >
+        <path d="M2 4l4 4 4-4" />
+      </svg>
+
+      @if (wsDropdownOpen()) {
+        <div
+          class="sidebar__ws-dropdown"
+          role="menu"
+          tabindex="-1"
+          (click)="$event.stopPropagation()"
+          (keydown)="$event.stopPropagation()"
+        >
+          @for (w of workspace.workspaces(); track w.id) {
+            <button
+              type="button"
+              class="sidebar__ws-option"
+              [class.sidebar__ws-option--active]="w.id === workspace.activeWorkspaceId()"
+              (click)="switchWorkspace(w.id)"
+            >
+              <span
+                class="sidebar__ws-opt-dot"
+                [class.sidebar__ws-opt-dot--outline]="w.id !== workspace.activeWorkspaceId()"
+                [style.background]="
+                  w.id === workspace.activeWorkspaceId() ? w.color : 'transparent'
+                "
+                [style.border-color]="w.color"
+              ></span>
+              <span class="sidebar__ws-opt-name">{{ w.name }}</span>
+              <span class="sidebar__ws-opt-count">{{ tabCountForWorkspace(w.id) }}</span>
+            </button>
+          }
+          <button type="button" class="sidebar__ws-add" (click)="openNewWorkspaceDialog()">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 1v10M1 6h10" />
+            </svg>
+            New Workspace
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- ── Search ─────────────────────────────────────────────────────────── -->
+    <div class="sidebar__search-wrap">
+      <svg
+        class="sidebar__search-icon"
+        width="13"
+        height="13"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+      >
+        <circle cx="5.5" cy="5.5" r="4" />
+        <path d="M9 9l2.5 2.5" />
+      </svg>
+      <input
+        class="sidebar__search"
+        type="search"
+        placeholder="Search tabs…"
+        [ngModel]="tabFilter()"
+        (ngModelChange)="tabFilter.set($event)"
+        aria-label="Filter tabs"
+      />
+    </div>
+
+    <!-- ── Toolbar ────────────────────────────────────────────────────────── -->
+    <div class="sidebar__toolbar">
+      @if (selectMode()) {
+        <button
+          type="button"
+          class="sidebar__tool-btn"
+          [class.sidebar__tool-btn--primary]="canGroup()"
+          [disabled]="!canGroup()"
+          (click)="openNewGroupDialog()"
+          [title]="canGroup() ? 'Create group from selected tabs' : 'Select at least 2 tabs'"
+        >
+          <i class="fa-solid fa-object-group" aria-hidden="true"></i>
+          GROUP ({{ selectedTabIds().size }})
+        </button>
+        <button
+          type="button"
+          class="sidebar__tool-btn"
+          (click)="toggleSelectMode()"
+          title="Cancel selection"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          CANCEL
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="sidebar__tool-btn"
+          (click)="openNewGroupDialog()"
+          title="Select tabs to group"
+        >
+          <i class="fa-solid fa-object-group" aria-hidden="true"></i>
+          GROUP
+        </button>
+        <button
+          type="button"
+          class="sidebar__tool-btn sidebar__tool-btn--primary"
+          (click)="tabs.addBrowserTab('about:blank', 'New Tab')"
+        >
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          NEW TAB
+        </button>
+      }
+    </div>
+
+    <!-- ── Tab list ───────────────────────────────────────────────────────── -->
+    <div
+      class="tablist"
+      cdkDropList
+      [cdkDropListData]="groupedItems()"
+      [cdkDropListDisabled]="!!tabFilter().trim()"
+      (cdkDropListDropped)="drop($event)"
+    >
+      @for (item of groupedItems(); track item.type === 'tab' ? item.tab.id : item.id) {
+        @if (item.type === 'group') {
+          <div
+            class="tablist__group-label"
+            [class.tablist__group-label--collapsed]="item.collapsed"
+            [style.border-left-color]="item.color"
+            role="button"
+            tabindex="0"
+            (click)="tabs.toggleGroupCollapsed(item.id)"
+            (keydown.enter)="tabs.toggleGroupCollapsed(item.id)"
+          >
+            <span class="tablist__group-chevron">
+              <svg
+                width="10"
+                height="10"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                viewBox="0 0 12 12"
+              >
+                @if (item.collapsed) {
+                  <path d="M4 3l4 3-4 3" />
+                } @else {
+                  <path d="M3 4l3 4 3-4" />
+                }
+              </svg>
+            </span>
+            <span class="tablist__group-title">{{ item.title }}</span>
+          </div>
+        }
+        @if (item.type === 'tab') {
+          <div
+            class="tablist__row"
+            cdkDrag
+            role="button"
+            tabindex="0"
+            [title]="tabTitle(item.tab)"
+            [class.tablist__row--active]="tabs.activeTabId() === item.tab.id"
+            [class.tablist__row--selected]="selectedTabIds().has(item.tab.id)"
+            (click)="selectMode() ? toggleTabSelection(item.tab.id) : tabs.selectTab(item.tab.id)"
+            (keydown.enter)="
+              selectMode() ? toggleTabSelection(item.tab.id) : tabs.selectTab(item.tab.id)
+            "
+            (keydown.space)="
+              $event.preventDefault();
+              selectMode() ? toggleTabSelection(item.tab.id) : tabs.selectTab(item.tab.id)
+            "
+            (contextmenu)="onTabContextMenu($event, item.tab)"
+            (cdkDragEnded)="onTabDragEnd($event, item.tab)"
+          >
+            @if (selectMode()) {
+              <input
+                type="checkbox"
+                class="tablist__checkbox"
+                [checked]="selectedTabIds().has(item.tab.id)"
+                (click)="$event.stopPropagation(); toggleTabSelection(item.tab.id)"
+                tabindex="-1"
+                aria-hidden="true"
+              />
+            }
+            <span class="tablist__favicon">
+              @if (faviconUrl(item.tab)) {
+                <img
+                  [src]="faviconUrl(item.tab)"
+                  width="14"
+                  height="14"
+                  (error)="$any($event.target).style.display = 'none'"
+                  alt=""
+                />
+              } @else {
+                <span class="tablist__emoji">{{ tabEmoji(item.tab) }}</span>
+              }
+            </span>
+            <span class="tablist__title">{{ tabTitle(item.tab) }}</span>
+            @if (item.tab.kind === 'browser' && tabs.isBrowserTabSuspended(item.tab.id)) {
+              <span class="tablist__suspend" title="Suspended to save memory">⏸</span>
+            }
+            <button
+              type="button"
+              class="tablist__close"
+              (click)="$event.stopPropagation(); tabs.closeTab(item.tab.id)"
+              title="Close tab"
+            >
+              <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M1.5 1.5l7 7M8.5 1.5l-7 7" />
+              </svg>
+            </button>
+          </div>
+        }
+      }
+    </div>
+  } @else {
+    <!-- Collapsed: icon-only tab pills -->
+    <div class="sidebar__icons">
+      @for (t of tabs.visibleTabs(); track t.id) {
+        <button
+          type="button"
+          class="sidebar__icon-tab"
+          [class.sidebar__icon-tab--active]="tabs.activeTabId() === t.id"
+          [title]="tabTitle(t)"
+          (click)="tabs.selectTab(t.id)"
+          (contextmenu)="onTabContextMenu($event, t)"
+        >
+          @if (faviconUrl(t)) {
+            <img [src]="faviconUrl(t)" width="14" height="14" alt="" />
+          } @else {
+            {{ tabEmoji(t) || '◉' }}
+          }
+        </button>
+      }
+      <button
+        type="button"
+        class="sidebar__icon-tab sidebar__icon-tab--add"
+        title="New tab"
+        (click)="tabs.addBrowserTab('about:blank', 'New Tab')"
+      >
+        <svg
+          width="14"
+          height="14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 16 16"
+        >
+          <path d="M8 2v12M2 8h12" />
+        </svg>
+      </button>
+    </div>
+  }
+
+  <!-- ── Bottom toolbar ─────────────────────────────────────────────────── -->
+  <div class="sidebar__bottom" [class.sidebar__bottom--collapsed]="layout.leftSidebarCollapsed()">
+    <!-- Bookmarks -->
+    <button
+      type="button"
+      class="sidebar__bottom-btn"
+      title="Bookmarks"
+      (click)="openWidget('bookmarks')"
+    >
+      <svg
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        viewBox="0 0 16 16"
+      >
+        <path d="M3 2h10a1 1 0 011 1v11l-6-3-6 3V3a1 1 0 011-1z" />
+      </svg>
+    </button>
+    <!-- AI -->
+    <button
+      type="button"
+      class="sidebar__bottom-btn"
+      title="AI Assistant"
+      (click)="openWidget('ai')"
+    >
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 1L9.4 6.6 15 8l-5.6 1.4L8 15 6.6 9.4 1 8l5.6-1.4z" />
+      </svg>
+    </button>
+    <!-- Console -->
+    <button
+      type="button"
+      class="sidebar__bottom-btn"
+      title="Console"
+      (click)="openWidget('console')"
+    >
+      <svg
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        viewBox="0 0 16 16"
+      >
+        <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" />
+        <path d="M4 6.5l2.5 2-2.5 2M8.5 10.5H12" />
+      </svg>
+    </button>
+    <!-- Clipboard -->
+    <button
+      type="button"
+      class="sidebar__bottom-btn"
+      title="Clipboard"
+      (click)="openWidget('clipboard')"
+    >
+      <svg
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        viewBox="0 0 16 16"
+      >
+        <rect x="3" y="3" width="10" height="12" rx="1" />
+        <path d="M6 3V2a1 1 0 012 0v1" />
+        <path d="M5 7h6M5 10h4" />
+      </svg>
+    </button>
+    <!-- Settings -->
+    <button type="button" class="sidebar__bottom-btn" title="Settings" (click)="openSettings()">
+      <svg
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        viewBox="0 0 16 16"
+      >
+        <circle cx="8" cy="8" r="2.5" />
+        <path
+          d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M3.2 12.8l1.4-1.4M11.4 4.6l1.4-1.4"
+        />
+      </svg>
+    </button>
+  </div>
+
+  @if (dialog(); as dlg) {
+    <div class="sidebar__dialog-backdrop" (click)="dismissDialog()"></div>
+    <div
+      class="sidebar__dialog"
+      role="dialog"
+      [attr.aria-label]="dlg.type === 'workspace' ? 'New Workspace' : 'New Group'"
+    >
+      <p class="sidebar__dialog-label">
+        {{ dlg.type === 'workspace' ? 'Workspace name' : 'Group name' }}
+      </p>
+      @if (dlg.type === 'workspace') {
+        <div class="sidebar__dialog-colors" role="list">
+          @for (c of workspaceColorPresets; track c) {
+            <button
+              type="button"
+              class="sidebar__dialog-swatch"
+              [class.sidebar__dialog-swatch--active]="dlg.color === c"
+              [style.background]="c"
+              [title]="c"
+              (click)="setWorkspaceDialogColor(c)"
+            ></button>
+          }
+        </div>
+      }
+      <input
+        #dialogInput
+        class="sidebar__dialog-input"
+        type="text"
+        [placeholder]="dlg.type === 'workspace' ? 'e.g. Personal' : 'e.g. Research'"
+        [ngModel]="dlg.value"
+        (ngModelChange)="setDialogValue($event)"
+        (keydown)="dialogKeydown($event)"
+        autofocus
+      />
+      <div class="sidebar__dialog-actions">
+        <button
+          type="button"
+          class="sidebar__dialog-btn sidebar__dialog-btn--ghost"
+          (click)="dismissDialog()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="sidebar__dialog-btn sidebar__dialog-btn--primary"
+          (click)="confirmDialog()"
+        >
+          Create
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (tabContextMenu(); as ctx) {
+    <div
+      class="tabctx"
+      [style.left.px]="ctx.x"
+      [style.top.px]="ctx.y"
+      role="menu"
+      tabindex="0"
+      (click)="$event.stopPropagation()"
+      (keydown.escape)="closeTabMenu()"
+      (keydown)="$event.stopPropagation()"
+      (contextmenu)="$event.preventDefault()"
+    >
+      @if (ctx.tab.kind === 'browser') {
+        <button type="button" class="tabctx__item" (click)="menuDuplicate(ctx.tab)">
+          Duplicate
+        </button>
+        <button type="button" class="tabctx__item" (click)="menuExplainSelection(ctx.tab)">
+          Explain selection (AI)
+        </button>
+        <button type="button" class="tabctx__item" (click)="menuInspectElement(ctx.tab)">
+          Inspect element
+        </button>
+      }
+      <button type="button" class="tabctx__item" (click)="menuTogglePin(ctx.tab)">
+        {{ ctx.tab.pinned ? 'Unpin' : 'Pin' }}
+      </button>
+      <div class="tabctx__sep"></div>
+      <span class="tabctx__label">Move to workspace</span>
+      @for (w of workspace.workspaces(); track w.id) {
+        <button
+          type="button"
+          class="tabctx__item tabctx__item--sub"
+          [disabled]="w.id === ctx.tab.workspaceId"
+          (click)="menuMoveTo(ctx.tab, w.id)"
+        >
+          {{ w.name }}
+        </button>
+      }
+      <div class="tabctx__sep"></div>
+      <button type="button" class="tabctx__item" (click)="menuCloseOthers(ctx.tab)">
+        Close others
+      </button>
+      <button type="button" class="tabctx__item tabctx__item--danger" (click)="menuClose(ctx.tab)">
+        Close tab
+      </button>
+    </div>
+  }
+</aside>

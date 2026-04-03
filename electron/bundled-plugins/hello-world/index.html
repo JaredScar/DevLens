@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Hello</title>
+  <style>
+    body { font: 13px system-ui, sans-serif; margin: 12px; background: #0d1117; color: #e6edf3; }
+    h1 { font-size: 14px; margin: 0 0 8px; }
+    p { margin: 6px 0; opacity: 0.9; word-break: break-all; }
+    button { margin-top: 8px; padding: 6px 10px; cursor: pointer; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Hello plugin</h1>
+  <p id="tab">Active tab: …</p>
+  <p id="count">Visit count: …</p>
+  <button type="button" id="bump">Bump stored count</button>
+  <script>
+    const api = window.devLensPlugin;
+    async function refresh() {
+      const tab = await api.getActiveTab();
+      document.getElementById('tab').textContent = tab
+        ? 'Active tab: ' + (tab.title || tab.url)
+        : 'Active tab: (none)';
+      const n = await api.getStorage('visitCount');
+      document.getElementById('count').textContent =
+        'Visit count: ' + (typeof n === 'number' ? n : 0);
+    }
+    document.getElementById('bump').onclick = async () => {
+      const n = (await api.getStorage('visitCount')) || 0;
+      await api.setStorage('visitCount', (typeof n === 'number' ? n : 0) + 1);
+      await refresh();
+    };
+    refresh();
+    setInterval(refresh, 4000);
+  </script>
+</body>
+</html>

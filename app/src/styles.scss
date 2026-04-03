@@ -1,0 +1,149 @@
+:root {
+  --dl-bg-base: #0d1117;
+  --dl-bg-surface: #161b22;
+  --dl-bg-elevated: #21262d;
+  --dl-border: #30363d;
+  --dl-border-strong: #484f58;
+  --dl-text: #e6edf3;
+  --dl-muted: #8b949e;
+  --dl-accent: #58a6ff;
+  --dl-accent-muted: rgba(88, 166, 255, 0.12);
+  --dl-tab-active-bg: rgba(88, 166, 255, 0.08);
+  --dl-success: #3fb950;
+  --dl-warning: #d29922;
+  --dl-danger: #f85149;
+  --dl-radius: 8px;
+  --dl-space-1: 4px;
+  --dl-space-2: 8px;
+  --dl-space-3: 12px;
+  --dl-space-4: 16px;
+  --dl-topbar-height: 48px;
+  --dl-sidebar-width: 196px;
+  --dl-right-sidebar-width: 260px;
+  --dl-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --dl-motion: 0.15s ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  background: var(--dl-bg-base);
+  color: var(--dl-text);
+}
+
+/* Focus visibility (keyboard / screen-reader friendly) */
+:where(
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role='button'],
+  [role='menuitem'],
+  [role='tab'],
+  [tabindex]:not([tabindex='-1'])
+):focus-visible {
+  outline: 2px solid var(--dl-accent);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--dl-border-strong);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--dl-muted);
+}
+
+/* Color presets (Settings → Appearance). Default :root matches `dark`. */
+html[data-theme='light'] {
+  --dl-bg-base: #f6f8fa;
+  --dl-bg-surface: #ffffff;
+  --dl-bg-elevated: #eaeef2;
+  --dl-border: #d0d7de;
+  --dl-border-strong: #8c959f;
+  --dl-text: #1f2328;
+  --dl-muted: #656d76;
+  --dl-accent: #0969da;
+  --dl-accent-muted: rgba(9, 105, 218, 0.12);
+  --dl-tab-active-bg: rgba(9, 105, 218, 0.1);
+  --dl-success: #1a7f37;
+  --dl-warning: #9a6700;
+  --dl-danger: #cf222e;
+  --dl-shadow: 0 12px 40px rgba(31, 35, 40, 0.12);
+}
+
+html[data-theme='midnight'] {
+  --dl-bg-base: #050810;
+  --dl-bg-surface: #0c1220;
+  --dl-bg-elevated: #141d2e;
+  --dl-border: #1e2a40;
+  --dl-border-strong: #2d3f5c;
+  --dl-text: #e8edf5;
+  --dl-muted: #7a8aa8;
+  --dl-accent: #7eb8ff;
+  --dl-accent-muted: rgba(126, 184, 255, 0.14);
+  --dl-tab-active-bg: rgba(126, 184, 255, 0.1);
+  --dl-success: #5bdc8a;
+  --dl-warning: #e8c547;
+  --dl-danger: #ff7b72;
+  --dl-shadow: 0 12px 48px rgba(0, 0, 0, 0.65);
+}
+
+html[data-theme='solarized'] {
+  --dl-bg-base: #002b36;
+  --dl-bg-surface: #073642;
+  --dl-bg-elevated: #0c414d;
+  --dl-border: #586e75;
+  --dl-border-strong: #657b83;
+  --dl-text: #eee8d5;
+  --dl-muted: #93a1a1;
+  --dl-accent: #268bd2;
+  --dl-accent-muted: rgba(38, 139, 210, 0.15);
+  --dl-tab-active-bg: rgba(38, 139, 210, 0.12);
+  --dl-success: #859900;
+  --dl-warning: #b58900;
+  --dl-danger: #dc322f;
+  --dl-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme='high-contrast'] {
+  --dl-bg-base: #000000;
+  --dl-bg-surface: #0a0a0a;
+  --dl-bg-elevated: #141414;
+  --dl-border: #ffffff;
+  --dl-border-strong: #ffff00;
+  --dl-text: #ffffff;
+  --dl-muted: #cccccc;
+  --dl-accent: #ffff00;
+  --dl-accent-muted: rgba(255, 255, 0, 0.2);
+  --dl-tab-active-bg: rgba(255, 255, 0, 0.15);
+  --dl-success: #00ff00;
+  --dl-warning: #ffff00;
+  --dl-danger: #ff6666;
+  --dl-shadow: none;
+}

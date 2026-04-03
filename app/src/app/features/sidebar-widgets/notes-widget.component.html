@@ -1,0 +1,78 @@
+<div class="notes">
+  <input
+    class="notes__filter"
+    type="search"
+    placeholder="Search notes…"
+    [ngModel]="filter()"
+    (ngModelChange)="filter.set($event)"
+    aria-label="Search notes"
+  />
+  <div class="notes__compose">
+    <input
+      class="notes__title"
+      type="text"
+      placeholder="Title"
+      [ngModel]="draftTitle()"
+      (ngModelChange)="draftTitle.set($event)"
+    />
+    <textarea
+      class="notes__textarea"
+      rows="3"
+      placeholder="Write a note… (**bold**, `code`, [link](https://…))"
+      [ngModel]="draftBody()"
+      (ngModelChange)="draftBody.set($event)"
+    ></textarea>
+    <input
+      class="notes__url"
+      type="url"
+      placeholder="Link (optional)"
+      [ngModel]="draftUrl()"
+      (ngModelChange)="draftUrl.set($event)"
+    />
+    <div class="notes__compose-actions">
+      @if (editingId()) {
+        <button type="button" class="notes__cancel-btn" (click)="cancelCompose()">Cancel</button>
+      }
+      <button type="button" class="notes__add-btn" (click)="saveNote()">
+        {{ editingId() ? 'Update note' : 'Add note' }}
+      </button>
+    </div>
+  </div>
+
+  <ul class="notes__list">
+    @for (n of filtered(); track n.id) {
+      <li
+        class="notes__card"
+        [attr.data-note-card]="n.id"
+        [class.notes__card--flash]="flashNoteId() === n.id"
+      >
+        <div class="notes__card-body">
+          <strong class="notes__card-title">{{ n.title }}</strong>
+          @if (n.url) {
+            <a class="notes__card-link" [href]="n.url" target="_blank" rel="noopener noreferrer">
+              {{ n.url }}
+            </a>
+          }
+          @if (n.body) {
+            <div class="notes__card-md" [innerHTML]="previewHtml(n)"></div>
+          }
+          @if (n.updatedAt) {
+            <span class="notes__card-date">{{ n.updatedAt | date: 'M/d/yyyy' }}</span>
+          }
+        </div>
+        <div class="notes__card-actions">
+          <button type="button" class="sw__icon-btn" title="Edit" (click)="startEdit(n)">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 2l2 2-7 7H2v-2z" />
+            </svg>
+          </button>
+          <button type="button" class="sw__icon-btn" title="Delete" (click)="notes.remove(n.id)">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M2 2l8 8M10 2l-8 8" />
+            </svg>
+          </button>
+        </div>
+      </li>
+    }
+  </ul>
+</div>

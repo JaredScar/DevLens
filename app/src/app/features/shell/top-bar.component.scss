@@ -1,0 +1,343 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--dl-space-2);
+  height: var(--dl-topbar-height);
+  padding: 0 var(--dl-space-2) 0 var(--dl-space-3);
+  border-bottom: 1px solid var(--dl-border);
+  background: var(--dl-bg-surface);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 100;
+  -webkit-app-region: drag;
+}
+
+/* ── Nav buttons ──────────────────────────────────────────────────────────── */
+.topbar__nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  -webkit-app-region: no-drag;
+}
+
+.nav-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--dl-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--dl-motion),
+    color var(--dl-motion);
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: var(--dl-bg-elevated);
+  color: var(--dl-text);
+}
+
+.nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ── Omnibox area ─────────────────────────────────────────────────────────── */
+.topbar__omni {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  background: var(--dl-bg-base);
+  border: 1px solid var(--dl-border);
+  border-radius: 20px;
+  padding: 0 4px 0 8px;
+  height: 36px;
+  -webkit-app-region: no-drag;
+  transition: border-color var(--dl-motion);
+}
+
+.topbar__omni:focus-within {
+  border-color: var(--dl-accent);
+}
+
+.topbar__badge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(63, 185, 80, 0.15);
+  flex-shrink: 0;
+  cursor: default;
+}
+
+.topbar__badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dl-success);
+}
+
+.topbar__badge-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dl-success);
+  line-height: 1;
+}
+
+.topbar__badge--active .topbar__badge-dot {
+  animation: badge-pulse 2s infinite;
+}
+
+@keyframes badge-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.topbar__lock {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--dl-muted);
+}
+
+.topbar__lock--secure {
+  color: var(--dl-success);
+}
+
+/* ── Omnibox input ────────────────────────────────────────────────────────── */
+.omnibox {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.omnibox__input {
+  width: 100%;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0 4px;
+  font-size: 13px;
+  outline: none;
+}
+
+.omnibox__suggest {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: -80px;
+  right: -80px;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  background: var(--dl-bg-surface);
+  border: 1px solid var(--dl-border);
+  border-radius: var(--dl-radius);
+  box-shadow: var(--dl-shadow);
+  max-height: 300px;
+  overflow: auto;
+  z-index: 200;
+}
+
+.omnibox__suggest li {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  grid-template-rows: auto auto;
+  gap: 0 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.omnibox__suggest li:hover,
+.omnibox__suggest--active {
+  background: var(--dl-bg-elevated);
+}
+
+.omnibox__kind {
+  grid-row: 1 / 3;
+  color: var(--dl-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-top: 1px;
+}
+
+.omnibox__title {
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.omnibox__url {
+  grid-column: 2;
+  color: var(--dl-muted);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Inline action buttons inside the omni bar ────────────────────────────── */
+.topbar__action-btn {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--dl-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--dl-motion),
+    color var(--dl-motion);
+}
+
+.topbar__action-btn:hover {
+  background: var(--dl-bg-elevated);
+  color: var(--dl-text);
+}
+
+.topbar__fill-wrap {
+  position: relative;
+  flex-shrink: 0;
+  -webkit-app-region: no-drag;
+}
+
+.topbar__fill-btn {
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--dl-muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.topbar__fill-btn:hover,
+.topbar__fill-btn--open {
+  background: var(--dl-bg-elevated);
+  color: var(--dl-accent);
+}
+
+.topbar__fill-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin: 4px 0 0;
+  padding: 4px 0;
+  min-width: 160px;
+  max-height: 220px;
+  overflow-y: auto;
+  list-style: none;
+  background: var(--dl-bg-elevated);
+  border: 1px solid var(--dl-border);
+  border-radius: var(--dl-radius);
+  box-shadow: var(--dl-shadow);
+  z-index: 300;
+}
+
+.topbar__fill-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--dl-text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.topbar__fill-menu button:hover {
+  background: var(--dl-accent-muted);
+  color: var(--dl-accent);
+}
+
+/* ── Right icon buttons ───────────────────────────────────────────────────── */
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  -webkit-app-region: no-drag;
+}
+
+.topbar__icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--dl-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--dl-motion),
+    color var(--dl-motion);
+}
+
+.topbar__icon-btn:hover {
+  background: var(--dl-bg-elevated);
+  color: var(--dl-text);
+}
+
+.topbar__icon-btn--active {
+  color: var(--dl-accent);
+  background: var(--dl-accent-muted);
+}
+
+.topbar__more-wrap {
+  position: relative;
+  -webkit-app-region: no-drag;
+}
+
+.topbar__more-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 200px;
+  padding: 4px 0;
+  margin: 0;
+  list-style: none;
+  background: var(--dl-bg-elevated);
+  border: 1px solid var(--dl-border);
+  border-radius: var(--dl-radius);
+  box-shadow: var(--dl-shadow);
+  z-index: 250;
+}
+
+.topbar__more-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--dl-text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.topbar__more-menu button:hover {
+  background: var(--dl-accent-muted);
+  color: var(--dl-accent);
+}
