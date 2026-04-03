@@ -53,6 +53,14 @@ interface BackupImportPayload {
   pluginStorage?: DevLensStoreSnapshot['pluginStorage'];
 }
 
+export interface InstalledExtensionInfo {
+  id: string;
+  name: string;
+  version: string;
+  description: string;
+  iconDataUrl: string | null;
+}
+
 type Section =
   | 'general'
   | 'privacy'
@@ -61,6 +69,7 @@ type Section =
   | 'shortcuts'
   | 'ai'
   | 'plugins'
+  | 'extensions'
   | 'sync'
   | 'advanced';
 
@@ -85,6 +94,8 @@ export class SettingsComponent {
   readonly section = signal<Section>('general');
   readonly blockListStatus = signal<string>('');
   readonly shortcutConflicts = signal<string[]>([]);
+  readonly installedExtensions = signal<InstalledExtensionInfo[]>([]);
+  readonly extLoading = signal(false);
   readonly themeRegistryEntries = signal<{ id: string; name: string; sourceUrl?: string }[]>([]);
 
   readonly backupExportOpen = signal(false);
@@ -110,6 +121,7 @@ export class SettingsComponent {
     { id: 'ai', label: 'AI', icon: 'fa-robot' },
     { id: 'shortcuts', label: 'Shortcuts', icon: 'fa-keyboard' },
     { id: 'plugins', label: 'Plugins', icon: 'fa-puzzle-piece' },
+    { id: 'extensions', label: 'Extensions', icon: 'fa-cubes' },
     { id: 'sync', label: 'Sync & backup', icon: 'fa-cloud-arrow-up' },
     { id: 'advanced', label: 'Advanced', icon: 'fa-wrench' },
   ];
@@ -139,6 +151,11 @@ export class SettingsComponent {
     effect(() => {
       if (this.section() === 'plugins' && this.bridge.isElectron) {
         void this.pluginRuntime.refresh();
+      }
+    });
+    effect(() => {
+      if (this.section() === 'extensions' && this.bridge.isElectron) {
+        void this.loadExtensions();
       }
     });
     effect(() => {
@@ -704,6 +721,33 @@ export class SettingsComponent {
       this.toast.show('Backup imported successfully.');
     } catch (e) {
       this.toast.error(e instanceof Error ? e.message : 'Import failed.');
+    }
+  }
+
+  async loadExtensions(): Promise<void> {
+    if (!this.bridge.isElectron) return;
+    this.extLoading.set(true);
+    try {
+      const list = await this.bridge.invoke<InstalledExtensionInfo[]>(IPC_CHANNELS.EXT_LIST);
+      this.installedExtensions.set(Array.isArray(list) ? list : []);
+    } finally {
+      this.extLoading.set(false);
+    }
+  }
+
+  async removeExtension(id: string, name: string): Promise<void> {
+    if (
+      !confirm(`Remove "${name}" from Dev-Lens? The app will need to restart to fully unload it.`)
+    )
+      return;
+    const r = await this.bridge.invoke<{ ok: boolean; error?: string }>(IPC_CHANNELS.EXT_REMOVE, {
+      extensionId: id,
+    });
+    if (r.ok) {
+      this.toast.show(`"${name}" removed. Restart Dev-Lens to fully unload it.`);
+      await this.loadExtensions();
+    } else {
+      this.toast.error(r.error ?? 'Remove failed.');
     }
   }
 

@@ -940,6 +940,112 @@
           }
         }
 
+        <!-- ══ EXTENSIONS ════════════════════════════════════════════════ -->
+        @case ('extensions') {
+          <div class="settings__page-header">
+            <i class="fa-solid fa-cubes settings__page-icon" aria-hidden="true"></i>
+            <div>
+              <h2>Extensions</h2>
+              <p class="settings__page-desc">
+                Chrome extensions installed in Dev-Lens via the Web Store install bar.
+              </p>
+            </div>
+          </div>
+
+          @if (bridge.isElectron) {
+            <div class="settings__card">
+              <div class="settings__card-header">
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i> How to install
+              </div>
+              <div class="settings__card-body">
+                <p class="settings__hint">
+                  Visit
+                  <strong>chromewebstore.google.com</strong>
+                  and use the
+                  <strong>＋ Add to Dev-Lens</strong>
+                  bar at the top of any extension page.
+                </p>
+                <button
+                  type="button"
+                  class="settings__btn"
+                  [disabled]="extLoading()"
+                  (click)="loadExtensions()"
+                >
+                  <i class="fa-solid fa-rotate" aria-hidden="true"></i> Refresh list
+                </button>
+              </div>
+            </div>
+
+            @if (extLoading()) {
+              <div class="settings__card">
+                <div class="settings__card-body">
+                  <p class="settings__hint">
+                    <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Loading…
+                  </p>
+                </div>
+              </div>
+            } @else {
+              @for (ext of installedExtensions(); track ext.id) {
+                <div class="settings__card settings__plugin-card">
+                  <div class="settings__card-body">
+                    <div class="settings__plugin-header">
+                      <div class="settings__plugin-icon">
+                        @if (ext.iconDataUrl) {
+                          <img
+                            [src]="ext.iconDataUrl"
+                            [alt]="ext.name"
+                            width="32"
+                            height="32"
+                            style="border-radius: 4px; object-fit: contain"
+                          />
+                        } @else {
+                          <i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i>
+                        }
+                      </div>
+                      <div class="settings__plugin-meta">
+                        <strong>{{ ext.name }}</strong>
+                        <span class="settings__hint">{{ ext.id }} · v{{ ext.version }}</span>
+                        @if (ext.description) {
+                          <span class="settings__hint" style="margin-top: 2px">{{
+                            ext.description
+                          }}</span>
+                        }
+                      </div>
+                      <button
+                        type="button"
+                        class="settings__btn settings__btn--danger"
+                        style="flex-shrink: 0"
+                        (click)="removeExtension(ext.id, ext.name)"
+                      >
+                        <i class="fa-solid fa-trash" aria-hidden="true"></i> Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              } @empty {
+                <div class="settings__card">
+                  <div class="settings__card-body">
+                    <p class="settings__hint">
+                      No extensions installed yet. Use the
+                      <strong>＋ Add to Dev-Lens</strong>
+                      bar on the Chrome Web Store to install one.
+                    </p>
+                  </div>
+                </div>
+              }
+            }
+          } @else {
+            <div class="settings__card">
+              <div class="settings__card-body">
+                <p class="settings__hint">
+                  <i class="fa-solid fa-info-circle" aria-hidden="true"></i>
+                  Extensions are available in the Electron app only.
+                </p>
+              </div>
+            </div>
+          }
+        }
+
         <!-- ══ SYNC ═══════════════════════════════════════════════════════ -->
         @case ('sync') {
           <div class="settings__page-header">

@@ -10,7 +10,8 @@
       "@core/*": ["src/app/core/*"],
       "@shared/*": ["src/app/shared/*"],
       "@features/*": ["src/app/features/*"],
-      "@ui/*": ["src/app/ui/*"]
+      "@ui/*": ["src/app/ui/*"],
+      "@dev-lens/shared": ["../shared/src/index.ts"]
     }
   },
   "files": ["src/main.ts"],

@@ -2,6 +2,31 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { pathToFileURL } from 'node:url';
+
+// Suppress noisy Node.js warnings emitted by Electron's extension loader for
+// permissions it doesn't implement (contextMenus, webNavigation, etc.).
+// process.on('warning') doesn't prevent the default stderr write, so we must
+// monkey-patch process.emitWarning itself — the only reliable suppression path.
+{
+  const _emit = process.emitWarning.bind(process);
+  // @ts-expect-error – intentional monkey-patch for log hygiene
+  process.emitWarning = function devlensEmitWarning(
+    warning: string | Error,
+    ...rest: Parameters<typeof process.emitWarning> extends [unknown, ...infer R] ? R : never
+  ): void {
+    const opts = rest[0];
+    const code =
+      opts != null && typeof opts === 'object' && 'code' in opts
+        ? (opts as { code?: string }).code
+        : typeof opts === 'string'
+          ? opts // older Node signature: emitWarning(msg, type, code)
+          : undefined;
+    if (code === 'ExtensionLoadWarning') return;
+    const msg = typeof warning === 'string' ? warning : (warning?.message ?? '');
+    if (/Permission '[^']+' is unknown/.test(msg)) return;
+    return _emit(warning, ...rest);
+  };
+}
 import {
   app,
   BrowserView,
@@ -36,7 +61,12 @@ import {
 } from './ipc-zod';
 import { registerPluginIpc } from './plugin-ipc';
 import { startTelemetryHeartbeat } from './telemetry';
-import { installChromeExtension, loadAllInstalledExtensions } from './extension-manager';
+import {
+  installChromeExtension,
+  listInstalledExtensions,
+  loadAllInstalledExtensions,
+  removeInstalledExtension,
+} from './extension-manager';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -231,8 +261,10 @@ function registerIpc(): void {
     const r = SessionInitSchema.safeParse(payload);
     if (!r.success) return { ok: false as const, error: 'Invalid session init' };
     sessionManager.initSession(r.data.partition);
-    // Load any previously installed extensions into this new session.
-    void loadAllInstalledExtensions(sessionManager.getInitializedSessions());
+    // Load installed extensions into ONLY the newly created session so we
+    // don't re-load into sessions that already have the extensions.
+    const newSes = session.fromPartition(r.data.partition);
+    void loadAllInstalledExtensions([newSes]);
     return { ok: true as const };
   });
 
@@ -508,6 +540,20 @@ function registerIpc(): void {
     })();
   });
 
+  // ── Installed extension list + removal ──────────────────────────────────
+  ipcMain.handle(IPC_CHANNELS.EXT_LIST, () => listInstalledExtensions());
+
+  ipcMain.handle(IPC_CHANNELS.EXT_REMOVE, (_e, payload: unknown) => {
+    const { extensionId } = (payload ?? {}) as { extensionId?: string };
+    if (!extensionId) return { ok: false as const, error: 'Missing extensionId' };
+    try {
+      removeInstalledExtension(extensionId);
+      return { ok: true as const };
+    } catch (e) {
+      return { ok: false as const, error: e instanceof Error ? e.message : 'Remove failed' };
+    }
+  });
+
   // Deprecated: guest browsing uses `<webview>` in the renderer; these channels are unused but
   // registered so any stray legacy invoke() does not reject (returns `{ ok: true }`).
   const noop = (): { ok: true } => ({ ok: true });
@@ -525,30 +571,90 @@ function registerIpc(): void {
   ].forEach((ch) => ipcMain.handle(ch, noop));
 }
 
-// ── Chrome Web Store "Add to Chrome" shim ──────────────────────────────────
+// ── Chrome Web Store shim + Dev-Lens install bar ───────────────────────────
 //
-// Strategy:
+// Why spoofing Chrome alone is not enough (as of Electron 33 / Chromium 130):
 //
-//   OLD store (chrome.google.com/webstore): calls chrome.webstore.install() —
-//   our stub intercepts it and fires the IPC.
+//   Google's Web Store API rejects install requests from Chrome versions older
+//   than ~3 major releases (Chrome 130 is from Oct 2024; the current minimum
+//   accepted as of Apr 2026 is ~143). Our sec-ch-ua patches correctly identify
+//   as "Google Chrome";v="130", but the backend returns "unavailable" anyway
+//   because that version is past end-of-life. Upgrading to Electron 41
+//   (Chromium 146) will fix this at the source.
 //
-//   NEW store (chromewebstore.google.com): does NOT call chrome.webstore.install().
-//   It uses a Chrome-internal native pipeline instead, so no JS API shim can
-//   intercept the click. We therefore attach a document-level click listener
-//   (capture phase) that fires first, extracts the extension ID from the page
-//   URL, and sends the install IPC directly.
+// Immediate reliable approach:
 //
-// Both approaches share the same IPC path (devlens-ext-install → dialog →
-// CRX download → session.loadExtension).
+//   Inject a floating "Add to Dev-Lens" bar on extension detail pages.
+//   It extracts the ID from the URL and fires our existing CRX install IPC —
+//   no browser-detection battle needed. The Chrome API stubs are kept so the
+//   store renders its native button too; clicking either path works.
 
 /**
  * Injected into Chrome Web Store pages via executeJavaScript.
- * Runs in the main world (executeJavaScript bypasses CSP).
- * Injected on dom-ready (before React hydration) and again on did-finish-load
- * to cover SPA navigations.
+ * Runs in the main world (CSP-bypassed). Fired on dom-ready (before React
+ * hydrates) and again on did-finish-load for SPA navigations.
  */
 const WEBSTORE_SHIM = `(function() {
-  // ── 1. Chrome API stubs ────────────────────────────────────────────────
+  // ── 1. navigator.userAgentData — patch "Google Chrome" brand ──────────
+  //
+  // This is the ROOT CAUSE of the greyed-out "Add to Chrome" button.
+  //
+  // The HTTP sec-ch-ua header (fixed server-side by attachWebStoreChromeBranding)
+  // controls what the Next.js SSR renders. But the Web Store's React app ALSO
+  // calls navigator.userAgentData.brands *in JavaScript* after hydration.
+  // Without "Google Chrome" in that list the store marks the extension as
+  // unavailable and disables the install button client-side.
+  //
+  // We must patch this before any page script runs; executeJavaScript on
+  // dom-ready (before React bundle evaluation) achieves that.
+  (function patchUAData() {
+    try {
+      var uad = navigator.userAgentData;
+      if (!uad) return;
+
+      var brands = Array.prototype.slice.call(uad.brands || []);
+      if (brands.some(function(b) { return b.brand === 'Google Chrome'; })) return;
+
+      var chromiumBrand = brands.filter(function(b) { return b.brand === 'Chromium'; })[0];
+      var majorVer = chromiumBrand ? chromiumBrand.version : '130';
+
+      var newBrands = brands.concat([{ brand: 'Google Chrome', version: majorVer }]);
+      var origGetHEV = uad.getHighEntropyValues.bind(uad);
+
+      var patchedUAD = {
+        brands: newBrands,
+        mobile: uad.mobile,
+        platform: uad.platform,
+        toJSON: function() { return { brands: newBrands, mobile: uad.mobile, platform: uad.platform }; },
+        getHighEntropyValues: function(hints) {
+          return origGetHEV(hints).then(function(data) {
+            var result = {};
+            var keys = Object.keys(data);
+            for (var i = 0; i < keys.length; i++) result[keys[i]] = data[keys[i]];
+
+            // Patch brands array
+            if (result.brands && !result.brands.some(function(b) { return b.brand === 'Google Chrome'; })) {
+              result.brands = Array.prototype.slice.call(result.brands).concat([{ brand: 'Google Chrome', version: majorVer }]);
+            }
+            // Patch fullVersionList (uses full semver strings)
+            if (result.fullVersionList && !result.fullVersionList.some(function(b) { return b.brand === 'Google Chrome'; })) {
+              var cvb = result.fullVersionList.filter(function(b) { return b.brand === 'Chromium'; })[0];
+              if (cvb) result.fullVersionList = Array.prototype.slice.call(result.fullVersionList).concat([{ brand: 'Google Chrome', version: cvb.version }]);
+            }
+            return result;
+          });
+        }
+      };
+
+      // Define on the navigator instance (shadows the prototype getter).
+      Object.defineProperty(navigator, 'userAgentData', {
+        get: function() { return patchedUAD; },
+        configurable: true
+      });
+    } catch(e) { /* non-configurable or unavailable — fall through */ }
+  })();
+
+  // ── 2. Chrome API stubs ────────────────────────────────────────────────
   // The Web Store checks these before deciding to render the install button.
   window.chrome = window.chrome || {};
 
@@ -575,9 +681,9 @@ const WEBSTORE_SHIM = `(function() {
     };
   }
 
-  // ── 2. Old-store shim: chrome.webstore.install() ───────────────────────
-  // Still called by chrome.google.com/webstore. The new store does not use it,
-  // but having the API present also satisfies the store's presence checks.
+  // ── 3. Old-store shim: chrome.webstore.install() ───────────────────────
+  // Still called by chrome.google.com/webstore. The new store does not call
+  // it, but having the API present satisfies presence checks.
   if (!window.chrome.webstore) {
     window.chrome.webstore = {
       install: function(url, successCb, failureCb) {
@@ -596,45 +702,132 @@ const WEBSTORE_SHIM = `(function() {
     };
   }
 
-  // ── 3. New-store intercept: DOM click listener ─────────────────────────
-  // chromewebstore.google.com does not call chrome.webstore.install() on click.
-  // We intercept the install button click directly and extract the extension ID
-  // from the URL (always present in the path on detail pages).
-  if (location.hostname !== 'chromewebstore.google.com') return;
-  if (window.__devlensNewStoreIntercepted) return;
-  window.__devlensNewStoreIntercepted = true;
-
-  function extractExtId() {
-    var m = location.pathname.match(/\\/([a-z]{32})(?:\\/|$|\\?|#)/);
-    return m ? m[1] : null;
-  }
-
-  document.addEventListener('click', function(e) {
-    var target = e.target;
-    if (!target) return;
-
-    // Walk up to 6 levels to find a button ancestor.
-    var el = target;
-    for (var i = 0; i < 6; i++) {
-      if (!el || el === document.body) break;
-      var tag = el.tagName;
-      var role = el.getAttribute && el.getAttribute('role');
-      var text = (el.textContent || '').trim().toLowerCase();
-
-      var isButton = tag === 'BUTTON' || role === 'button' || tag === 'A';
-      var isInstall = text === 'add to chrome' || text === 'install' || text === 'add extension';
-      if (isButton && isInstall) {
-        var extId = extractExtId();
-        if (extId && window.__devlensExt) {
-          // Do not preventDefault — let React update its UI state.
-          // We fire the Dev-Lens install dialog in parallel.
-          window.__devlensExt.requestInstall(extId);
+  // ── 4. Old-store click intercept (chrome.google.com/webstore) ────────────
+  // The old store calls chrome.webstore.install() — our stub above handles it.
+  // But also attach a capture-phase click listener as belt-and-suspenders.
+  (function attachOldStoreInterceptor() {
+    if (location.hostname !== 'chrome.google.com') return;
+    document.addEventListener('click', function(e) {
+      var el = e.target;
+      for (var i = 0; i < 6; i++) {
+        if (!el || el === document.body) break;
+        var tag = el.tagName;
+        var role = el.getAttribute && el.getAttribute('role');
+        var text = (el.textContent || '').trim().toLowerCase();
+        if ((tag === 'BUTTON' || role === 'button') &&
+            (text === 'add to chrome' || text === 'install')) {
+          var m = location.pathname.match(/\\/([a-z]{32})(?:\\/|$|\\?|#)/);
+          var extId = m ? m[1] : null;
+          if (extId && window.__devlensExt) window.__devlensExt.requestInstall(extId);
+          return;
         }
-        return;
+        el = el.parentElement;
       }
-      el = el.parentElement;
+    }, true);
+  })();
+
+  // ── 5. Dev-Lens install bar (new store — reliable, version-agnostic) ───────
+  //
+  // The new chromewebstore.google.com rejects installs from old Chrome versions
+  // server-side, so no amount of UA spoofing fixes the greyed button for
+  // Electron 33 (Chromium 130). Instead, inject a branded overlay bar that
+  // directly invokes our proven CRX download + session.loadExtension pipeline.
+  // This works regardless of what the Web Store renders.
+  (function injectDevLensBar() {
+    if (location.hostname !== 'chromewebstore.google.com') return;
+
+    function getExtId() {
+      var m = location.pathname.match(/\\/([a-z]{32})(?:\\/|$|\\?|#)/);
+      return m ? m[1] : null;
     }
-  }, true /* capture — fires before React's handlers */);
+
+    function removeBar() {
+      var old = document.getElementById('__dl-bar');
+      if (old) old.remove();
+    }
+
+    function renderBar(extId) {
+      removeBar();
+      var bar = document.createElement('div');
+      bar.id = '__dl-bar';
+      bar.setAttribute('style', [
+        'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:2147483647',
+        'background:linear-gradient(90deg,#312E81 0%,#1e1b4b 100%)',
+        'color:#e0e7ff', 'font:600 13px/1 system-ui,sans-serif',
+        'padding:0 16px', 'height:44px', 'display:flex', 'align-items:center',
+        'gap:12px', 'box-shadow:0 2px 12px rgba(0,0,0,.5)',
+        'border-bottom:1px solid #4338ca'
+      ].join(';'));
+
+      var logo = document.createElement('span');
+      logo.textContent = '🔷 Dev-Lens';
+      logo.setAttribute('style', 'color:#a5b4fc;letter-spacing:.02em');
+
+      var sep = document.createElement('span');
+      sep.textContent = '·';
+      sep.setAttribute('style', 'color:#4338ca');
+
+      var label = document.createElement('span');
+      label.textContent = 'Install this extension in Dev-Lens:';
+      label.setAttribute('style', 'color:#c7d2fe;font-weight:400');
+
+      var btn = document.createElement('button');
+      btn.textContent = '＋ Add to Dev-Lens';
+      btn.setAttribute('style', [
+        'background:#6366f1', 'color:#fff', 'border:none', 'border-radius:6px',
+        'padding:6px 16px', 'font:600 13px system-ui,sans-serif', 'cursor:pointer',
+        'transition:background .15s', 'flex-shrink:0'
+      ].join(';'));
+      btn.addEventListener('mouseenter', function() { btn.style.background = '#4f46e5'; });
+      btn.addEventListener('mouseleave', function() { btn.style.background = '#6366f1'; });
+      btn.addEventListener('click', function() {
+        if (window.__devlensExt) window.__devlensExt.requestInstall(extId);
+      });
+
+      var spacer = document.createElement('span');
+      spacer.setAttribute('style', 'flex:1');
+
+      var close = document.createElement('button');
+      close.textContent = '✕';
+      close.setAttribute('style', [
+        'background:none', 'border:none', 'color:#6366f1', 'font-size:16px',
+        'cursor:pointer', 'padding:4px 6px', 'border-radius:4px',
+        'transition:color .15s'
+      ].join(';'));
+      close.addEventListener('mouseenter', function() { close.style.color = '#a5b4fc'; });
+      close.addEventListener('mouseleave', function() { close.style.color = '#6366f1'; });
+      close.addEventListener('click', removeBar);
+
+      bar.appendChild(logo);
+      bar.appendChild(sep);
+      bar.appendChild(label);
+      bar.appendChild(btn);
+      bar.appendChild(spacer);
+      bar.appendChild(close);
+
+      var mount = document.body || document.documentElement;
+      mount.insertBefore(bar, mount.firstChild);
+    }
+
+    function tryRender() {
+      var extId = getExtId();
+      if (extId) renderBar(extId);
+      else removeBar();
+    }
+
+    // Initial render
+    if (document.body) tryRender();
+    else document.addEventListener('DOMContentLoaded', tryRender);
+
+    // Handle SPA navigation (the store is a React SPA; URL changes without full reload)
+    var lastPath = location.pathname;
+    setInterval(function() {
+      if (location.pathname !== lastPath) {
+        lastPath = location.pathname;
+        tryRender();
+      }
+    }, 400);
+  })();
 })();`;
 
 function isWebStorePage(url: string): boolean {

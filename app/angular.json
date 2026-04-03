@@ -44,7 +44,7 @@
               "src/styles.scss"
             ],
             "scripts": [],
-            "allowedCommonJsDependencies": ["@dev-lens/shared"]
+            "allowedCommonJsDependencies": []
           },
           "configurations": {
             "production": {

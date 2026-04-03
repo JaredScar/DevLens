@@ -310,6 +310,15 @@
     font-weight: 600;
   }
 
+  &--danger {
+    border-color: var(--dl-error, #f38ba8);
+    color: var(--dl-error, #f38ba8);
+
+    &:hover {
+      background: color-mix(in srgb, var(--dl-error, #f38ba8) 12%, transparent);
+    }
+  }
+
   &--sm {
     font-size: 11px;
     padding: 4px 9px;

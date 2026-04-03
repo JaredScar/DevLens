@@ -8,6 +8,8 @@ export const RENDERER_INVOKE = {
   SESSION_INIT: 'dev-lens:session:init',
   HISTORY_APPEND: 'dev-lens:history:append',
   SHELL_OPEN_EXTERNAL: 'dev-lens:shell:open-external',
+  EXT_LIST: 'dev-lens:ext:list',
+  EXT_REMOVE: 'dev-lens:ext:remove',
   DEVTOOLS_ATTACH: 'dev-lens:devtools:attach',
   DEVTOOLS_DETACH: 'dev-lens:devtools:detach',
   DEVTOOLS_SET_BOUNDS: 'dev-lens:devtools:set-bounds',

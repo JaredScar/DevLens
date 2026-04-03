@@ -49,6 +49,11 @@ export const IPC_CHANNELS = {
   /** Main process memory / process metrics for Performance widget. */
   APP_GET_METRICS: 'dev-lens:app:get-metrics',
 
+  /** List all Chrome extensions installed on disk. Returns InstalledExtensionInfo[]. */
+  EXT_LIST: 'dev-lens:ext:list',
+  /** Remove an installed Chrome extension from disk. Payload: { extensionId: string }. */
+  EXT_REMOVE: 'dev-lens:ext:remove',
+
   /**
    * Embed the Chromium DevTools for a guest webview via a BrowserView overlay.
    * Payload: `{ guestWcId: number; bounds: { x, y, width, height } }`.
