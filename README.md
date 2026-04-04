@@ -215,6 +215,18 @@ On **macOS**, the same command produces `Dev-Lens-x.y.z.dmg` (and a `.zip`) with
 
 > **Tip:** Run `npm run gen-icon` after changing `devlens-official-logo.svg` to refresh the window icon, Windows `.exe` / installer branding, and macOS DMG background (`electron/assets/*.png`).
 
+### Automated GitHub Releases
+
+Pushing a **semver tag** matching `v*.*.*` (for example `v0.1.0`) runs [`.github/workflows/release.yml`](.github/workflows/release.yml). It builds on **Windows** and **macOS** and attaches portable + NSIS `.exe`, `.dmg`, and `.zip` to that release.
+
+```bash
+git checkout main && git pull
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+**Replacing a mistaken `v0.0.0` release:** On GitHub, open the release → **⋯** → **Delete release**. Remove the tag on the remote if you no longer want it: `git push origin :refs/tags/v0.0.0`. Then push `v0.1.0` as above after this repo’s `package.json` version matches.
+
 ## Run pieces separately
 
 ```bash

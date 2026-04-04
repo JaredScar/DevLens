@@ -1,6 +1,6 @@
 {
   "name": "dev-lens-workspace",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Dev-Lens — Electron + Angular browser shell",
   "author": "Dev-Lens",

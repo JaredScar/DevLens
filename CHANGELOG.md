@@ -4,8 +4,11 @@ All notable changes to Dev-Lens are documented here. The format is based on [Kee
 
 ## [Unreleased]
 
+## [0.1.0] — 2026-04-04
+
 ### Added
 
+- **GitHub Actions release workflow** (`.github/workflows/release.yml`): pushing a semver tag `v*.*.*` builds on Windows and macOS and uploads portable + NSIS `.exe`, `.dmg`, and `.zip` to that GitHub Release.
 - Electron + Angular shell: tabs, workspaces, Spotlight, privacy blocker, notes, sessions, API tester, automation, themes, keyboard shortcuts, plugins (manifest + sandboxed sidebar webviews), read-later queue, performance panel, companion/encrypted backup exports.
 - GitHub Actions CI: install, lint, build, Karma unit tests, Playwright, npm audit.
 - Angular `tsconfig.spec.json` extends `tsconfig.app.json` so path aliases and `Window.devLens` typings apply under Karma.

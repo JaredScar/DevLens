@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*.[0-9]*.[0-9]*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build installers
+        run: npm run dist
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          fail_on_unmatched_files: false
+          files: |
+            releases/*.exe
+            releases/*.dmg
+            releases/*.zip
