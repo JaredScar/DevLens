@@ -442,6 +442,83 @@ export class TabsService {
     await this.persisted.patch({ tabGroups: groups });
   }
 
+  /** Remove the group row and clear `groupId` on all tabs in that group. */
+  async ungroupGroup(groupId: string): Promise<void> {
+    const snap = this.persisted.snapshot();
+    if (!snap) return;
+    const groups = snap.tabGroups.filter((g) => g.id !== groupId);
+    this.tabs.update((list) =>
+      list.map((t) => (t.groupId === groupId ? { ...t, groupId: null } : t)),
+    );
+    await this.persisted.patch({ tabGroups: groups, openTabs: this.tabs().map(toDto) });
+  }
+
+  /**
+   * Remove a workspace, move its tabs and related data to another workspace.
+   * @returns false if this was the last workspace (nothing done).
+   */
+  async deleteWorkspace(workspaceId: string): Promise<boolean> {
+    const wss = this.workspace.workspaces();
+    if (wss.length <= 1) return false;
+    const target = wss.find((w) => w.id !== workspaceId)?.id;
+    if (!target) return false;
+
+    const snap = this.persisted.snapshot();
+    if (!snap) return false;
+
+    const wasActive = this.workspace.activeWorkspaceId() === workspaceId;
+    const nextActive = wasActive ? target : this.workspace.activeWorkspaceId();
+    const nextWorkspaces = wss.filter((w) => w.id !== workspaceId);
+    const nextTabGroups = snap.tabGroups.filter((g) => g.workspaceId !== workspaceId);
+
+    const sec = this.splitView.secondaryTabId();
+    if (sec) {
+      const secTab = this.tabs().find((t) => t.id === sec);
+      if (secTab?.workspaceId === workspaceId) {
+        this.splitView.secondaryTabId.set(null);
+        this.splitView.enabled.set(false);
+      }
+    }
+
+    this.tabs.update((list) =>
+      list.map((t) =>
+        t.workspaceId === workspaceId ? { ...t, workspaceId: target, groupId: null } : t,
+      ),
+    );
+
+    const nextNotes = snap.notes.map((n) =>
+      n.workspaceId === workspaceId ? { ...n, workspaceId: target } : n,
+    );
+    const nextSessions = snap.savedSessions.map((s) =>
+      s.workspaceId === workspaceId ? { ...s, workspaceId: target } : s,
+    );
+    const nextRules = snap.automationRules.filter(
+      (r) =>
+        !(r.triggerType === 'workspace_active' && r.triggerValue.trim() === workspaceId) &&
+        !(r.actionType === 'switch_workspace' && r.actionValue.trim() === workspaceId),
+    );
+
+    await this.persisted.patch({
+      workspaces: nextWorkspaces,
+      activeWorkspaceId: nextActive,
+      tabGroups: nextTabGroups,
+      openTabs: this.tabs().map(toDto),
+      notes: nextNotes,
+      savedSessions: nextSessions,
+      automationRules: nextRules,
+    });
+
+    this.splitView.reconcile(this);
+
+    if (wasActive) {
+      const first = this.tabs().find((t) => t.workspaceId === nextActive);
+      if (first) await this.selectTab(first.id, false);
+      else await this.addInternalTab('new-tab', 'New Tab', false);
+    }
+
+    return true;
+  }
+
   cycleTab(dir: 1 | -1): void {
     const vis = this.visibleTabs();
     const cur = this.activeTabId();

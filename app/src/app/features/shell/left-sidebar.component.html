@@ -60,23 +60,35 @@
           (keydown)="$event.stopPropagation()"
         >
           @for (w of workspace.workspaces(); track w.id) {
-            <button
-              type="button"
-              class="sidebar__ws-option"
-              [class.sidebar__ws-option--active]="w.id === workspace.activeWorkspaceId()"
-              (click)="switchWorkspace(w.id)"
-            >
-              <span
-                class="sidebar__ws-opt-dot"
-                [class.sidebar__ws-opt-dot--outline]="w.id !== workspace.activeWorkspaceId()"
-                [style.background]="
-                  w.id === workspace.activeWorkspaceId() ? w.color : 'transparent'
-                "
-                [style.border-color]="w.color"
-              ></span>
-              <span class="sidebar__ws-opt-name">{{ w.name }}</span>
-              <span class="sidebar__ws-opt-count">{{ tabCountForWorkspace(w.id) }}</span>
-            </button>
+            <div class="sidebar__ws-option-row">
+              <button
+                type="button"
+                class="sidebar__ws-option"
+                [class.sidebar__ws-option--active]="w.id === workspace.activeWorkspaceId()"
+                (click)="switchWorkspace(w.id)"
+              >
+                <span
+                  class="sidebar__ws-opt-dot"
+                  [class.sidebar__ws-opt-dot--outline]="w.id !== workspace.activeWorkspaceId()"
+                  [style.background]="
+                    w.id === workspace.activeWorkspaceId() ? w.color : 'transparent'
+                  "
+                  [style.border-color]="w.color"
+                ></span>
+                <span class="sidebar__ws-opt-name">{{ w.name }}</span>
+                <span class="sidebar__ws-opt-count">{{ tabCountForWorkspace(w.id) }}</span>
+              </button>
+              @if (workspace.workspaces().length > 1) {
+                <button
+                  type="button"
+                  class="sidebar__ws-delete"
+                  title="Delete workspace"
+                  (click)="promptDeleteWorkspace(w, $event)"
+                >
+                  <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                </button>
+              }
+            </div>
           }
           <button type="button" class="sidebar__ws-add" (click)="openNewWorkspaceDialog()">
             <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
@@ -173,6 +185,7 @@
             tabindex="0"
             (click)="tabs.toggleGroupCollapsed(item.id)"
             (keydown.enter)="tabs.toggleGroupCollapsed(item.id)"
+            (contextmenu)="onGroupContextMenu($event, item.id, item.title)"
           >
             <span class="tablist__group-chevron">
               <svg
@@ -467,6 +480,11 @@
       <button type="button" class="tabctx__item" (click)="menuTogglePin(ctx.tab)">
         {{ ctx.tab.pinned ? 'Unpin' : 'Pin' }}
       </button>
+      @if (ctx.tab.groupId) {
+        <button type="button" class="tabctx__item" (click)="menuRemoveFromGroup(ctx.tab)">
+          Remove from group
+        </button>
+      }
       <div class="tabctx__sep"></div>
       <span class="tabctx__label">Move to workspace</span>
       @for (w of workspace.workspaces(); track w.id) {
@@ -485,6 +503,25 @@
       </button>
       <button type="button" class="tabctx__item tabctx__item--danger" (click)="menuClose(ctx.tab)">
         Close tab
+      </button>
+    </div>
+  }
+
+  @if (groupContextMenu(); as gctx) {
+    <div
+      class="tabctx"
+      [style.left.px]="gctx.x"
+      [style.top.px]="gctx.y"
+      role="menu"
+      tabindex="0"
+      (click)="$event.stopPropagation()"
+      (keydown.escape)="closeGroupMenu()"
+      (keydown)="$event.stopPropagation()"
+      (contextmenu)="$event.preventDefault()"
+    >
+      <span class="tabctx__label">{{ gctx.title }}</span>
+      <button type="button" class="tabctx__item" (click)="menuUngroupGroup(gctx.groupId)">
+        Ungroup tabs
       </button>
     </div>
   }

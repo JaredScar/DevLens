@@ -68,6 +68,12 @@ export class LeftSidebarComponent {
   readonly tabFilter = signal('');
   readonly wsDropdownOpen = signal(false);
   readonly tabContextMenu = signal<{ x: number; y: number; tab: UiTab } | null>(null);
+  readonly groupContextMenu = signal<{
+    x: number;
+    y: number;
+    groupId: string;
+    title: string;
+  } | null>(null);
   /** Inline dialog replacing window.prompt (unsupported in Electron renderer). */
   readonly dialog = signal<{ type: 'workspace' | 'group'; value: string; color?: string } | null>(
     null,
@@ -138,16 +144,29 @@ export class LeftSidebarComponent {
   closeDropdownOnOutsideClick(): void {
     this.wsDropdownOpen.set(false);
     this.tabContextMenu.set(null);
+    this.groupContextMenu.set(null);
   }
 
   onTabContextMenu(ev: MouseEvent, tab: UiTab): void {
     ev.preventDefault();
     ev.stopPropagation();
+    this.groupContextMenu.set(null);
     this.tabContextMenu.set({ x: ev.clientX, y: ev.clientY, tab });
+  }
+
+  onGroupContextMenu(ev: MouseEvent, groupId: string, title: string): void {
+    ev.preventDefault();
+    ev.stopPropagation();
+    this.tabContextMenu.set(null);
+    this.groupContextMenu.set({ x: ev.clientX, y: ev.clientY, groupId, title });
   }
 
   closeTabMenu(): void {
     this.tabContextMenu.set(null);
+  }
+
+  closeGroupMenu(): void {
+    this.groupContextMenu.set(null);
   }
 
   async menuDuplicate(tab: UiTab): Promise<void> {
@@ -196,6 +215,17 @@ export class LeftSidebarComponent {
     await this.tabs.moveTabToWorkspace(tab.id, workspaceId);
   }
 
+  async menuRemoveFromGroup(tab: UiTab): Promise<void> {
+    this.closeTabMenu();
+    if (!tab.groupId) return;
+    await this.tabs.assignTabToGroup(tab.id, null);
+  }
+
+  async menuUngroupGroup(groupId: string): Promise<void> {
+    this.closeGroupMenu();
+    await this.tabs.ungroupGroup(groupId);
+  }
+
   async menuClose(tab: UiTab): Promise<void> {
     this.closeTabMenu();
     await this.tabs.closeTab(tab.id);
@@ -213,6 +243,32 @@ export class LeftSidebarComponent {
     const first = this.tabs.tabs().find((t) => t.workspaceId === id);
     if (first) await this.tabs.selectTab(first.id, false);
     else await this.tabs.addInternalTab('new-tab', 'New Tab', false);
+  }
+
+  async promptDeleteWorkspace(w: { id: string; name: string }, ev: MouseEvent): Promise<void> {
+    ev.stopPropagation();
+    ev.preventDefault();
+    if (this.workspace.workspaces().length <= 1) {
+      this.toast.show('You need at least one workspace.');
+      return;
+    }
+    if (
+      !confirm(
+        `Delete workspace "${w.name}"? Open tabs in this workspace will be moved to another workspace.`,
+      )
+    ) {
+      return;
+    }
+    const wasActive = w.id === this.workspace.activeWorkspaceId();
+    const ok = await this.tabs.deleteWorkspace(w.id);
+    if (!ok) {
+      this.toast.show('Could not delete workspace.');
+      return;
+    }
+    if (wasActive) {
+      this.automation.onWorkspaceActivated(this.workspace.activeWorkspaceId());
+    }
+    this.wsDropdownOpen.set(false);
   }
 
   openNewWorkspaceDialog(): void {
