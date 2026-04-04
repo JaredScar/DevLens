@@ -12,7 +12,9 @@ tmp/
 .angular/
 app/.angular/
 
-# Electron / electron-builder
+# Electron / electron-builder (keep folder; artifacts are ignored)
+releases/*
+!releases/.gitkeep
 release/
 *.dmg
 *.exe

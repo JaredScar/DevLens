@@ -26,8 +26,8 @@
     "dev:electron": "wait-on -t 180000 http-get://127.0.0.1:4200/ && cross-env NODE_ENV=development electron .",
     "dev": "npm run build:electron && concurrently -k -n ng,electron -c cyan,magenta \"npm run serve:app\" \"npm run dev:electron\"",
     "start:electron": "cross-env NODE_ENV=development electron .",
-    "pack": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir",
-    "dist": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
+    "pack": "npm run gen-icon && npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir",
+    "dist": "npm run gen-icon && npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
     "lint": "npm run lint -w dev-lens && eslint \"electron/**/*.ts\"",
     "lint:fix": "npm run lint -w dev-lens -- --fix && eslint \"electron/**/*.ts\" --fix",
     "format": "prettier --write \"app/src/**/*.{ts,html,scss}\" \"electron/**/*.ts\" \"shared/src/**/*.ts\" \"*.{json,md}\"",
@@ -54,6 +54,7 @@
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@playwright/test": "^1.59.1",
+    "@resvg/resvg-js": "^2.6.2",
     "@types/node": "^22.10.2",
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
@@ -71,9 +72,10 @@
   "build": {
     "appId": "com.devlens.app",
     "productName": "Dev-Lens",
+    "publish": null,
     "directories": {
       "app": ".",
-      "output": "release"
+      "output": "releases"
     },
     "icon": "electron/assets/icon.png",
     "files": [
@@ -83,7 +85,8 @@
         "from": "electron/assets",
         "to": "assets",
         "filter": [
-          "**/*"
+          "**/*",
+          "!dmg-background*.png"
         ]
       },
       {
@@ -110,12 +113,30 @@
         "zip"
       ]
     },
+    "dmg": {
+      "background": "electron/assets/dmg-background.png",
+      "iconSize": 128,
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    },
     "win": {
       "icon": "electron/assets/icon.png",
       "signAndEditExecutable": false,
       "target": [
-        "nsis",
-        "portable"
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
     },
     "linux": {

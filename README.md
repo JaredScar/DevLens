@@ -208,10 +208,12 @@ npm run dev          # starts Angular dev server + Electron together
 
 ```bash
 npm run build        # compile everything
-npm run dist         # create platform installers  →  release/
+npm run dist         # create platform installers  →  releases/  (upload these to GitHub Releases)
 ```
 
-> **Tip:** Run `npm run gen-icon` after changing `devlens-taskbar-256.png` to refresh the Electron window / installer icon (`electron/assets/icon.png`).
+On **macOS**, the same command produces `Dev-Lens-x.y.z.dmg` (and a `.zip`) with the branded DMG background. On **Windows** you get a portable `Dev-Lens x.y.z.exe` plus an NSIS installer (`Dev-Lens Setup x.y.z.exe`). Version comes from the root `package.json` `version` field.
+
+> **Tip:** Run `npm run gen-icon` after changing `devlens-official-logo.svg` to refresh the window icon, Windows `.exe` / installer branding, and macOS DMG background (`electron/assets/*.png`).
 
 ## Run pieces separately
 
