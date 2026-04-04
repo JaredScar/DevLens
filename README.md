@@ -225,6 +225,8 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
+**Tag but no “Release” on GitHub?** A tag alone does not create a release entry. This workflow’s first job creates the release; if that failed on an earlier run, open **Actions → Release → Run workflow**, enter the tag (e.g. `v0.1.0`), and run it again.
+
 **Replacing a mistaken `v0.0.0` release:** On GitHub, open the release → **⋯** → **Delete release**. Remove the tag on the remote if you no longer want it: `git push origin :refs/tags/v0.0.0`. Then push `v0.1.0` as above after this repo’s `package.json` version matches.
 
 ## Run pieces separately
