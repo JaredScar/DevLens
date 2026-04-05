@@ -4,6 +4,14 @@ All notable changes to Dev-Lens are documented here. The format is based on [Kee
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-04-04
+
+### Changed
+
+- **Branding:** Consistent **DevLens** naming (no hyphen) in the shell top bar, new tab page, macOS application menu, focus-mode notifications, Chrome extension install dialogs, and the Chrome Web Store injected install bar.
+- **Logo:** The top bar no longer uses the gradient diamond placeholder. It shows the real app icon (`electron/assets/icon.png`), copied into the Angular build. The in-app favicon uses the same asset.
+- **Chrome Web Store bar:** The floating install bar shows the app icon next to **DevLens** instead of the blue-diamond emoji, with matching **DevLens** / **Add to DevLens** copy.
+
 ## [0.1.0] — 2026-04-04
 
 ### Added

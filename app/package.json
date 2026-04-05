@@ -1,6 +1,6 @@
 {
   "name": "dev-lens",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Dev-Lens Angular shell (workspace package)",
   "author": "Dev-Lens",
   "scripts": {
