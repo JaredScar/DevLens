@@ -17,8 +17,8 @@
   <img src="https://img.shields.io/github/downloads/JaredScar/DevLens/total?color=312E81&label=downloads&logo=electron" alt="Total downloads"/>
   <!-- Stars -->
   <img src="https://img.shields.io/github/stars/JaredScar/DevLens?style=flat&color=6366F1&logo=github" alt="Stars"/>
-  <!-- License -->
-  <img src="https://img.shields.io/github/license/JaredScar/DevLens?color=818CF8" alt="License"/>
+  <!-- License (MIT — see LICENSE) -->
+  <img src="https://img.shields.io/github/license/JaredScar/DevLens?color=818CF8&label=license" alt="MIT License"/>
   <!-- Node version -->
   <img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen?logo=node.js" alt="Node version"/>
 </p>
@@ -270,4 +270,4 @@ Pull requests are welcome. Please open an issue first for major changes so we ca
 
 ## License
 
-See [LICENSE](LICENSE) in the repository root.
+Dev-Lens is released under the [MIT License](LICENSE).

@@ -4,6 +4,7 @@
   "private": true,
   "description": "Dev-Lens — Electron + Angular browser shell",
   "author": "Dev-Lens",
+  "license": "MIT",
   "main": "dist-electron/main.js",
   "workspaces": [
     "app",
