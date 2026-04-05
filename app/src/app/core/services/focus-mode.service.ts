@@ -70,7 +70,7 @@ export class FocusModeService {
     this.pomodoroTimer = setTimeout(() => {
       this.pomodoroTimer = null;
       try {
-        new Notification('Dev-Lens', { body: 'Focus session timer elapsed.' });
+        new Notification('DevLens', { body: 'Focus session timer elapsed.' });
       } catch {
         /* ignore (no permission / non-secure context) */
       }

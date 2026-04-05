@@ -194,7 +194,7 @@ function getProductionIndexUrl(): string {
 }
 
 /** Shown in the macOS menu bar; Windows/Linux use the in-app top bar only (no Electron default menu). */
-const APP_DISPLAY_NAME = 'Dev-Lens';
+const APP_DISPLAY_NAME = 'DevLens';
 
 function setupApplicationMenu(): void {
   if (process.platform === 'darwin') {
@@ -606,7 +606,7 @@ function registerIpc(): void {
         if (isExtensionInstalled(extensionId)) {
           await dialog.showMessageBox(win ?? new BrowserWindow(), {
             type: 'info',
-            title: 'Already installed — Dev-Lens',
+            title: 'Already installed — DevLens',
             message: 'This extension is already installed.',
             detail: `Extension ID: ${extensionId}\n\nYou can open it from the toolbar next to the address bar, or manage it in Settings → Extensions.`,
             buttons: ['OK'],
@@ -616,9 +616,9 @@ function registerIpc(): void {
 
         const { response } = await dialog.showMessageBox(win ?? new BrowserWindow(), {
           type: 'question',
-          title: 'Add extension — Dev-Lens',
+          title: 'Add extension — DevLens',
           message: `Install Chrome extension?`,
-          detail: `Extension ID: ${extensionId}\n\nDev-Lens will download and load this extension.`,
+          detail: `Extension ID: ${extensionId}\n\nDevLens will download and load this extension.`,
           buttons: ['Add Extension', 'Cancel'],
           defaultId: 0,
           cancelId: 1,
@@ -631,7 +631,7 @@ function registerIpc(): void {
 
         await dialog.showMessageBox(win ?? new BrowserWindow(), {
           type: 'info',
-          title: 'Extension added — Dev-Lens',
+          title: 'Extension added — DevLens',
           message: `"${name}" has been added.`,
           buttons: ['OK'],
         });
@@ -807,7 +807,47 @@ function registerIpc(): void {
  * Runs in the main world (CSP-bypassed). Fired on dom-ready (before React
  * hydrates) and again on did-finish-load for SPA navigations.
  */
-const WEBSTORE_SHIM = `(function() {
+function getAppIconPngPathForWebstoreInject(): string {
+  return isDev
+    ? path.join(__dirname, '..', 'electron', 'assets', 'icon.png')
+    : path.join(__dirname, '..', 'assets', 'icon.png');
+}
+
+let webstoreShimCached: string | null = null;
+
+function getWebstoreShim(): string {
+  if (webstoreShimCached) return webstoreShimCached;
+  let logoJs: string;
+  try {
+    const dataUrl =
+      'data:image/png;base64,' +
+      fs.readFileSync(getAppIconPngPathForWebstoreInject()).toString('base64');
+    logoJs =
+      "var logoWrap=document.createElement('span');" +
+      "logoWrap.setAttribute('style','display:flex;align-items:center;gap:8px;color:#a5b4fc;letter-spacing:.02em');" +
+      "var logoImg=document.createElement('img');" +
+      'logoImg.src=' +
+      JSON.stringify(dataUrl) +
+      ';' +
+      "logoImg.alt='';" +
+      'logoImg.width=20;' +
+      'logoImg.height=20;' +
+      "logoImg.setAttribute('style','display:block;flex-shrink:0;border-radius:4px;object-fit:contain');" +
+      "var logoText=document.createElement('span');" +
+      "logoText.textContent='DevLens';" +
+      'logoWrap.appendChild(logoImg);' +
+      'logoWrap.appendChild(logoText);';
+  } catch {
+    logoJs =
+      "var logoWrap=document.createElement('span');" +
+      "logoWrap.setAttribute('style','color:#a5b4fc;letter-spacing:.02em');" +
+      "logoWrap.textContent='DevLens';";
+  }
+  webstoreShimCached = WEBSTORE_SHIM_TEMPLATE.replace('__INJECT_WEBSTORE_LOGO__', logoJs);
+  return webstoreShimCached;
+}
+
+const WEBSTORE_SHIM_TEMPLATE = `(function() {
   // ── 1. navigator.userAgentData — patch "Google Chrome" brand ──────────
   //
   // This is the ROOT CAUSE of the greyed-out "Add to Chrome" button.
@@ -972,9 +1012,7 @@ const WEBSTORE_SHIM = `(function() {
         'border-bottom:1px solid #4338ca'
       ].join(';'));
 
-      var logo = document.createElement('span');
-      logo.textContent = '🔷 Dev-Lens';
-      logo.setAttribute('style', 'color:#a5b4fc;letter-spacing:.02em');
+      __INJECT_WEBSTORE_LOGO__
 
       var sep = document.createElement('span');
       sep.textContent = '·';
@@ -1010,7 +1048,7 @@ const WEBSTORE_SHIM = `(function() {
       close.addEventListener('mouseleave', function() { close.style.color = '#6366f1'; });
       close.addEventListener('click', removeBar);
 
-      bar.appendChild(logo);
+      bar.appendChild(logoWrap);
       bar.appendChild(sep);
       bar.appendChild(label);
       bar.appendChild(btn);
@@ -1024,15 +1062,15 @@ const WEBSTORE_SHIM = `(function() {
       if (window.__devlensExt && window.__devlensExt.isInstalled) {
         window.__devlensExt.isInstalled(extId).then(function(installed) {
           if (installed) {
-            label.textContent = 'Already installed in Dev-Lens';
+            label.textContent = 'Already installed in DevLens';
             btn.textContent = '\u2713 Installed';
             btn.disabled = true;
             btn.style.opacity = '1';
             btn.style.background = '#16a34a';
             btn.style.cursor = 'default';
           } else {
-            label.textContent = 'Install this extension in Dev-Lens:';
-            btn.textContent = '\uFF0B Add to Dev-Lens';
+            label.textContent = 'Install this extension in DevLens:';
+            btn.textContent = '\uFF0B Add to DevLens';
             btn.disabled = false;
             btn.style.opacity = '1';
             btn.addEventListener('mouseenter', function() { btn.style.background = '#4f46e5'; });
@@ -1042,8 +1080,8 @@ const WEBSTORE_SHIM = `(function() {
             });
           }
         }).catch(function() {
-          label.textContent = 'Install this extension in Dev-Lens:';
-          btn.textContent = '\uFF0B Add to Dev-Lens';
+          label.textContent = 'Install this extension in DevLens:';
+          btn.textContent = '\uFF0B Add to DevLens';
           btn.disabled = false;
           btn.style.opacity = '1';
           btn.addEventListener('click', function() {
@@ -1051,8 +1089,8 @@ const WEBSTORE_SHIM = `(function() {
           });
         });
       } else {
-        label.textContent = 'Install this extension in Dev-Lens:';
-        btn.textContent = '\uFF0B Add to Dev-Lens';
+        label.textContent = 'Install this extension in DevLens:';
+        btn.textContent = '\uFF0B Add to DevLens';
         btn.disabled = false;
         btn.style.opacity = '1';
         btn.addEventListener('mouseenter', function() { btn.style.background = '#4f46e5'; });
@@ -1133,7 +1171,7 @@ void app
     const injectWebStoreShim = (wc: import('electron').WebContents): void => {
       try {
         if (isWebStorePage(wc.getURL())) {
-          void wc.executeJavaScript(WEBSTORE_SHIM);
+          void wc.executeJavaScript(getWebstoreShim());
         }
       } catch {
         /* ignore */

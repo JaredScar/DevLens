@@ -23,14 +23,14 @@
   -webkit-app-region: drag;
 }
 
-.topbar__brand-mark {
-  width: 10px;
-  height: 10px;
-  background: linear-gradient(135deg, var(--dl-accent) 0%, #79c0ff 100%);
-  transform: rotate(45deg);
-  border-radius: 2px;
+.topbar__brand-logo {
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
-  box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.35);
+  border-radius: 5px;
+  object-fit: contain;
+  display: block;
+  box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.2);
 }
 
 .topbar__brand-name {

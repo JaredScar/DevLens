@@ -37,6 +37,11 @@
                 "glob": "devlens-taskbar-256.png",
                 "input": "..",
                 "output": "."
+              },
+              {
+                "glob": "icon.png",
+                "input": "../electron/assets",
+                "output": "."
               }
             ],
             "styles": [
