@@ -117,7 +117,7 @@
       }
     </div>
 
-    @if (electronShell && chromeExtensions().length) {
+    @if (features.toolbar('chromeExtensionStrip') && electronShell && chromeExtensions().length) {
       <div class="topbar__ext-strip" aria-label="Installed extensions">
         @for (ext of chromeExtensions(); track ext.id) {
           <button
@@ -136,7 +136,7 @@
       </div>
     }
 
-    @if (autofillHintsList().length) {
+    @if (features.toolbar('autofillMenu') && autofillHintsList().length) {
       <div class="topbar__fill-wrap" tabindex="-1" (focusout)="onAutofillFocusOut()">
         <button
           type="button"
@@ -162,23 +162,25 @@
     }
 
     <!-- Summarize page (AI) -->
-    <button
-      type="button"
-      class="topbar__action-btn"
-      title="Summarize this page with AI"
-      (click)="summarizePage()"
-    >
-      <svg
-        width="14"
-        height="14"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        viewBox="0 0 16 16"
+    @if (features.toolbar('aiSummarize')) {
+      <button
+        type="button"
+        class="topbar__action-btn"
+        title="Summarize this page with AI"
+        (click)="summarizePage()"
       >
-        <path d="M3 12h10M3 8h7M3 4h10" />
-      </svg>
-    </button>
+        <svg
+          width="14"
+          height="14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 16 16"
+        >
+          <path d="M3 12h10M3 8h7M3 4h10" />
+        </svg>
+      </button>
+    }
 
     <!-- Copy URL -->
     <button type="button" class="topbar__action-btn" title="Copy URL" (click)="shareUrl()">
@@ -196,19 +198,26 @@
     </button>
 
     <!-- Inspect shortcut -->
-    <button type="button" class="topbar__action-btn" title="Inspect (DevTools)" (click)="inspect()">
-      <svg
-        width="14"
-        height="14"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        viewBox="0 0 16 16"
+    @if (features.mode('devtools')) {
+      <button
+        type="button"
+        class="topbar__action-btn"
+        title="Inspect (DevTools)"
+        (click)="inspect()"
       >
-        <path d="M2 4l4 4-4 4" />
-        <path d="M9 12h5" />
-      </svg>
-    </button>
+        <svg
+          width="14"
+          height="14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 16 16"
+        >
+          <path d="M2 4l4 4-4 4" />
+          <path d="M9 12h5" />
+        </svg>
+      </button>
+    }
   </div>
 
   <!-- ── Right actions ─────────────────────────────────────────────────────── -->
@@ -225,66 +234,72 @@
         <path d="M8 2v12M2 8h12" />
       </svg>
     </button>
-    <button
-      type="button"
-      class="topbar__icon-btn"
-      [class.topbar__icon-btn--active]="splitView.enabled()"
-      title="Split view"
-      (click)="toggleSplit()"
-    >
-      <svg
-        width="14"
-        height="14"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        viewBox="0 0 16 16"
+    @if (features.mode('splitView')) {
+      <button
+        type="button"
+        class="topbar__icon-btn"
+        [class.topbar__icon-btn--active]="splitView.enabled()"
+        title="Split view"
+        (click)="toggleSplit()"
       >
-        <rect x="1" y="2" width="6" height="12" rx="1" />
-        <rect x="9" y="2" width="6" height="12" rx="1" />
-      </svg>
-    </button>
-    <button
-      type="button"
-      class="topbar__icon-btn"
-      title="Bookmark this page"
-      (click)="toggleBookmark()"
-    >
-      <svg
-        width="14"
-        height="14"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        viewBox="0 0 16 16"
+        <svg
+          width="14"
+          height="14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 16 16"
+        >
+          <rect x="1" y="2" width="6" height="12" rx="1" />
+          <rect x="9" y="2" width="6" height="12" rx="1" />
+        </svg>
+      </button>
+    }
+    @if (features.toolbar('bookmarksButton')) {
+      <button
+        type="button"
+        class="topbar__icon-btn"
+        title="Bookmark this page"
+        (click)="toggleBookmark()"
       >
-        @if (isBookmarked()) {
-          <path fill="currentColor" d="M3 2h10a1 1 0 011 1v11l-6-3-6 3V3a1 1 0 011-1z" />
-        } @else {
-          <path d="M3 2h10a1 1 0 011 1v11l-6-3-6 3V3a1 1 0 011-1z" />
-        }
-      </svg>
-    </button>
+        <svg
+          width="14"
+          height="14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 16 16"
+        >
+          @if (isBookmarked()) {
+            <path fill="currentColor" d="M3 2h10a1 1 0 011 1v11l-6-3-6 3V3a1 1 0 011-1z" />
+          } @else {
+            <path d="M3 2h10a1 1 0 011 1v11l-6-3-6 3V3a1 1 0 011-1z" />
+          }
+        </svg>
+      </button>
+    }
     <!-- Toggle right sidebar / panels -->
-    <button
-      type="button"
-      class="topbar__icon-btn"
-      [class.topbar__icon-btn--active]="layout.rightSidebarOpen()"
-      title="Toggle panels"
-      (click)="togglePanels()"
-    >
-      <svg
-        width="14"
-        height="14"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        viewBox="0 0 16 16"
+    @if (features.rightSidebar()) {
+      <button
+        type="button"
+        class="topbar__icon-btn"
+        [class.topbar__icon-btn--active]="layout.rightSidebarOpen()"
+        title="Toggle panels"
+        (click)="togglePanels()"
       >
-        <rect x="1" y="1" width="14" height="14" rx="2" />
-        <path d="M10 1v14" />
-      </svg>
-    </button>
+        <svg
+          width="14"
+          height="14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 16 16"
+        >
+          <rect x="1" y="1" width="14" height="14" rx="2" />
+          <path d="M10 1v14" />
+        </svg>
+      </button>
+    }
     <!-- More options -->
     <div class="topbar__more-wrap">
       <button

@@ -1,6 +1,5 @@
 import { Component, HostListener, inject } from '@angular/core';
 import { LayoutService } from '@core/services/layout.service';
-import { PluginRuntimeService } from '@core/services/plugin-runtime.service';
 import { ResizeStateService } from '@core/services/resize-state.service';
 import { WidgetRegistryService } from '@core/services/widget-registry.service';
 import { NotesWidgetComponent } from '@features/sidebar-widgets/notes-widget.component';
@@ -38,7 +37,6 @@ import { ReadLaterWidgetComponent } from '@features/sidebar-widgets/read-later-w
 export class RightSidebarComponent {
   readonly layout = inject(LayoutService);
   readonly widgets = inject(WidgetRegistryService);
-  readonly pluginRuntime = inject(PluginRuntimeService);
   private readonly resizeState = inject(ResizeStateService);
 
   private resizing = false;

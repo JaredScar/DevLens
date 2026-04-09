@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IPC_EVENTS } from '@dev-lens/shared';
 import { RENDERER_INVOKE } from '@core/electron-ipc-channels';
 import { ElectronBridgeService } from '@core/services/electron-bridge.service';
+import { FeatureFlagsService } from '@core/services/feature-flags.service';
 import { ToastService } from '@core/services/toast.service';
 import { LayoutService } from '@core/services/layout.service';
 import { PageAiIntentService } from '@core/services/page-ai-intent.service';
@@ -30,6 +31,7 @@ export class TopBarComponent {
   private readonly pageAi = inject(PageAiIntentService);
   private readonly widgets = inject(WidgetRegistryService);
   private readonly workspace = inject(WorkspaceService);
+  readonly features = inject(FeatureFlagsService);
 
   readonly inputUrl = signal('');
   readonly blocked = signal(0);
@@ -121,6 +123,7 @@ export class TopBarComponent {
     ext: { id: string; name: string; popupPath: string | null },
     ev: MouseEvent,
   ): Promise<void> {
+    if (!this.features.toolbar('chromeExtensionStrip')) return;
     if (!this.bridge.isElectron) return;
     if (!ext.popupPath?.trim()) {
       this.toast.show('This extension has no toolbar popup.');
@@ -244,11 +247,19 @@ export class TopBarComponent {
   }
 
   async inspect(): Promise<void> {
+    if (!this.features.mode('devtools')) return;
     await this.tabs.toggleDevtools();
   }
 
   /** Opens the AI panel and queues a summarize prompt (omnibox quick action). */
   summarizePage(): void {
+    if (
+      !this.features.toolbar('aiSummarize') ||
+      !this.features.rightSidebar() ||
+      !this.features.widget('ai')
+    ) {
+      return;
+    }
     const tab = this.tabs.activeTab();
     if (!tab || tab.kind !== 'browser') return;
     this.widgets.select('ai');
@@ -301,6 +312,7 @@ export class TopBarComponent {
   }
 
   togglePanels(): void {
+    if (!this.features.rightSidebar()) return;
     this.layout.toggleRightSidebar();
   }
 

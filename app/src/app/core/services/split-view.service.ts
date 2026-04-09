@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, effect, inject, signal } from '@angular/core';
+import { FeatureFlagsService } from './feature-flags.service';
 import type { TabsService } from './tabs.service';
 
 /**
@@ -6,6 +7,8 @@ import type { TabsService } from './tabs.service';
  */
 @Injectable({ providedIn: 'root' })
 export class SplitViewService {
+  private readonly features = inject(FeatureFlagsService);
+
   readonly enabled = signal(false);
 
   /** Fraction of width for the primary (left) pane, 0–1. */
@@ -14,7 +17,23 @@ export class SplitViewService {
   /** Second browser tab shown in the right pane when split is on. */
   readonly secondaryTabId = signal<string | null>(null);
 
+  constructor() {
+    effect(() => {
+      if (!this.features.flags().splitView && this.enabled()) {
+        this.enabled.set(false);
+        this.secondaryTabId.set(null);
+      }
+    });
+  }
+
   attemptToggle(tabs: TabsService): void {
+    if (!this.features.flags().splitView) {
+      if (this.enabled()) {
+        this.enabled.set(false);
+        this.secondaryTabId.set(null);
+      }
+      return;
+    }
     if (this.enabled()) {
       this.enabled.set(false);
       this.secondaryTabId.set(null);

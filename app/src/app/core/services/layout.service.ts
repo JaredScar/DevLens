@@ -1,15 +1,22 @@
 import { Injectable, inject, signal, effect } from '@angular/core';
+import { FeatureFlagsService } from './feature-flags.service';
 import { PersistedStateService } from './persisted-state.service';
 
 @Injectable({ providedIn: 'root' })
 export class LayoutService {
   private readonly persisted = inject(PersistedStateService);
+  private readonly features = inject(FeatureFlagsService);
 
   readonly leftSidebarCollapsed = signal(false);
   readonly rightSidebarOpen = signal(false);
   readonly rightSidebarWidthPx = signal(260);
 
   constructor() {
+    effect(() => {
+      if (!this.features.flags().rightSidebar && this.rightSidebarOpen()) {
+        this.closeRightSidebar();
+      }
+    });
     effect(() => {
       const w = this.persisted.snapshot()?.settings.rightSidebarWidthPx;
       if (typeof w === 'number' && w >= 200 && w <= 560) {

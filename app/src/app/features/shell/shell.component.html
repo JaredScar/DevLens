@@ -37,7 +37,9 @@
       }
     </div>
 
-    <app-right-sidebar />
+    @if (features.flags().rightSidebar) {
+      <app-right-sidebar />
+    }
   </div>
   <app-spotlight />
   <app-toast-container />

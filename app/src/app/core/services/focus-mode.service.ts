@@ -1,4 +1,5 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { FeatureFlagsService } from './feature-flags.service';
 import { PersistedStateService } from './persisted-state.service';
 import { TabsService } from './tabs.service';
 
@@ -23,10 +24,17 @@ function hostMatchesTabHost(tabHost: string, pattern: string): boolean {
 export class FocusModeService {
   private readonly tabs = inject(TabsService);
   private readonly persisted = inject(PersistedStateService);
+  private readonly features = inject(FeatureFlagsService);
 
   readonly enabled = signal(false);
 
   private pomodoroTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    effect(() => {
+      if (!this.features.flags().focusMode && this.enabled()) this.disable();
+    });
+  }
 
   /**
    * When true, shell applies focus chrome hiding. Allowlisted active tab hosts
@@ -45,6 +53,7 @@ export class FocusModeService {
   });
 
   toggle(): void {
+    if (!this.features.flags().focusMode) return;
     const next = !this.enabled();
     this.enabled.set(next);
     if (next) this.armPomodoro();

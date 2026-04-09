@@ -6,9 +6,13 @@ import { FormsModule } from '@angular/forms';
 import {
   COMPANION_SNAPSHOT_VERSION,
   IPC_CHANNELS,
+  defaultFeatureFlags,
+  mergeFeatureFlags,
   type AutofillHintDTO,
   type AutomationRuleDTO,
   type CompanionSnapshotV1,
+  type DevLensFeatureFlags,
+  type DevLensFeatureFlagsPatch,
   type DevLensShortcutProfileFileV1,
   type DevLensStoreSnapshot,
   type DevLensThemeFileV1,
@@ -64,6 +68,7 @@ export interface InstalledExtensionInfo {
 
 type Section =
   | 'general'
+  | 'features'
   | 'privacy'
   | 'appearance'
   | 'automation'
@@ -116,6 +121,7 @@ export class SettingsComponent {
 
   readonly nav: { id: Section; label: string; icon: string }[] = [
     { id: 'general', label: 'General', icon: 'fa-gear' },
+    { id: 'features', label: 'Features', icon: 'fa-sliders' },
     { id: 'privacy', label: 'Privacy', icon: 'fa-shield-halved' },
     { id: 'appearance', label: 'Appearance', icon: 'fa-palette' },
     { id: 'automation', label: 'Automation', icon: 'fa-bolt' },
@@ -175,6 +181,18 @@ export class SettingsComponent {
     const cur = this.persisted.snapshot()?.settings;
     if (!cur) return;
     await this.persisted.patch({ settings: { ...cur, ...p } });
+  }
+
+  /** Effective feature flags for display (defaults merged). */
+  effectiveFeatureFlags(snap: DevLensStoreSnapshot): DevLensFeatureFlags {
+    return mergeFeatureFlags(defaultFeatureFlags(), snap.settings.featureFlags);
+  }
+
+  async patchFeatureFlags(p: DevLensFeatureFlagsPatch): Promise<void> {
+    const cur = this.persisted.snapshot()?.settings;
+    if (!cur) return;
+    const base = cur.featureFlags ?? defaultFeatureFlags();
+    await this.patchSettings({ featureFlags: mergeFeatureFlags(base, p) });
   }
 
   allowlistLines(snap: DevLensStoreSnapshot): string {

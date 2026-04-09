@@ -9,6 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { FeatureFlagsService } from '@core/services/feature-flags.service';
 import { LayoutService } from '@core/services/layout.service';
 import { PersistedStateService } from '@core/services/persisted-state.service';
 import { TabsService } from '@core/services/tabs.service';
@@ -38,6 +39,7 @@ export class SpotlightComponent {
   private readonly notes = inject(NotesService);
   private readonly layout = inject(LayoutService);
   private readonly widgets = inject(WidgetRegistryService);
+  private readonly features = inject(FeatureFlagsService);
 
   readonly query = signal('');
   readonly selected = signal(0);
@@ -51,6 +53,7 @@ export class SpotlightComponent {
   }
 
   readonly rows = computed(() => {
+    const ff = this.features.flags();
     const q = this.query().trim().toLowerCase();
     const rows: Row[] = [];
 
@@ -112,6 +115,7 @@ export class SpotlightComponent {
           category: 'Notes',
           run: () => {
             this.spotlight.hide();
+            if (!ff.rightSidebar || !ff.widgets.notes) return;
             this.layout.openRightSidebar();
             this.widgets.select('notes');
             this.notes.requestFocusNote(n.id);

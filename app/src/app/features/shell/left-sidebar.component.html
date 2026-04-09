@@ -309,73 +309,81 @@
   <!-- ── Bottom toolbar ─────────────────────────────────────────────────── -->
   <div class="sidebar__bottom" [class.sidebar__bottom--collapsed]="layout.leftSidebarCollapsed()">
     <!-- Bookmarks -->
-    <button
-      type="button"
-      class="sidebar__bottom-btn"
-      title="Bookmarks"
-      (click)="openWidget('bookmarks')"
-    >
-      <svg
-        width="16"
-        height="16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        viewBox="0 0 16 16"
+    @if (features.rightSidebar() && features.widget('bookmarks')) {
+      <button
+        type="button"
+        class="sidebar__bottom-btn"
+        title="Bookmarks"
+        (click)="openWidget('bookmarks')"
       >
-        <path d="M3 2h10a1 1 0 011 1v11l-6-3-6 3V3a1 1 0 011-1z" />
-      </svg>
-    </button>
+        <svg
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 16 16"
+        >
+          <path d="M3 2h10a1 1 0 011 1v11l-6-3-6 3V3a1 1 0 011-1z" />
+        </svg>
+      </button>
+    }
     <!-- AI -->
-    <button
-      type="button"
-      class="sidebar__bottom-btn"
-      title="AI Assistant"
-      (click)="openWidget('ai')"
-    >
-      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M8 1L9.4 6.6 15 8l-5.6 1.4L8 15 6.6 9.4 1 8l5.6-1.4z" />
-      </svg>
-    </button>
+    @if (features.rightSidebar() && features.widget('ai')) {
+      <button
+        type="button"
+        class="sidebar__bottom-btn"
+        title="AI Assistant"
+        (click)="openWidget('ai')"
+      >
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8 1L9.4 6.6 15 8l-5.6 1.4L8 15 6.6 9.4 1 8l5.6-1.4z" />
+        </svg>
+      </button>
+    }
     <!-- Console -->
-    <button
-      type="button"
-      class="sidebar__bottom-btn"
-      title="Console"
-      (click)="openWidget('console')"
-    >
-      <svg
-        width="16"
-        height="16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        viewBox="0 0 16 16"
+    @if (features.rightSidebar() && features.widget('console')) {
+      <button
+        type="button"
+        class="sidebar__bottom-btn"
+        title="Console"
+        (click)="openWidget('console')"
       >
-        <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" />
-        <path d="M4 6.5l2.5 2-2.5 2M8.5 10.5H12" />
-      </svg>
-    </button>
+        <svg
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 16 16"
+        >
+          <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" />
+          <path d="M4 6.5l2.5 2-2.5 2M8.5 10.5H12" />
+        </svg>
+      </button>
+    }
     <!-- Clipboard -->
-    <button
-      type="button"
-      class="sidebar__bottom-btn"
-      title="Clipboard"
-      (click)="openWidget('clipboard')"
-    >
-      <svg
-        width="16"
-        height="16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        viewBox="0 0 16 16"
+    @if (features.rightSidebar() && features.widget('clipboard')) {
+      <button
+        type="button"
+        class="sidebar__bottom-btn"
+        title="Clipboard"
+        (click)="openWidget('clipboard')"
       >
-        <rect x="3" y="3" width="10" height="12" rx="1" />
-        <path d="M6 3V2a1 1 0 012 0v1" />
-        <path d="M5 7h6M5 10h4" />
-      </svg>
-    </button>
+        <svg
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 16 16"
+        >
+          <rect x="3" y="3" width="10" height="12" rx="1" />
+          <path d="M6 3V2a1 1 0 012 0v1" />
+          <path d="M5 7h6M5 10h4" />
+        </svg>
+      </button>
+    }
     <!-- Settings -->
     <button type="button" class="sidebar__bottom-btn" title="Settings" (click)="openSettings()">
       <svg
@@ -470,12 +478,16 @@
         <button type="button" class="tabctx__item" (click)="menuDuplicate(ctx.tab)">
           Duplicate
         </button>
-        <button type="button" class="tabctx__item" (click)="menuExplainSelection(ctx.tab)">
-          Explain selection (AI)
-        </button>
-        <button type="button" class="tabctx__item" (click)="menuInspectElement(ctx.tab)">
-          Inspect element
-        </button>
+        @if (features.toolbar('aiSummarize') && features.rightSidebar() && features.widget('ai')) {
+          <button type="button" class="tabctx__item" (click)="menuExplainSelection(ctx.tab)">
+            Explain selection (AI)
+          </button>
+        }
+        @if (features.mode('devtools')) {
+          <button type="button" class="tabctx__item" (click)="menuInspectElement(ctx.tab)">
+            Inspect element
+          </button>
+        }
       }
       <button type="button" class="tabctx__item" (click)="menuTogglePin(ctx.tab)">
         {{ ctx.tab.pinned ? 'Unpin' : 'Pin' }}

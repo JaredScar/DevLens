@@ -6,6 +6,7 @@ import {
   afterNextRender,
   effect,
 } from '@angular/core';
+import { FeatureFlagsService } from '@core/services/feature-flags.service';
 import { RouterOutlet } from '@angular/router';
 import { appendClipboardEntryIfNew } from '@core/clipboard-merge';
 import { ElectronBridgeService } from '@core/services/electron-bridge.service';
@@ -55,6 +56,7 @@ export class ShellComponent {
   private readonly shortcuts = inject(ShortcutRegistryService);
   private readonly pluginRuntime = inject(PluginRuntimeService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly features = inject(FeatureFlagsService);
 
   private splitDrag = false;
   private splitRafPending = false;
@@ -89,6 +91,11 @@ export class ShellComponent {
       const lang = snap?.settings.language?.trim() || 'en';
       document.documentElement.lang = lang;
       document.documentElement.dir = snap?.settings.uiRtl ? 'rtl' : 'ltr';
+    });
+    effect(() => {
+      if (!this.features.flags().spotlight && this.spotlightSvc.open()) {
+        this.spotlightSvc.hide();
+      }
     });
   }
 
@@ -237,7 +244,9 @@ export class ShellComponent {
       return;
     }
     const meta = ev.ctrlKey || ev.metaKey;
+    const ff = this.features.flags();
     if (meta && ev.key.toLowerCase() === 'k') {
+      if (!ff.spotlight) return;
       ev.preventDefault();
       this.spotlightSvc.toggle();
       return;
@@ -249,6 +258,7 @@ export class ShellComponent {
       ev.preventDefault();
       switch (action) {
         case 'spotlight':
+          if (!ff.spotlight) break;
           this.spotlightSvc.toggle();
           break;
         case 'newTab':
@@ -266,15 +276,19 @@ export class ShellComponent {
           this.tabs.cycleTab(-1);
           break;
         case 'toggleSplit':
+          if (!ff.splitView) break;
           this.splitView.attemptToggle(this.tabs);
           break;
         case 'focusMode':
+          if (!ff.focusMode) break;
           this.focusMode.toggle();
           break;
         case 'toggleDevtools':
+          if (!ff.devtools) break;
           void this.tabs.toggleDevtools();
           break;
         case 'inspectElement':
+          if (!ff.devtools) break;
           void this.tabs.inspectGuestElement();
           break;
         default:

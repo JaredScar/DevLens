@@ -146,6 +146,304 @@
           </div>
         }
 
+        <!-- ══ FEATURES ═══════════════════════════════════════════════════ -->
+        @case ('features') {
+          <div class="settings__page-header">
+            <i class="fa-solid fa-sliders settings__page-icon" aria-hidden="true"></i>
+            <div>
+              <h2>Features</h2>
+              <p class="settings__page-desc">
+                Turn optional tools and panels on or off. Tabs, omnibox, and workspaces stay
+                available.
+              </p>
+            </div>
+          </div>
+
+          @let ff = effectiveFeatureFlags(snap);
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-bolt" aria-hidden="true"></i> Quick launcher &amp; modes
+            </div>
+            <div class="settings__card-body">
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.spotlight"
+                  (ngModelChange)="patchFeatureFlags({ spotlight: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Spotlight (Ctrl+K)</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.splitView"
+                  (ngModelChange)="patchFeatureFlags({ splitView: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Split view</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.focusMode"
+                  (ngModelChange)="patchFeatureFlags({ focusMode: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Focus mode</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.devtools"
+                  (ngModelChange)="patchFeatureFlags({ devtools: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">DevTools &amp; Inspect</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-window-maximize" aria-hidden="true"></i> Toolbar
+            </div>
+            <div class="settings__card-body">
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.aiSummarize"
+                  (ngModelChange)="patchFeatureFlags({ aiSummarize: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">AI summarize (omnibox)</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.autofillMenu"
+                  (ngModelChange)="patchFeatureFlags({ autofillMenu: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Fill menu (autofill hints)</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.bookmarksButton"
+                  (ngModelChange)="patchFeatureFlags({ bookmarksButton: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Bookmark button</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.chromeExtensionStrip"
+                  (ngModelChange)="patchFeatureFlags({ chromeExtensionStrip: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Chrome extension toolbar strip</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-columns" aria-hidden="true"></i> Right panel &amp; widgets
+            </div>
+            <div class="settings__card-body">
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.rightSidebar"
+                  (ngModelChange)="patchFeatureFlags({ rightSidebar: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Right sidebar &amp; panels</span>
+              </label>
+              <p class="settings__field-hint">
+                When off, the panel rail and all widgets below are hidden.
+              </p>
+
+              <div class="settings__subheading">Widgets</div>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.widgets.bookmarks"
+                  (ngModelChange)="patchFeatureFlags({ widgets: { bookmarks: $event } })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Bookmarks</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.widgets.notes"
+                  (ngModelChange)="patchFeatureFlags({ widgets: { notes: $event } })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Notes</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.widgets.ai"
+                  (ngModelChange)="patchFeatureFlags({ widgets: { ai: $event } })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">AI Assistant</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.widgets.console"
+                  (ngModelChange)="patchFeatureFlags({ widgets: { console: $event } })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Console</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.widgets.clipboard"
+                  (ngModelChange)="patchFeatureFlags({ widgets: { clipboard: $event } })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Clipboard</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.widgets.sessions"
+                  (ngModelChange)="patchFeatureFlags({ widgets: { sessions: $event } })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Sessions</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.widgets.api"
+                  (ngModelChange)="patchFeatureFlags({ widgets: { api: $event } })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">API tester</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.widgets.history"
+                  (ngModelChange)="patchFeatureFlags({ widgets: { history: $event } })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">History</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.widgets.readlater"
+                  (ngModelChange)="patchFeatureFlags({ widgets: { readlater: $event } })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Read later</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.widgets.perf"
+                  (ngModelChange)="patchFeatureFlags({ widgets: { perf: $event } })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Performance</span>
+              </label>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.widgets.json"
+                  (ngModelChange)="patchFeatureFlags({ widgets: { json: $event } })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">JSON formatter</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings__card">
+            <div class="settings__card-header">
+              <i class="fa-solid fa-database" aria-hidden="true"></i> Data &amp; automation
+            </div>
+            <div class="settings__card-body">
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.historyRecording"
+                  (ngModelChange)="patchFeatureFlags({ historyRecording: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Record browsing history</span>
+              </label>
+              <p class="settings__field-hint">
+                When off, new visits are not appended to history (existing entries remain).
+              </p>
+              <label class="settings__toggle">
+                <input
+                  type="checkbox"
+                  [ngModel]="ff.automation"
+                  (ngModelChange)="patchFeatureFlags({ automation: $event })"
+                />
+                <span class="settings__toggle-track"
+                  ><span class="settings__toggle-thumb"></span
+                ></span>
+                <span class="settings__toggle-label">Automation rules</span>
+              </label>
+            </div>
+          </div>
+        }
+
         <!-- ══ PRIVACY ════════════════════════════════════════════════════ -->
         @case ('privacy') {
           <div class="settings__page-header">

@@ -46,6 +46,7 @@ import {
   IPC_CHANNELS,
   IPC_EVENTS,
   defaultStoreSnapshot,
+  mergeFeatureFlags,
   workspaceBrowserPartition,
   type DevLensStoreSnapshot,
 } from '@dev-lens/shared';
@@ -142,7 +143,9 @@ const BLOCKLIST_REFRESH_MS = 24 * 60 * 60 * 1000;
 
 function mergeSettingsDefaults(): void {
   const def = defaultStoreSnapshot().settings;
-  store.set('settings', { ...def, ...store.get('settings') });
+  const cur = store.get('settings');
+  const mergedFlags = mergeFeatureFlags(def.featureFlags, cur.featureFlags);
+  store.set('settings', { ...def, ...cur, featureFlags: mergedFlags });
 }
 
 function applyBlockerFromStore(): void {
@@ -164,6 +167,8 @@ function randomId(): string {
 }
 
 function appendHistory(url: string, title: string): void {
+  const s = store.get('settings');
+  if (s.featureFlags?.historyRecording === false) return;
   const h = store.get('history');
   const filtered = h.filter((e) => e.url !== url);
   const entry = { id: randomId(), url, title: title || url, at: Date.now() };

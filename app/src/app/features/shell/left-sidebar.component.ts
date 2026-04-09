@@ -18,10 +18,12 @@ import { SplitViewService } from '@core/services/split-view.service';
 import { TabsService } from '@core/services/tabs.service';
 import { WorkspaceService } from '@core/services/workspace.service';
 import { AutomationService } from '@core/services/automation.service';
+import { FeatureFlagsService } from '@core/services/feature-flags.service';
 import { PageAiIntentService } from '@core/services/page-ai-intent.service';
 import { WidgetRegistryService } from '@core/services/widget-registry.service';
 import { PersistedStateService } from '@core/services/persisted-state.service';
 import { ToastService } from '@core/services/toast.service';
+import type { DevLensFeatureWidgetFlags } from '@dev-lens/shared';
 
 type TabListItem =
   | { type: 'group'; id: string; title: string; color: string; collapsed: boolean }
@@ -40,6 +42,7 @@ export class LeftSidebarComponent {
   readonly splitView = inject(SplitViewService);
   readonly workspace = inject(WorkspaceService);
   readonly widgets = inject(WidgetRegistryService);
+  readonly features = inject(FeatureFlagsService);
   private readonly persisted = inject(PersistedStateService);
   private readonly automation = inject(AutomationService);
   private readonly toast = inject(ToastService);
@@ -177,6 +180,13 @@ export class LeftSidebarComponent {
   async menuExplainSelection(tab: UiTab): Promise<void> {
     this.closeTabMenu();
     if (tab.kind !== 'browser') return;
+    if (
+      !this.features.toolbar('aiSummarize') ||
+      !this.features.rightSidebar() ||
+      !this.features.widget('ai')
+    ) {
+      return;
+    }
     await this.tabs.selectTab(tab.id, false);
     let sel = '';
     try {
@@ -201,6 +211,7 @@ export class LeftSidebarComponent {
   async menuInspectElement(tab: UiTab): Promise<void> {
     this.closeTabMenu();
     if (tab.kind !== 'browser') return;
+    if (!this.features.mode('devtools')) return;
     await this.tabs.selectTab(tab.id, false);
     await this.tabs.inspectGuestElement();
   }
@@ -339,6 +350,7 @@ export class LeftSidebarComponent {
   }
 
   onTabDragEnd(ev: CdkDragEnd, tab: UiTab): void {
+    if (!this.features.mode('splitView')) return;
     if (tab.kind !== 'browser') return;
     const el = ev.source.getRootElement();
     const r = el.getBoundingClientRect();
@@ -389,6 +401,8 @@ export class LeftSidebarComponent {
   }
 
   openWidget(id: string): void {
+    if (!this.features.rightSidebar()) return;
+    if (!this.features.widget(id as keyof DevLensFeatureWidgetFlags)) return;
     this.widgets.select(id);
     this.layout.openRightSidebar();
   }

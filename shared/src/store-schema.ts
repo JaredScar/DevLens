@@ -106,6 +106,87 @@ export interface ReadLaterEntryDTO {
   addedAt: number;
 }
 
+/** Per-widget visibility (Settings → Features). All default true. */
+export interface DevLensFeatureWidgetFlags {
+  notes: boolean;
+  ai: boolean;
+  console: boolean;
+  clipboard: boolean;
+  sessions: boolean;
+  api: boolean;
+  history: boolean;
+  /** Matches widget id `readlater`. */
+  readlater: boolean;
+  perf: boolean;
+  json: boolean;
+  bookmarks: boolean;
+}
+
+/** Optional/productivity features toggles; core browsing stays available. */
+export interface DevLensFeatureFlags {
+  spotlight: boolean;
+  splitView: boolean;
+  focusMode: boolean;
+  devtools: boolean;
+  aiSummarize: boolean;
+  autofillMenu: boolean;
+  bookmarksButton: boolean;
+  chromeExtensionStrip: boolean;
+  historyRecording: boolean;
+  automation: boolean;
+  rightSidebar: boolean;
+  widgets: DevLensFeatureWidgetFlags;
+}
+
+export function defaultFeatureFlags(): DevLensFeatureFlags {
+  return {
+    spotlight: true,
+    splitView: true,
+    focusMode: true,
+    devtools: true,
+    aiSummarize: true,
+    autofillMenu: true,
+    bookmarksButton: true,
+    chromeExtensionStrip: true,
+    historyRecording: true,
+    automation: true,
+    rightSidebar: true,
+    widgets: {
+      notes: true,
+      ai: true,
+      console: true,
+      clipboard: true,
+      sessions: true,
+      api: true,
+      history: true,
+      readlater: true,
+      perf: true,
+      json: true,
+      bookmarks: true,
+    },
+  };
+}
+
+/** Deep-friendly partial for feature flag updates (widgets nested). */
+export type DevLensFeatureFlagsPatch = Omit<Partial<DevLensFeatureFlags>, 'widgets'> & {
+  widgets?: Partial<DevLensFeatureWidgetFlags>;
+};
+
+/** Merge persisted flags with defaults so new keys default to on after upgrades. */
+export function mergeFeatureFlags(
+  base: DevLensFeatureFlags,
+  partial?: DevLensFeatureFlagsPatch,
+): DevLensFeatureFlags {
+  return {
+    ...base,
+    ...partial,
+    widgets: {
+      ...base.widgets,
+      ...partial?.widgets,
+    },
+  };
+}
+
 export interface DevLensStoreSnapshot {
   settings: {
     searchEngine: 'google' | 'ddg';
@@ -172,6 +253,8 @@ export interface DevLensStoreSnapshot {
     encryptedImportMode: 'replace' | 'merge_lww';
     /** Mirror document direction for RTL languages (experimental). */
     uiRtl: boolean;
+    /** Toggle optional UI and behavior (defaults all true). */
+    featureFlags: DevLensFeatureFlags;
   };
   workspaces: WorkspaceDTO[];
   activeWorkspaceId: string;
@@ -229,6 +312,7 @@ export function defaultStoreSnapshot(): DevLensStoreSnapshot {
       httpsOnlyMode: false,
       encryptedImportMode: 'replace',
       uiRtl: false,
+      featureFlags: defaultFeatureFlags(),
     },
     workspaces: [{ id: wsId, name: 'Personal', color: '#58a6ff' }],
     activeWorkspaceId: wsId,

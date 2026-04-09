@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import type { AutomationRuleDTO } from '@dev-lens/shared';
+import { FeatureFlagsService } from './feature-flags.service';
 import { LayoutService } from './layout.service';
 import { PersistedStateService } from './persisted-state.service';
 import { TabsService } from './tabs.service';
@@ -49,6 +50,7 @@ export class AutomationService {
   private readonly persisted = inject(PersistedStateService);
   private readonly layout = inject(LayoutService);
   private readonly widgets = inject(WidgetRegistryService);
+  private readonly features = inject(FeatureFlagsService);
   private readonly workspace = inject(WorkspaceService);
   private readonly tabs = inject(TabsService);
 
@@ -62,6 +64,7 @@ export class AutomationService {
 
   /** Run enabled rules when the active browser tab navigates. */
   onBrowserUrl(url: string): void {
+    if (!this.features.data('automation')) return;
     const rules = this.persisted.snapshot()?.automationRules ?? [];
     for (const r of rules) {
       if (!r.enabled || r.triggerType !== 'url_contains') continue;
@@ -73,6 +76,7 @@ export class AutomationService {
 
   /** Run enabled rules after the active workspace changes. */
   onWorkspaceActivated(workspaceId: string): void {
+    if (!this.features.data('automation')) return;
     const rules = this.persisted.snapshot()?.automationRules ?? [];
     for (const r of rules) {
       if (!r.enabled || r.triggerType !== 'workspace_active') continue;
@@ -83,6 +87,7 @@ export class AutomationService {
 
   /** Fire once when local time enters a `time_window` (edge-triggered). */
   private evaluateTimeWindowTransition(): void {
+    if (!this.features.data('automation')) return;
     const rules = this.persisted.snapshot()?.automationRules ?? [];
     const now = minutesInLocalDay();
     for (const r of rules) {

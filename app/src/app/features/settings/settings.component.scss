@@ -182,6 +182,15 @@
   color: var(--dl-muted);
 }
 
+.settings__subheading {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--dl-muted);
+  text-transform: uppercase;
+}
+
 .settings__label {
   font-size: 13px;
   font-weight: 500;

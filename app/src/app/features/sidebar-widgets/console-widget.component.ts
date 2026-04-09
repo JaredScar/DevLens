@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { GuestLogService, type GuestConsoleLine } from '@core/services/guest-log.service';
 import { ResizeStateService } from '@core/services/resize-state.service';
+import { FeatureFlagsService } from '@core/services/feature-flags.service';
 import { TabsService } from '@core/services/tabs.service';
 import { ElectronBridgeService } from '@core/services/electron-bridge.service';
 import { RENDERER_INVOKE } from '@core/electron-ipc-channels';
@@ -133,6 +134,7 @@ type DtStatus = 'idle' | 'attaching' | 'attached' | 'no-tab' | 'error';
 })
 export class ConsoleWidgetComponent {
   private readonly tabs = inject(TabsService);
+  private readonly features = inject(FeatureFlagsService);
   readonly bridge = inject(ElectronBridgeService);
   private readonly destroyRef = inject(DestroyRef);
   readonly guestLog = inject(GuestLogService);
@@ -444,6 +446,7 @@ export class ConsoleWidgetComponent {
   }
 
   openNativeDevTools(): void {
+    if (!this.features.mode('devtools')) return;
     void this.tabs.toggleDevtools();
   }
 

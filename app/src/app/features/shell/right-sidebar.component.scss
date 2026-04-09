@@ -26,6 +26,14 @@
   background: var(--dl-border);
 }
 
+.rside__empty {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--dl-text-muted);
+}
+
 .rside {
   display: flex;
   flex-direction: column;

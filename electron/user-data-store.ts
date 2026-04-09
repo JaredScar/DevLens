@@ -1,5 +1,10 @@
 import Store from 'electron-store';
-import { defaultStoreSnapshot, type DevLensStoreSnapshot } from '@dev-lens/shared';
+import {
+  defaultFeatureFlags,
+  defaultStoreSnapshot,
+  mergeFeatureFlags,
+  type DevLensStoreSnapshot,
+} from '@dev-lens/shared';
 
 export type UserStore = Store<DevLensStoreSnapshot>;
 
@@ -15,9 +20,17 @@ export function patchUserStore(store: UserStore, partial: Partial<DevLensStoreSn
     const v = partial[key];
     if (v === undefined) continue;
     if (key === 'settings') {
+      const prev = store.get('settings');
+      const next = v as DevLensStoreSnapshot['settings'];
+      const baseFlags = prev.featureFlags ?? defaultFeatureFlags();
+      const featureFlags =
+        next.featureFlags !== undefined
+          ? mergeFeatureFlags(baseFlags, next.featureFlags)
+          : baseFlags;
       store.set('settings', {
-        ...store.get('settings'),
-        ...(v as DevLensStoreSnapshot['settings']),
+        ...prev,
+        ...next,
+        featureFlags,
       });
     } else if (key === 'pluginStates') {
       store.set('pluginStates', {
