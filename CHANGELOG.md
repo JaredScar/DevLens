@@ -4,6 +4,16 @@ All notable changes to Dev-Lens are documented here. The format is based on [Kee
 
 ## [Unreleased]
 
+## [0.2.2] — 2026-04-05
+
+### Added
+
+- **Settings → Features:** Per-feature toggles for optional productivity behavior—Spotlight, split view, focus mode, DevTools/Inspect, right sidebar and each built-in widget, toolbar actions (AI summarize, Fill menu, bookmark button, Chrome extension strip), browsing history recording, and automation rules. Core browsing (tabs, omnibox, workspaces) stays available.
+
+### Changed
+
+- **Licensing:** Project uses the MIT License (`LICENSE`); `package.json` declares `"license": "MIT"` and the README documents it.
+
 ## [0.2.1] — 2026-04-04
 
 ### Changed
