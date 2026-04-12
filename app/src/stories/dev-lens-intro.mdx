@@ -1,0 +1,59 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Dev-Lens/Introduction" />
+
+# Dev-Lens Browser
+
+Dev-Lens is a desktop browser built with **Electron** and **Angular**, designed for developers and power users.
+
+## Features
+
+### Core Browser Features
+- **Workspaces** — Isolate tabs into named workspaces with optional session isolation
+- **Vertical Tabs** — Drag-and-drop reorder, grouping, and tab search
+- **Split View** — Side-by-side browsing with resizeable divider
+- **Privacy Blocker** — Built-in tracker blocking at the Electron layer
+
+### Developer Tools
+- **Console Widget** — REPL executing JS in active webview with log capture
+- **Network Inspector** — Request logging and HAR export
+- **API Tester** — In-sidebar REST client
+- **JSON Formatter** — Pretty-print and collapsible tree view
+
+### Productivity
+- **Spotlight Search** (Ctrl+K) — Unified search across tabs, bookmarks, history, notes
+- **Notes** — Per-workspace notes with markdown preview
+- **Clipboard History** — Track recent clipboard entries
+- **Session Management** — Save/restore named tab snapshots
+
+### Customization
+- **Themes** — Light, Dark, Midnight, Solarized, High-contrast
+- **Keyboard Shortcuts** — Customizable with conflict detection
+- **Automation Rules** — Event-based triggers and actions
+
+## Architecture
+
+- **Frontend**: Angular 19 with standalone components
+- **Shell**: Electron with `<webview>` tags
+- **State**: Signal-based reactivity with `electron-store` persistence
+- **Testing**: Karma + Playwright E2E
+
+## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Run in development mode
+npm run dev
+
+# Build for production
+npm run build
+
+# Run tests
+npm run test:unit
+npm run test:e2e
+
+# Start Storybook
+ng run dev-lens:storybook
+```

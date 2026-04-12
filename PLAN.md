@@ -443,7 +443,11 @@
 
 - [x] `README.md` with setup, build, run, tests
 - [x] Architecture Decision Records (`docs/adr/`)
-- [ ] Component storybook (optional)
+- [x] Component storybook — `npm run storybook` to start
+  - [x] Storybook configured for Angular with a11y, docs, onboarding addons
+  - [x] Introduction MDX with project overview
+  - [x] Component stories (Spotlight, Notes widget)
+  - [x] Design System stories (Themes showcase, Design tokens)
 - [x] `CHANGELOG.md` (Keep a Changelog–style)
 
 ---
