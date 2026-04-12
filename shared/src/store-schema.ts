@@ -106,6 +106,60 @@ export interface ReadLaterEntryDTO {
   addedAt: number;
 }
 
+/** Paired device for cross-device sync (Phase 3.3). */
+export interface PairedDeviceDTO {
+  id: string;
+  name: string;
+  pairedAt: number;
+  lastSeenAt: number;
+  /** Fingerprint/public key for local encryption (optional). */
+  publicKey?: string;
+}
+
+/** Page annotation for collaboration (Phase 3.4). */
+export interface AnnotationDTO {
+  id: string;
+  url: string;
+  /** CSS selector for the annotated element. */
+  selector: string;
+  /** Selected text context. */
+  text: string;
+  /** User's note/comment. */
+  note: string;
+  /** Optional absolute position coordinates. */
+  x?: number;
+  y?: number;
+  createdAt: number;
+  updatedAt: number;
+  /** Share with team/paired devices. */
+  shared: boolean;
+  /** Author (for team scenarios). */
+  authorName?: string;
+}
+
+/** Shared bookmark collection (Phase 3.4). */
+export interface SharedBookmarkCollectionDTO {
+  id: string;
+  name: string;
+  createdAt: number;
+  bookmarks: BookmarkDTO[];
+  /** Share token for importing by others. */
+  shareToken: string;
+}
+
+/** Shared workspace export (Phase 3.4). */
+export interface SharedWorkspaceDTO {
+  id: string;
+  name: string;
+  color: string;
+  createdAt: number;
+  /** Share token for importing by others. */
+  shareToken: string;
+  /** Included tabs (serialized). */
+  tabs: Array<{ url: string; title: string; pinned?: boolean }>;
+  groups: TabGroupDTO[];
+}
+
 /** Per-widget visibility (Settings → Features). All default true. */
 export interface DevLensFeatureWidgetFlags {
   notes: boolean;
@@ -120,6 +174,12 @@ export interface DevLensFeatureWidgetFlags {
   perf: boolean;
   json: boolean;
   bookmarks: boolean;
+  /** Phase 3.3: Device pairing widget. */
+  pairing: boolean;
+  /** Phase 3.4: Shared bookmarks widget. */
+  sharedBookmarks: boolean;
+  /** Phase 3.4: Shared workspaces widget. */
+  sharedWorkspaces: boolean;
 }
 
 /** Optional/productivity features toggles; core browsing stays available. */
@@ -163,6 +223,9 @@ export function defaultFeatureFlags(): DevLensFeatureFlags {
       perf: true,
       json: true,
       bookmarks: true,
+      pairing: true,
+      sharedBookmarks: true,
+      sharedWorkspaces: true,
     },
   };
 }
@@ -271,6 +334,14 @@ export interface DevLensStoreSnapshot {
   /** Sandboxed plugin storage namespace (plugin id → JSON-serializable bag). */
   pluginStorage: Record<string, Record<string, unknown>>;
   readLater: ReadLaterEntryDTO[];
+  /** Paired devices for cross-device sync (Phase 3.3). */
+  pairedDevices: PairedDeviceDTO[];
+  /** Page annotations for collaboration (Phase 3.4). */
+  annotations: AnnotationDTO[];
+  /** Shared bookmark collections (Phase 3.4). */
+  sharedBookmarkCollections: SharedBookmarkCollectionDTO[];
+  /** Shared workspaces (Phase 3.4). */
+  sharedWorkspaces: SharedWorkspaceDTO[];
 }
 
 export interface TabUpdatedPayload {
@@ -327,5 +398,9 @@ export function defaultStoreSnapshot(): DevLensStoreSnapshot {
     pluginStates: {},
     pluginStorage: {},
     readLater: [],
+    pairedDevices: [],
+    annotations: [],
+    sharedBookmarkCollections: [],
+    sharedWorkspaces: [],
   };
 }

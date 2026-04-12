@@ -75,6 +75,29 @@ export const IPC_CHANNELS = {
    * Payload: `{ bounds: { x, y, width, height } }`.
    */
   DEVTOOLS_SET_BOUNDS: 'dev-lens:devtools:set-bounds',
+
+  /** QR-code device pairing: generate pairing code and QR data URL. Returns { pairingCode: string, qrDataUrl: string }. */
+  PAIRING_GENERATE: 'dev-lens:pairing:generate',
+  /** Complete pairing with a code. Payload: { pairingCode: string, deviceName: string }. Returns { success: boolean, deviceId: string }. */
+  PAIRING_COMPLETE: 'dev-lens:pairing:complete',
+  /** List paired devices. Returns Array<{ id, name, pairedAt, lastSeen }>. */
+  PAIRING_LIST_DEVICES: 'dev-lens:pairing:list-devices',
+  /** Remove a paired device. Payload: { deviceId: string }. */
+  PAIRING_REMOVE_DEVICE: 'dev-lens:pairing:remove-device',
+
+  /** Push notification bridge: show local notification. Payload: { title, body, data? }. */
+  NOTIFICATION_SHOW: 'dev-lens:notification:show',
+  /** Register notification handler. Payload: { handlerId: string }. */
+  NOTIFICATION_REGISTER: 'dev-lens:notification:register',
+
+  /** Save page annotation. Payload: { url: string, selector: string, text: string, note: string, x?: number, y?: number }. Returns { id: string }. */
+  ANNOTATION_SAVE: 'dev-lens:annotation:save',
+  /** Get annotations for a URL. Payload: { url: string }. Returns AnnotationDTO[]. */
+  ANNOTATION_GET_FOR_URL: 'dev-lens:annotation:get-for-url',
+  /** Delete an annotation. Payload: { id: string }. */
+  ANNOTATION_DELETE: 'dev-lens:annotation:delete',
+  /** Update annotation visibility (team sharing). Payload: { id: string, shared: boolean }. */
+  ANNOTATION_SET_SHARED: 'dev-lens:annotation:set-shared',
 } as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];
@@ -90,6 +113,14 @@ export const IPC_EVENTS = {
   NETWORK_LOG: 'dev-lens:network-log',
   /** Plugin asked to open a URL in a new browser tab. */
   PLUGIN_OPEN_URL: 'dev-lens:plugin:open-url',
+  /** A new device completed pairing. Payload: { deviceId, deviceName }. */
+  PAIRING_DEVICE_CONNECTED: 'dev-lens:pairing:device-connected',
+  /** Push notification received (from main). Payload: { title, body, data }. */
+  PUSH_NOTIFICATION_RECEIVED: 'dev-lens:push-notification-received',
+  /** New tab request from paired device. Payload: { url, title?, deviceId }. */
+  REMOTE_OPEN_TAB: 'dev-lens:remote-open-tab',
+  /** Annotations updated for current URL. Payload: { url, annotations }. */
+  ANNOTATIONS_UPDATED: 'dev-lens:annotations-updated',
 } as const;
 
 export type IpcEventChannel = (typeof IPC_EVENTS)[keyof typeof IPC_EVENTS];

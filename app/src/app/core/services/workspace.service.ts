@@ -10,6 +10,18 @@ export class WorkspaceService {
     () => this.persisted.snapshot()?.activeWorkspaceId ?? 'ws-default',
   );
 
+  readonly activeWorkspaceName = computed(() => {
+    const id = this.activeWorkspaceId();
+    const ws = this.workspaces().find((w) => w.id === id);
+    return ws?.name ?? 'Personal';
+  });
+
+  readonly activeWorkspaceColor = computed(() => {
+    const id = this.activeWorkspaceId();
+    const ws = this.workspaces().find((w) => w.id === id);
+    return ws?.color ?? '#58a6ff';
+  });
+
   async setActiveWorkspace(id: string): Promise<void> {
     await this.persisted.patch({ activeWorkspaceId: id });
   }

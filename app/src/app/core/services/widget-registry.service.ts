@@ -21,6 +21,9 @@ export const WIDGET_IDS = [
   'readlater',
   'perf',
   'json',
+  'pairing',
+  'sharedBookmarks',
+  'sharedWorkspaces',
 ] as const;
 export type WidgetId = (typeof WIDGET_IDS)[number];
 
@@ -36,6 +39,9 @@ const WIDGET_FLAG: Record<string, keyof DevLensFeatureWidgetFlags> = {
   readlater: 'readlater',
   perf: 'perf',
   json: 'json',
+  pairing: 'pairing',
+  sharedBookmarks: 'sharedBookmarks',
+  sharedWorkspaces: 'sharedWorkspaces',
 };
 
 @Injectable({ providedIn: 'root' })
@@ -55,6 +61,9 @@ export class WidgetRegistryService {
     { id: 'readlater', title: 'Read later', order: 7 },
     { id: 'perf', title: 'Performance', order: 8 },
     { id: 'json', title: 'JSON', order: 9 },
+    { id: 'pairing', title: 'Device Pairing', order: 10 },
+    { id: 'sharedBookmarks', title: 'Shared Bookmarks', order: 11 },
+    { id: 'sharedWorkspaces', title: 'Shared Workspaces', order: 12 },
   ];
 
   /** Built-in + plugin widgets visible with current feature flags (empty if right sidebar off). */

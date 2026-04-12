@@ -41,6 +41,17 @@ const IPC_CHANNELS = {
   DEVTOOLS_ATTACH: 'dev-lens:devtools:attach',
   DEVTOOLS_DETACH: 'dev-lens:devtools:detach',
   DEVTOOLS_SET_BOUNDS: 'dev-lens:devtools:set-bounds',
+
+  // Phase 3.3 & 3.4: Collaboration
+  PAIRING_GENERATE: 'dev-lens:pairing:generate',
+  PAIRING_COMPLETE: 'dev-lens:pairing:complete',
+  PAIRING_LIST_DEVICES: 'dev-lens:pairing:list-devices',
+  PAIRING_REMOVE_DEVICE: 'dev-lens:pairing:remove-device',
+  NOTIFICATION_SHOW: 'dev-lens:notification:show',
+  ANNOTATION_SAVE: 'dev-lens:annotation:save',
+  ANNOTATION_GET_FOR_URL: 'dev-lens:annotation:get-for-url',
+  ANNOTATION_DELETE: 'dev-lens:annotation:delete',
+  ANNOTATION_SET_SHARED: 'dev-lens:annotation:set-shared',
 } as const;
 
 const IPC_EVENTS = {
@@ -49,6 +60,10 @@ const IPC_EVENTS = {
   APP_WILL_CLOSE: 'dev-lens:app-will-close',
   NETWORK_LOG: 'dev-lens:network-log',
   PLUGIN_OPEN_URL: 'dev-lens:plugin:open-url',
+  PAIRING_DEVICE_CONNECTED: 'dev-lens:pairing:device-connected',
+  PUSH_NOTIFICATION_RECEIVED: 'dev-lens:push-notification-received',
+  REMOTE_OPEN_TAB: 'dev-lens:remote-open-tab',
+  ANNOTATIONS_UPDATED: 'dev-lens:annotations-updated',
 } as const;
 
 type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];
@@ -86,6 +101,16 @@ const ALLOWED_INVOKE: readonly IpcChannel[] = [
   IPC_CHANNELS.DEVTOOLS_ATTACH,
   IPC_CHANNELS.DEVTOOLS_DETACH,
   IPC_CHANNELS.DEVTOOLS_SET_BOUNDS,
+  // Phase 3.3 & 3.4: Collaboration
+  IPC_CHANNELS.PAIRING_GENERATE,
+  IPC_CHANNELS.PAIRING_COMPLETE,
+  IPC_CHANNELS.PAIRING_LIST_DEVICES,
+  IPC_CHANNELS.PAIRING_REMOVE_DEVICE,
+  IPC_CHANNELS.NOTIFICATION_SHOW,
+  IPC_CHANNELS.ANNOTATION_SAVE,
+  IPC_CHANNELS.ANNOTATION_GET_FOR_URL,
+  IPC_CHANNELS.ANNOTATION_DELETE,
+  IPC_CHANNELS.ANNOTATION_SET_SHARED,
 ];
 
 const ALLOWED_EVENTS: readonly IpcEventChannel[] = [
@@ -94,6 +119,10 @@ const ALLOWED_EVENTS: readonly IpcEventChannel[] = [
   IPC_EVENTS.APP_WILL_CLOSE,
   IPC_EVENTS.NETWORK_LOG,
   IPC_EVENTS.PLUGIN_OPEN_URL,
+  IPC_EVENTS.PAIRING_DEVICE_CONNECTED,
+  IPC_EVENTS.PUSH_NOTIFICATION_RECEIVED,
+  IPC_EVENTS.REMOTE_OPEN_TAB,
+  IPC_EVENTS.ANNOTATIONS_UPDATED,
 ];
 
 function assertChannel(channel: string): asserts channel is IpcChannel {

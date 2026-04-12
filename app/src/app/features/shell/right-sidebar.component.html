@@ -222,6 +222,15 @@
             @case ('json') {
               <app-json-formatter-widget />
             }
+            @case ('pairing') {
+              <app-device-pairing-widget />
+            }
+            @case ('sharedBookmarks') {
+              <app-shared-bookmarks-widget />
+            }
+            @case ('sharedWorkspaces') {
+              <app-shared-workspaces-widget />
+            }
             @default {
               <app-notes-widget />
             }

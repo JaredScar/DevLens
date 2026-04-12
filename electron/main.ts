@@ -66,6 +66,7 @@ import {
   TabsReportActiveSchema,
 } from './ipc-zod';
 import { registerPluginIpc } from './plugin-ipc';
+import { registerCollaborationIpc } from './collaboration-ipc';
 import { startTelemetryHeartbeat } from './telemetry';
 import {
   ensureExtensionLoadedInSession,
@@ -389,6 +390,10 @@ function registerIpc(): void {
       pluginStates: store.get('pluginStates') ?? {},
       pluginStorage: store.get('pluginStorage') ?? {},
       readLater: store.get('readLater') ?? [],
+      pairedDevices: store.get('pairedDevices') ?? [],
+      annotations: store.get('annotations') ?? [],
+      sharedBookmarkCollections: store.get('sharedBookmarkCollections') ?? [],
+      sharedWorkspaces: store.get('sharedWorkspaces') ?? [],
     }),
   );
 
@@ -591,6 +596,11 @@ function registerIpc(): void {
     getDiscovered: () => cachedDiscoveredPlugins,
     getActiveTab: () => activeTabSnapshot,
   });
+
+  // ── Collaboration IPC (Phase 3.3 & 3.4: QR pairing, push notifications, annotations) ─
+  if (mainWindow) {
+    registerCollaborationIpc(mainWindow);
+  }
 
   // ── Chrome extension install (triggered by the chrome.webstore shim) ────────
   //

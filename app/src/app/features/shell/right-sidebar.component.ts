@@ -14,6 +14,9 @@ import { JsonFormatterWidgetComponent } from '@features/sidebar-widgets/json-for
 import { PerformanceWidgetComponent } from '@features/sidebar-widgets/performance-widget.component';
 import { PluginHostWidgetComponent } from '@features/sidebar-widgets/plugin-host-widget.component';
 import { ReadLaterWidgetComponent } from '@features/sidebar-widgets/read-later-widget.component';
+import { DevicePairingWidgetComponent } from '@features/sidebar-widgets/device-pairing-widget.component';
+import { SharedBookmarksWidgetComponent } from '@features/sidebar-widgets/shared-bookmarks-widget.component';
+import { SharedWorkspacesWidgetComponent } from '@features/sidebar-widgets/shared-workspaces-widget.component';
 
 @Component({
   selector: 'app-right-sidebar',
@@ -30,6 +33,9 @@ import { ReadLaterWidgetComponent } from '@features/sidebar-widgets/read-later-w
     PerformanceWidgetComponent,
     JsonFormatterWidgetComponent,
     PluginHostWidgetComponent,
+    DevicePairingWidgetComponent,
+    SharedBookmarksWidgetComponent,
+    SharedWorkspacesWidgetComponent,
   ],
   templateUrl: './right-sidebar.component.html',
   styleUrl: './right-sidebar.component.scss',

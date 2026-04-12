@@ -10,6 +10,9 @@
     "app",
     "shared"
   ],
+  "overrides": {
+    "rxjs": "~7.8.0"
+  },
   "dependencies": {
     "@dev-lens/shared": "*",
     "@types/adm-zip": "^0.5.8",

@@ -367,16 +367,16 @@
 ### 3.3 Cross-Device Support
 
 - [x] Companion data format (`CompanionSnapshotV1` + export JSON from Settings → Sync)
-- [ ] QR-code pairing flow for mobile
-- [ ] Push notification bridge (new tab from mobile)
+- [x] QR-code pairing flow for mobile — `DevicePairingService`, `PAIRING_GENERATE/COMPLETE/LIST/REMOVE` IPC, QR code generation via `qrcode` library
+- [x] Push notification bridge (new tab from mobile) — `PushNotificationService`, `NOTIFICATION_SHOW` IPC, native Electron notifications, `REMOTE_OPEN_TAB` event for incoming tabs
 - [x] Read-later queue (local sidebar widget; companion export includes read-later entries)
 
 ### 3.4 Team / Collaboration Features
 
-- [ ] Shared workspaces (invite members)
-- [ ] Shared bookmarks collections
+- [x] Shared workspaces (invite members) — `SharedWorkspacesService`, `SharedWorkspaceDTO`, export/import via share tokens, sidebar widget
+- [x] Shared bookmarks collections — `SharedBookmarksService`, `SharedBookmarkCollectionDTO`, export/import via share tokens, sidebar widget
 - [x] Session handoff JSON (Sessions widget: copy **session share** payload for a teammate to import tabs manually)
-- [ ] Annotation layer on pages (comments visible to team)
+- [x] Annotation layer on pages (comments visible to team) — `AnnotationService`, `AnnotationDTO`, save/get/delete/set-shared IPC, per-page annotations with selector targeting
 
 ### 3.5 Performance & Telemetry
 
