@@ -5,7 +5,7 @@
       #spotIn
       class="spotlight__input"
       type="search"
-      placeholder="Search tabs, bookmarks, history, notes…"
+      [placeholder]="'SPOTLIGHT.PLACEHOLDER' | translate"
       [ngModel]="query()"
       (ngModelChange)="query.set($event); onInput()"
       (keydown.escape)="$event.stopPropagation(); spotlight.hide()"
@@ -24,19 +24,19 @@
           <span class="spotlight__cat">
             <span class="spotlight__cat-ico">
               @switch (r.category) {
-                @case ('Open tabs') {
+                @case ('TABS') {
                   🗂
                 }
-                @case ('Bookmarks') {
+                @case ('BOOKMARKS') {
                   🔖
                 }
-                @case ('History') {
+                @case ('HISTORY') {
                   🕑
                 }
-                @case ('Notes') {
+                @case ('NOTES') {
                   📝
                 }
-                @case ('Commands') {
+                @case ('COMMANDS') {
                   ⌘
                 }
                 @default {
@@ -44,7 +44,9 @@
                 }
               }
             </span>
-            <span class="spotlight__cat-label">{{ r.category }}</span>
+            <span class="spotlight__cat-label">{{
+              'SPOTLIGHT.CATEGORIES.' + r.category | translate
+            }}</span>
           </span>
           <span class="spotlight__label">{{ r.label }}</span>
           @if (r.sub) {
@@ -53,6 +55,6 @@
         </li>
       }
     </ul>
-    <p class="spotlight__hint">↑↓ navigate · ↵ open · Esc close · Ctrl+K toggle</p>
+    <p class="spotlight__hint">{{ 'SPOTLIGHT.HINT' | translate }}</p>
   </div>
 }

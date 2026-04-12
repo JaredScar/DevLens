@@ -1,0 +1,159 @@
+{
+  "APP": {
+    "NAME": "DevLens",
+    "TAGLINE": "Developer Browser"
+  },
+  "NAVIGATION": {
+    "BACK": "Go back",
+    "FORWARD": "Go forward",
+    "RELOAD": "Reload",
+    "STOP": "Stop loading",
+    "NEW_TAB": "New tab",
+    "CLOSE_TAB": "Close tab",
+    "BOOKMARK": "Bookmark",
+    "REMOVE_BOOKMARK": "Remove bookmark",
+    "PANELS": "Toggle panels",
+    "SETTINGS": "Settings",
+    "CONSOLE": "Console",
+    "AI": "AI Assistant",
+    "CLIPBOARD": "Clipboard History",
+    "BOOKMARKS": "Bookmarks",
+    "HISTORY": "History",
+    "SESSIONS": "Sessions",
+    "API_TESTER": "API Tester"
+  },
+  "OMNIBOX": {
+    "PLACEHOLDER": "Search or enter address",
+    "BLOCKED_COUNT": "Requests blocked",
+    "SECURE": "Secure connection",
+    "INSECURE": "Insecure connection"
+  },
+  "SIDEBAR": {
+    "WORKSPACES": "WORKSPACES",
+    "COLLAPSE": "Collapse sidebar",
+    "EXPAND": "Expand sidebar",
+    "SEARCH_TABS": "Search tabs",
+    "NEW_WORKSPACE": "New Workspace",
+    "TABS": "Tabs",
+    "TAB_GROUPS": "Tab Groups"
+  },
+  "SPOTLIGHT": {
+    "PLACEHOLDER": "Search tabs, bookmarks, history, notes",
+    "HINT": "↑↓ navigate · ↵ open · Esc close · Ctrl+K toggle",
+    "NO_RESULTS": "No results found",
+    "CATEGORIES": {
+      "TABS": "Open tabs",
+      "BOOKMARKS": "Bookmarks",
+      "HISTORY": "History",
+      "NOTES": "Notes",
+      "COMMANDS": "Commands"
+    },
+    "HINT": "↑↓ navigate · ↵ open · Esc close · Ctrl+K toggle"
+  },
+  "NOTES": {
+    "TITLE": "Notes",
+    "PLACEHOLDER": "Write a note",
+    "ADD": "Add Note",
+    "UPDATE": "Update Note",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "SEARCH": "Search notes",
+    "NO_NOTES": "No notes yet. Write one above."
+  },
+  "BOOKMARKS": {
+    "TITLE": "Bookmarks",
+    "ADD": "Add Bookmark",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "OPEN": "Open",
+    "NO_BOOKMARKS": "No bookmarks yet."
+  },
+  "HISTORY": {
+    "TITLE": "History",
+    "CLEAR": "Clear History",
+    "OPEN": "Open",
+    "DELETE": "Delete",
+    "NO_HISTORY": "History appears as you browse."
+  },
+  "SESSIONS": {
+    "TITLE": "Sessions",
+    "SAVE": "Save Current Session",
+    "RESTORE": "Restore",
+    "DELETE": "Delete",
+    "COMPARE": "Compare",
+    "NO_SESSIONS": "No saved sessions."
+  },
+  "API_TESTER": {
+    "TITLE": "API Tester",
+    "URL_PLACEHOLDER": "https://api.example.com/endpoint",
+    "SEND": "Send",
+    "METHOD": "Method",
+    "HEADERS": "Headers",
+    "BODY": "Body",
+    "RESPONSE": "Response",
+    "STATUS": "Status",
+    "TIME": "Time",
+    "RECENT": "Recent"
+  },
+  "SETTINGS": {
+    "TITLE": "Settings",
+    "GENERAL": {
+      "TITLE": "General",
+      "STARTUP": "Startup behavior",
+      "SEARCH_ENGINE": "Default search engine",
+      "LANGUAGE": "Language",
+      "TAB_SUSPEND": "Auto-suspend tabs"
+    },
+    "PRIVACY": {
+      "TITLE": "Privacy",
+      "BLOCKER": "Tracker blocking",
+      "HTTPS_ONLY": "HTTPS-only mode",
+      "CLIPBOARD": "Clipboard monitoring"
+    },
+    "APPEARANCE": {
+      "TITLE": "Appearance",
+      "THEME": "Theme",
+      "FONT_SIZE": "Font size",
+      "RTL": "RTL layout"
+    },
+    "SHORTCUTS": {
+      "TITLE": "Shortcuts",
+      "RESET": "Reset to defaults"
+    },
+    "AI": {
+      "TITLE": "AI",
+      "PROVIDER": "Provider",
+      "API_KEY": "API key",
+      "MODEL": "Model"
+    }
+  },
+  "FOCUS_MODE": {
+    "ENTER": "Enter focus mode",
+    "EXIT": "Exit focus mode",
+    "TIMER": "Session timer"
+  },
+  "CLIPBOARD": {
+    "TITLE": "Clipboard History",
+    "CLEAR_ALL": "Clear All",
+    "COPY": "Copy",
+    "PAUSE": "Pause monitoring",
+    "RESUME": "Resume monitoring"
+  },
+  "COMMON": {
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "DELETE": "Delete",
+    "EDIT": "Edit",
+    "CLOSE": "Close",
+    "OPEN": "Open",
+    "SEARCH": "Search",
+    "FILTER": "Filter",
+    "REFRESH": "Refresh",
+    "LOADING": "Loading",
+    "ERROR": "Error",
+    "SUCCESS": "Success",
+    "CONFIRM": "Confirm",
+    "YES": "Yes",
+    "NO": "No"
+  }
+}

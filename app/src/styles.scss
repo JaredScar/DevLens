@@ -3,15 +3,15 @@
   --dl-bg-surface: #161b22;
   --dl-bg-elevated: #21262d;
   --dl-border: #30363d;
-  --dl-border-strong: #484f58;
+  --dl-border-strong: #6e7681;
   --dl-text: #e6edf3;
-  --dl-muted: #8b949e;
+  --dl-muted: #a9b3bc;
   --dl-accent: #58a6ff;
-  --dl-accent-muted: rgba(88, 166, 255, 0.12);
-  --dl-tab-active-bg: rgba(88, 166, 255, 0.08);
-  --dl-success: #3fb950;
-  --dl-warning: #d29922;
-  --dl-danger: #f85149;
+  --dl-accent-muted: rgba(88, 166, 255, 0.15);
+  --dl-tab-active-bg: rgba(88, 166, 255, 0.1);
+  --dl-success: #46d25c;
+  --dl-warning: #e3b341;
+  --dl-danger: #ff6b6b;
   --dl-radius: 8px;
   --dl-space-1: 4px;
   --dl-space-2: 8px;
@@ -85,15 +85,15 @@ html[data-theme='light'] {
   --dl-bg-surface: #ffffff;
   --dl-bg-elevated: #eaeef2;
   --dl-border: #d0d7de;
-  --dl-border-strong: #8c959f;
+  --dl-border-strong: #6e7781;
   --dl-text: #1f2328;
-  --dl-muted: #656d76;
-  --dl-accent: #0969da;
-  --dl-accent-muted: rgba(9, 105, 218, 0.12);
-  --dl-tab-active-bg: rgba(9, 105, 218, 0.1);
-  --dl-success: #1a7f37;
-  --dl-warning: #9a6700;
-  --dl-danger: #cf222e;
+  --dl-muted: #4d555e;
+  --dl-accent: #0550ae;
+  --dl-accent-muted: rgba(5, 80, 174, 0.12);
+  --dl-tab-active-bg: rgba(5, 80, 174, 0.1);
+  --dl-success: #137333;
+  --dl-warning: #7d4e00;
+  --dl-danger: #a40e26;
   --dl-shadow: 0 12px 40px rgba(31, 35, 40, 0.12);
 }
 
@@ -102,15 +102,15 @@ html[data-theme='midnight'] {
   --dl-bg-surface: #0c1220;
   --dl-bg-elevated: #141d2e;
   --dl-border: #1e2a40;
-  --dl-border-strong: #2d3f5c;
-  --dl-text: #e8edf5;
-  --dl-muted: #7a8aa8;
+  --dl-border-strong: #4a5a78;
+  --dl-text: #f0f4fa;
+  --dl-muted: #9aaccc;
   --dl-accent: #7eb8ff;
-  --dl-accent-muted: rgba(126, 184, 255, 0.14);
-  --dl-tab-active-bg: rgba(126, 184, 255, 0.1);
-  --dl-success: #5bdc8a;
-  --dl-warning: #e8c547;
-  --dl-danger: #ff7b72;
+  --dl-accent-muted: rgba(126, 184, 255, 0.18);
+  --dl-tab-active-bg: rgba(126, 184, 255, 0.12);
+  --dl-success: #5ee090;
+  --dl-warning: #f0d556;
+  --dl-danger: #ff8a80;
   --dl-shadow: 0 12px 48px rgba(0, 0, 0, 0.65);
 }
 

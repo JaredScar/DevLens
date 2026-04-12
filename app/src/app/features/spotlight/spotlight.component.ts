@@ -16,18 +16,21 @@ import { TabsService } from '@core/services/tabs.service';
 import { NotesService } from '@core/services/notes.service';
 import { WidgetRegistryService } from '@core/services/widget-registry.service';
 import { SpotlightService } from './spotlight.service';
+import { TranslatePipe } from '@ngx-translate/core';
+
+type CategoryKey = 'TABS' | 'BOOKMARKS' | 'HISTORY' | 'NOTES' | 'COMMANDS';
 
 interface Row {
   id: string;
   label: string;
   sub?: string;
-  category: string;
+  category: CategoryKey;
   run: () => void;
 }
 
 @Component({
   selector: 'app-spotlight',
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   templateUrl: './spotlight.component.html',
   styleUrl: './spotlight.component.scss',
 })
@@ -64,7 +67,7 @@ export class SpotlightComponent {
           id: `tab-${t.id}`,
           label: t.title || 'Tab',
           sub: t.url,
-          category: 'Open tabs',
+          category: 'TABS',
           run: () => {
             void this.tabs.selectTab(t.id);
             this.spotlight.hide();
@@ -80,7 +83,7 @@ export class SpotlightComponent {
           id: `bm-${b.id}`,
           label: b.title,
           sub: b.url,
-          category: 'Bookmarks',
+          category: 'BOOKMARKS',
           run: () => {
             void this.tabs.addBrowserTab(b.url, b.title);
             this.spotlight.hide();
@@ -96,7 +99,7 @@ export class SpotlightComponent {
           id: `hist-${h.id}`,
           label: h.title,
           sub: h.url,
-          category: 'History',
+          category: 'HISTORY',
           run: () => {
             void this.tabs.addBrowserTab(h.url, h.title);
             this.spotlight.hide();
@@ -112,7 +115,7 @@ export class SpotlightComponent {
           id: `note-${n.id}`,
           label: n.title || 'Note',
           sub: n.body.slice(0, 80),
-          category: 'Notes',
+          category: 'NOTES',
           run: () => {
             this.spotlight.hide();
             if (!ff.rightSidebar || !ff.widgets.notes) return;
@@ -128,7 +131,7 @@ export class SpotlightComponent {
       {
         id: 'cmd-new-tab',
         label: 'New browser tab',
-        category: 'Commands',
+        category: 'COMMANDS',
         run: () => {
           void this.tabs.addBrowserTab('about:blank', 'New Tab');
           this.spotlight.hide();
@@ -137,7 +140,7 @@ export class SpotlightComponent {
       {
         id: 'cmd-settings',
         label: 'Open settings',
-        category: 'Commands',
+        category: 'COMMANDS',
         run: () => {
           void this.tabs.addInternalTab('settings', 'Settings');
           this.spotlight.hide();

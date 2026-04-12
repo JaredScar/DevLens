@@ -1,10 +1,16 @@
-<aside class="sidebar" [class.sidebar--collapsed]="layout.leftSidebarCollapsed()">
+<aside
+  class="sidebar"
+  [class.sidebar--collapsed]="layout.leftSidebarCollapsed()"
+  role="complementary"
+  aria-label="Tab sidebar"
+>
   <!-- ── Header ──────────────────────────────────────────────────────────── -->
   <div class="sidebar__header">
     <button
       type="button"
       class="sidebar__collapse-btn"
       (click)="layout.toggleLeftSidebar()"
+      [attr.aria-label]="layout.leftSidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
       [title]="layout.leftSidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
     >
       <svg

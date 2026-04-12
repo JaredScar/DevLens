@@ -506,7 +506,7 @@ These native browser dialogs are blocked in sandboxed Electron renderers. They r
 - [x] §3.1 Notes "Edit" creates duplicate instead of updating
 - [x] §16.1 Network tab: URL filter added; improved empty state; `openNativeDevTools` wired
 - [x] §19.1 Bookmark button in left sidebar — handler confirmed wired (`openWidget('bookmarks')`)
-- [ ] §22.1 Chrome extension UI (Settings → Plugins) — needs `session.loadExtension()` in `electron/main.ts` (backend not yet done)
+- [x] §22.1 Chrome extension support — backend `session.loadExtension()` via `extension-manager.ts` complete; Settings UI shows installed extensions with remove functionality
 - [x] §24.1 Console widget embeds real Chromium DevTools via `setDevToolsWebContents` IPC in Electron; custom panels kept as non-Electron fallback
 
 ### 🟠 High — Fix before showing to anyone

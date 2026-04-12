@@ -15,7 +15,7 @@
     <button
       type="button"
       class="nav-btn"
-      title="Go back"
+      [title]="'NAVIGATION.BACK' | translate"
       [disabled]="!tabs.activeGuestNav().canBack"
       (click)="goBack()"
     >
@@ -24,7 +24,7 @@
     <button
       type="button"
       class="nav-btn"
-      title="Go forward"
+      [title]="'NAVIGATION.FORWARD' | translate"
       [disabled]="!tabs.activeGuestNav().canFwd"
       (click)="goForward()"
     >
@@ -33,7 +33,11 @@
     <button
       type="button"
       class="nav-btn"
-      [title]="tabs.activeGuestNav().loading ? 'Stop loading' : 'Reload'"
+      [title]="
+        tabs.activeGuestNav().loading
+          ? ('NAVIGATION.STOP' | translate)
+          : ('NAVIGATION.RELOAD' | translate)
+      "
       (click)="reloadOrStop()"
     >
       @if (tabs.activeGuestNav().loading) {

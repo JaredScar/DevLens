@@ -14,10 +14,11 @@ import { TabsService } from '@core/services/tabs.service';
 import { WidgetRegistryService } from '@core/services/widget-registry.service';
 import { WorkspaceService } from '@core/services/workspace.service';
 import { resolveNavigationInput } from '@core/navigation-url';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-top-bar',
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   templateUrl: './top-bar.component.html',
   styleUrl: './top-bar.component.scss',
 })
