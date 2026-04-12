@@ -35,8 +35,8 @@
     "typecheck:electron": "tsc -p electron/tsconfig.json --noEmit",
     "test:e2e": "playwright test",
     "test:unit": "npm run test -w dev-lens -- --no-watch --browsers=ChromeHeadless",
-    "storybook": "ng run dev-lens:storybook",
-    "build-storybook": "ng run dev-lens:build-storybook",
+    "storybook": "cd app && npx ng run dev-lens:storybook",
+    "build-storybook": "cd app && npx ng run dev-lens:build-storybook",
     "prepare": "husky"
   },
   "lint-staged": {
