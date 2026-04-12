@@ -11,6 +11,7 @@ import {
   afterNextRender,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CdkDragDrop, CdkDragEnd, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import type { UiTab } from '@core/services/tabs.service';
 import { LayoutService } from '@core/services/layout.service';
@@ -31,7 +32,7 @@ type TabListItem =
 
 @Component({
   selector: 'app-left-sidebar',
-  imports: [FormsModule, DragDropModule],
+  imports: [FormsModule, DragDropModule, TranslatePipe],
   templateUrl: './left-sidebar.component.html',
   styleUrl: './left-sidebar.component.scss',
 })

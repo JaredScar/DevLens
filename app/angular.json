@@ -63,6 +63,24 @@
                   "type": "anyComponentStyle",
                   "maximumWarning": "10kB",
                   "maximumError": "20kB"
+                },
+                {
+                  "type": "bundle",
+                  "name": "polyfills",
+                  "maximumWarning": "100kB",
+                  "maximumError": "200kB"
+                },
+                {
+                  "type": "bundle",
+                  "name": "main",
+                  "maximumWarning": "400kB",
+                  "maximumError": "800kB"
+                },
+                {
+                  "type": "bundle",
+                  "name": "styles",
+                  "maximumWarning": "50kB",
+                  "maximumError": "100kB"
                 }
               ],
               "outputHashing": "all"

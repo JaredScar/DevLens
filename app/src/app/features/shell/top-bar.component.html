@@ -54,7 +54,7 @@
     <div
       class="topbar__badge"
       [class.topbar__badge--active]="blocked() > 0"
-      title="Requests blocked this session"
+      [title]="'OMNIBOX.BLOCKED_THIS_SESSION' | translate"
     >
       <span class="topbar__badge-dot"></span>
       <span class="topbar__badge-count">{{ blocked() }}</span>
@@ -99,7 +99,7 @@
         (keydown)="keydownOmnibox($event)"
         (focus)="onFocusInput()"
         (blur)="onBlurInput()"
-        placeholder="Search or enter address"
+        [placeholder]="'OMNIBOX.PLACEHOLDER' | translate"
         spellcheck="false"
         autocomplete="off"
       />
@@ -122,7 +122,7 @@
     </div>
 
     @if (features.toolbar('chromeExtensionStrip') && electronShell && chromeExtensions().length) {
-      <div class="topbar__ext-strip" aria-label="Installed extensions">
+      <div class="topbar__ext-strip" [attr.aria-label]="'OMNIBOX.ARIA_EXTENSIONS' | translate">
         @for (ext of chromeExtensions(); track ext.id) {
           <button
             type="button"
@@ -146,10 +146,10 @@
           type="button"
           class="topbar__fill-btn"
           [class.topbar__fill-btn--open]="autofillOpen()"
-          title="Fill form field on page"
+          [title]="'NAVIGATION.FILL_FORM' | translate"
           (click)="toggleAutofillMenu()"
         >
-          Fill
+          {{ 'COMMON.FILL' | translate }}
         </button>
         @if (autofillOpen()) {
           <ul class="topbar__fill-menu" role="menu">
@@ -170,7 +170,7 @@
       <button
         type="button"
         class="topbar__action-btn"
-        title="Summarize this page with AI"
+        [title]="'NAVIGATION.SUMMARIZE' | translate"
         (click)="summarizePage()"
       >
         <svg
@@ -187,7 +187,12 @@
     }
 
     <!-- Copy URL -->
-    <button type="button" class="topbar__action-btn" title="Copy URL" (click)="shareUrl()">
+    <button
+      type="button"
+      class="topbar__action-btn"
+      [title]="'NAVIGATION.COPY_URL' | translate"
+      (click)="shareUrl()"
+    >
       <svg
         width="14"
         height="14"
@@ -206,7 +211,7 @@
       <button
         type="button"
         class="topbar__action-btn"
-        title="Inspect (DevTools)"
+        [title]="'NAVIGATION.INSPECT' | translate"
         (click)="inspect()"
       >
         <svg
@@ -226,7 +231,12 @@
 
   <!-- ── Right actions ─────────────────────────────────────────────────────── -->
   <div class="topbar__actions" aria-label="Actions">
-    <button type="button" class="topbar__icon-btn" title="New tab" (click)="newTab()">
+    <button
+      type="button"
+      class="topbar__icon-btn"
+      [title]="'NAVIGATION.NEW_TAB' | translate"
+      (click)="newTab()"
+    >
       <svg
         width="14"
         height="14"
@@ -243,7 +253,7 @@
         type="button"
         class="topbar__icon-btn"
         [class.topbar__icon-btn--active]="splitView.enabled()"
-        title="Split view"
+        [title]="'NAVIGATION.SPLIT_VIEW' | translate"
         (click)="toggleSplit()"
       >
         <svg
@@ -263,7 +273,9 @@
       <button
         type="button"
         class="topbar__icon-btn"
-        title="Bookmark this page"
+        [title]="
+          (isBookmarked() ? 'NAVIGATION.REMOVE_BOOKMARK' : 'NAVIGATION.BOOKMARK') | translate
+        "
         (click)="toggleBookmark()"
       >
         <svg
@@ -288,7 +300,7 @@
         type="button"
         class="topbar__icon-btn"
         [class.topbar__icon-btn--active]="layout.rightSidebarOpen()"
-        title="Toggle panels"
+        [title]="'NAVIGATION.PANELS' | translate"
         (click)="togglePanels()"
       >
         <svg
@@ -309,7 +321,7 @@
       <button
         type="button"
         class="topbar__icon-btn"
-        title="More options"
+        [title]="'NAVIGATION.MORE_OPTIONS' | translate"
         (click)="$event.stopPropagation(); toggleMoreMenu()"
       >
         <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">

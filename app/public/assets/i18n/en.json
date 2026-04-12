@@ -20,7 +20,19 @@
     "BOOKMARKS": "Bookmarks",
     "HISTORY": "History",
     "SESSIONS": "Sessions",
-    "API_TESTER": "API Tester"
+    "API_TESTER": "API Tester",
+    "SPLIT_VIEW": "Split view",
+    "INSPECT": "Inspect (DevTools)",
+    "COPY_URL": "Copy URL",
+    "SUMMARIZE": "Summarize this page with AI",
+    "FILL_FORM": "Fill form field on page",
+    "MORE_OPTIONS": "More options",
+    "EXPAND_SIDEBAR": "Expand sidebar",
+    "COLLAPSE_SIDEBAR": "Collapse sidebar",
+    "DELETE_WORKSPACE": "Delete workspace",
+    "SELECT_TABS": "Select tabs to group",
+    "CANCEL_SELECTION": "Cancel selection",
+    "SUSPENDED": "Suspended to save memory"
   },
   "OMNIBOX": {
     "PLACEHOLDER": "Search or enter address",
@@ -35,7 +47,8 @@
     "SEARCH_TABS": "Search tabs",
     "NEW_WORKSPACE": "New Workspace",
     "TABS": "Tabs",
-    "TAB_GROUPS": "Tab Groups"
+    "TAB_GROUPS": "Tab Groups",
+    "ARIA_LABEL": "Tab sidebar"
   },
   "SPOTLIGHT": {
     "PLACEHOLDER": "Search tabs, bookmarks, history, notes",
@@ -95,6 +108,13 @@
     "TIME": "Time",
     "RECENT": "Recent"
   },
+  "NEW_TAB": {
+    "TITLE": "New Tab",
+    "BOOKMARKS": "Quick Bookmarks",
+    "HISTORY": "Recent History",
+    "WORKSPACE": "Workspace",
+    "NO_BOOKMARKS": "Add bookmarks to see them here"
+  },
   "SETTINGS": {
     "TITLE": "Settings",
     "GENERAL": {
@@ -136,8 +156,34 @@
     "TITLE": "Clipboard History",
     "CLEAR_ALL": "Clear All",
     "COPY": "Copy",
+    "COPY_ITEM": "Click to copy",
+    "REMOVE": "Remove",
     "PAUSE": "Pause monitoring",
     "RESUME": "Resume monitoring"
+  },
+  "CONSOLE": {
+    "TITLE": "Console",
+    "TABS": {
+      "CONSOLE": "CONSOLE",
+      "NETWORK": "NETWORK",
+      "ELEMENTS": "ELEMENTS",
+      "SOURCES": "SOURCES",
+      "PERFORMANCE": "PERFORMANCE"
+    },
+    "PLACEHOLDER": "Enter command…",
+    "FILTER_URL": "Filter URL…",
+    "FILTER_TYPE": "Filter by resource type",
+    "EXPORT_HAR": "Export HAR (minimal)",
+    "OPEN_DEVTOOLS": "Open native DevTools",
+    "REFRESH": "Refresh",
+    "NO_LOGS": "No logs yet. Navigate to a page to see console output."
+  },
+  "READ_LATER": {
+    "TITLE": "Read Later",
+    "PLACEHOLDER": "https://…",
+    "ADD": "Add URL",
+    "REMOVE": "Remove",
+    "NO_ITEMS": "No items in read-later queue"
   },
   "COMMON": {
     "SAVE": "Save",
@@ -154,6 +200,11 @@
     "SUCCESS": "Success",
     "CONFIRM": "Confirm",
     "YES": "Yes",
-    "NO": "No"
+    "NO": "No",
+    "FILL": "Fill",
+    "CREATE": "Create",
+    "GROUP": "Group",
+    "ADD": "Add",
+    "REMOVE": "Remove"
   }
 }

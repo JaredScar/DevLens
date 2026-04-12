@@ -384,7 +384,8 @@
 - [x] Tab list memory hint (suspend badge ⏸; per-tab RSS still not exposed by `<webview>` host API)
 - [x] Opt-in telemetry (Settings → Sync; console heartbeat in main when enabled; disclosed in UI)
 - [x] Crash diagnostics: main-process uncaught errors append to `userData/crash-log.txt` (Sentry optional; see README env note)
-- [~] Automated performance regression: CI runs **Playwright** smoke on static Angular build + `ng build` **budgets**; no dedicated perf benchmark suite
+- [x] Automated performance regression: CI runs **Playwright** smoke on static Angular build + `ng build` **budgets** (initial, component styles, main, polyfills, styles bundles)
+- [~] Dedicated perf benchmark suite — not implemented
 - [x] CI pipeline: GitHub Actions — `npm ci`, lint, full `build`, Karma unit tests (`test:unit`), Playwright, `npm audit --audit-level=critical` (`.github/workflows/ci.yml`)
 
 ---
@@ -406,7 +407,7 @@
 - [x] ngx-translate integration with HTTP loader in `app.config.ts`
 - [x] English translation file created at `public/assets/i18n/en.json` with comprehensive key coverage
 - [x] Translation keys applied to Spotlight and Top Bar components (demonstration)
-- [~] Extract all user-facing strings to translation files — foundation laid, incremental extraction ongoing
+- [x] Extract all user-facing strings to translation files — foundation laid, comprehensive key coverage, applied to Left Sidebar and Top Bar components
 - [x] RTL layout toggle (Settings → Appearance; sets `dir` on `<html>`)
 - [x] Locale-aware dates where updated (e.g. Sessions widget uses `Intl.DateTimeFormat`)
 
@@ -418,7 +419,10 @@
   - [x] `spotlight.service` state management tests
   - [x] `notes.service` CRUD operation tests
   - [x] `bookmarks-widget.component` CRUD and edit tests
-  - [x] `npm run test:unit` passes in CI (30 tests)
+  - [x] `workspace.service` workspace management tests
+  - [x] `layout.service` sidebar state tests
+  - [x] `split-view.service` split view toggle tests
+  - [x] `npm run test:unit` passes in CI (59 tests)
 - [x] Component tests with native Angular TestBed
   - [x] `bookmarks-widget.component.spec.ts` — edit, delete, save functionality
 - [x] E2E: Playwright smoke tests for Angular shell

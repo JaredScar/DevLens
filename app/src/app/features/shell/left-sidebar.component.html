@@ -2,7 +2,7 @@
   class="sidebar"
   [class.sidebar--collapsed]="layout.leftSidebarCollapsed()"
   role="complementary"
-  aria-label="Tab sidebar"
+  [attr.aria-label]="'SIDEBAR.ARIA_LABEL' | translate"
 >
   <!-- ── Header ──────────────────────────────────────────────────────────── -->
   <div class="sidebar__header">
@@ -10,8 +10,16 @@
       type="button"
       class="sidebar__collapse-btn"
       (click)="layout.toggleLeftSidebar()"
-      [attr.aria-label]="layout.leftSidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
-      [title]="layout.leftSidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+      [attr.aria-label]="
+        layout.leftSidebarCollapsed()
+          ? ('NAVIGATION.EXPAND_SIDEBAR' | translate)
+          : ('NAVIGATION.COLLAPSE_SIDEBAR' | translate)
+      "
+      [title]="
+        layout.leftSidebarCollapsed()
+          ? ('NAVIGATION.EXPAND_SIDEBAR' | translate)
+          : ('NAVIGATION.COLLAPSE_SIDEBAR' | translate)
+      "
     >
       <svg
         width="14"
@@ -88,7 +96,7 @@
                 <button
                   type="button"
                   class="sidebar__ws-delete"
-                  title="Delete workspace"
+                  [title]="'NAVIGATION.DELETE_WORKSPACE' | translate"
                   (click)="promptDeleteWorkspace(w, $event)"
                 >
                   <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
@@ -122,10 +130,10 @@
       <input
         class="sidebar__search"
         type="search"
-        placeholder="Search tabs…"
+        [placeholder]="'SIDEBAR.SEARCH_TABS' | translate"
         [ngModel]="tabFilter()"
         (ngModelChange)="tabFilter.set($event)"
-        aria-label="Filter tabs"
+        [attr.aria-label]="'SIDEBAR.SEARCH_TABS' | translate"
       />
     </div>
 
@@ -147,20 +155,20 @@
           type="button"
           class="sidebar__tool-btn"
           (click)="toggleSelectMode()"
-          title="Cancel selection"
+          [title]="'NAVIGATION.CANCEL_SELECTION' | translate"
         >
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-          CANCEL
+          {{ 'COMMON.CANCEL' | translate }}
         </button>
       } @else {
         <button
           type="button"
           class="sidebar__tool-btn"
           (click)="openNewGroupDialog()"
-          title="Select tabs to group"
+          [title]="'NAVIGATION.SELECT_TABS' | translate"
         >
           <i class="fa-solid fa-object-group" aria-hidden="true"></i>
-          GROUP
+          {{ 'SIDEBAR.TAB_GROUPS' | translate }}
         </button>
         <button
           type="button"
@@ -168,7 +176,7 @@
           (click)="tabs.addBrowserTab('about:blank', 'New Tab')"
         >
           <i class="fa-solid fa-plus" aria-hidden="true"></i>
-          NEW TAB
+          {{ 'NAVIGATION.NEW_TAB' | translate }}
         </button>
       }
     </div>
@@ -257,13 +265,13 @@
             </span>
             <span class="tablist__title">{{ tabTitle(item.tab) }}</span>
             @if (item.tab.kind === 'browser' && tabs.isBrowserTabSuspended(item.tab.id)) {
-              <span class="tablist__suspend" title="Suspended to save memory">⏸</span>
+              <span class="tablist__suspend" [title]="'NAVIGATION.SUSPENDED' | translate">⏸</span>
             }
             <button
               type="button"
               class="tablist__close"
               (click)="$event.stopPropagation(); tabs.closeTab(item.tab.id)"
-              title="Close tab"
+              [title]="'NAVIGATION.CLOSE_TAB' | translate"
             >
               <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path d="M1.5 1.5l7 7M8.5 1.5l-7 7" />
@@ -295,7 +303,7 @@
       <button
         type="button"
         class="sidebar__icon-tab sidebar__icon-tab--add"
-        title="New tab"
+        [title]="'NAVIGATION.NEW_TAB' | translate"
         (click)="tabs.addBrowserTab('about:blank', 'New Tab')"
       >
         <svg
@@ -319,7 +327,7 @@
       <button
         type="button"
         class="sidebar__bottom-btn"
-        title="Bookmarks"
+        [title]="'NAVIGATION.BOOKMARKS' | translate"
         (click)="openWidget('bookmarks')"
       >
         <svg
@@ -339,7 +347,7 @@
       <button
         type="button"
         class="sidebar__bottom-btn"
-        title="AI Assistant"
+        [title]="'NAVIGATION.AI' | translate"
         (click)="openWidget('ai')"
       >
         <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -352,7 +360,7 @@
       <button
         type="button"
         class="sidebar__bottom-btn"
-        title="Console"
+        [title]="'NAVIGATION.CONSOLE' | translate"
         (click)="openWidget('console')"
       >
         <svg
@@ -373,7 +381,7 @@
       <button
         type="button"
         class="sidebar__bottom-btn"
-        title="Clipboard"
+        [title]="'NAVIGATION.CLIPBOARD' | translate"
         (click)="openWidget('clipboard')"
       >
         <svg
@@ -391,7 +399,12 @@
       </button>
     }
     <!-- Settings -->
-    <button type="button" class="sidebar__bottom-btn" title="Settings" (click)="openSettings()">
+    <button
+      type="button"
+      class="sidebar__bottom-btn"
+      [title]="'NAVIGATION.SETTINGS' | translate"
+      (click)="openSettings()"
+    >
       <svg
         width="16"
         height="16"
