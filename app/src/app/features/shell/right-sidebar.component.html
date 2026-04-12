@@ -22,139 +22,49 @@
             } @else {
               @switch (w.id) {
                 @case ('bookmarks') {
-                  <svg
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M3 2h10a1 1 0 011 1v11l-6-3-6 3V3a1 1 0 011-1z" />
-                  </svg>
+                  <i class="fa-solid fa-bookmark rside__icon" aria-hidden="true"></i>
                 }
                 @case ('notes') {
-                  <svg
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M4 2h6l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" />
-                    <path d="M10 2v3h3M5 8h6M5 11h4" />
-                  </svg>
+                  <i class="fa-solid fa-note-sticky rside__icon" aria-hidden="true"></i>
                 }
                 @case ('ai') {
-                  <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 1L9.5 6.5 15 8l-5.5 1.5L8 15 6.5 9.5 1 8l5.5-1.5z" />
-                  </svg>
+                  <i class="fa-solid fa-wand-magic-sparkles rside__icon" aria-hidden="true"></i>
                 }
                 @case ('console') {
-                  <svg
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    viewBox="0 0 16 16"
-                  >
-                    <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" />
-                    <path d="M4 6.5L6.5 8.5 4 10.5M9 10.5h3" />
-                  </svg>
+                  <i class="fa-solid fa-terminal rside__icon" aria-hidden="true"></i>
                 }
                 @case ('clipboard') {
-                  <svg
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    viewBox="0 0 16 16"
-                  >
-                    <rect x="3" y="3" width="10" height="12" rx="1" />
-                    <path d="M6 3V2a1 1 0 012 0v1" />
-                    <path d="M5 7h6M5 10h4" />
-                  </svg>
+                  <i class="fa-solid fa-clipboard rside__icon" aria-hidden="true"></i>
                 }
                 @case ('sessions') {
-                  <svg
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    viewBox="0 0 16 16"
-                  >
-                    <circle cx="8" cy="8" r="6" />
-                    <path d="M8 5v3l2.5 2" />
-                  </svg>
+                  <i class="fa-solid fa-clock rside__icon" aria-hidden="true"></i>
                 }
                 @case ('api') {
-                  <svg
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    viewBox="0 0 16 16"
-                  >
-                    <circle cx="4" cy="4" r="2" />
-                    <circle cx="12" cy="4" r="2" />
-                    <circle cx="8" cy="12" r="2" />
-                    <path d="M4 6v1.5a2 2 0 002 2h4a2 2 0 002-2V6" />
-                    <path d="M8 9.5v1" />
-                  </svg>
+                  <i class="fa-solid fa-diagram-project rside__icon" aria-hidden="true"></i>
                 }
                 @case ('history') {
-                  <svg
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    viewBox="0 0 16 16"
-                  >
-                    <circle cx="8" cy="8" r="6" />
-                    <path d="M8 4v4l3 2" />
-                  </svg>
+                  <i class="fa-solid fa-clock-rotate-left rside__icon" aria-hidden="true"></i>
                 }
                 @case ('readlater') {
-                  <svg
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M4 2.5h8a1 1 0 011 1v10l-5-3-5 3v-10a1 1 0 011-1z" />
-                  </svg>
+                  <i class="fa-solid fa-book-open rside__icon" aria-hidden="true"></i>
                 }
                 @case ('perf') {
-                  <svg
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M3 13h10M4 9l3-3 2 2 3-4" />
-                  </svg>
+                  <i class="fa-solid fa-gauge-high rside__icon" aria-hidden="true"></i>
                 }
                 @case ('json') {
-                  <svg
-                    width="16"
-                    height="16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M5 3L3 5l2 2M11 3l2 2-2 2M6 13h4" />
-                  </svg>
+                  <i class="fa-solid fa-code rside__icon" aria-hidden="true"></i>
+                }
+                @case ('pairing') {
+                  <i class="fa-solid fa-qrcode rside__icon" aria-hidden="true"></i>
+                }
+                @case ('sharedBookmarks') {
+                  <i class="fa-solid fa-book-bookmark rside__icon" aria-hidden="true"></i>
+                }
+                @case ('sharedWorkspaces') {
+                  <i class="fa-solid fa-sitemap rside__icon" aria-hidden="true"></i>
+                }
+                @default {
+                  <i class="fa-solid fa-puzzle-piece rside__icon" aria-hidden="true"></i>
                 }
               }
             }
@@ -166,16 +76,7 @@
 
         <!-- Close -->
         <button type="button" class="rside__close" title="Close panel" (click)="close()">
-          <svg
-            width="14"
-            height="14"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            viewBox="0 0 16 16"
-          >
-            <path d="M2 2l12 12M14 2L2 14" />
-          </svg>
+          <i class="fa-solid fa-xmark rside__icon" aria-hidden="true"></i>
         </button>
       </nav>
 
